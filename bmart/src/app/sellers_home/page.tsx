@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import "../globals.css";
 
-const sellersHome: React.FC = () => {
+const SellersHome: React.FC = () => {
     const router = useRouter();
 
     return (
@@ -27,10 +27,10 @@ const sellersHome: React.FC = () => {
                 src="create.png"
                 alt="create button"
                 className="createButton"
-                onClick={() => router.push("/sellers_home")}
+                onClick={() => router.push("/create_listing")}
             />
         </div>
     );
 }
 
-export default sellersHome;
+export default SellersHome;
