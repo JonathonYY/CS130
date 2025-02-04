@@ -14,7 +14,7 @@ const Home: React.FC = () => {
                 <img 
                     src="logo1.png" 
                     alt="home page logo" 
-                    className="logoHome"
+                    className="logoGeneral logoHome"
                     onClick={() => router.push("/")}
                 />
 

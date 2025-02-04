@@ -1,7 +1,8 @@
-import Link from 'next/link'
+import Link from 'next/link';
+import "../globals.css";
 
 
-const login: React.FC = () => {
+const Login: React.FC = () => {
     return (
         <div className="loginBackground">
             <div className="loginContainer">
@@ -11,7 +12,7 @@ const login: React.FC = () => {
                     className="logoLogin"
                 />
 
-                <Link href="/" className="loginButton">Login button goes here</Link>
+                <Link href="/account" className="loginButton">Login button goes here</Link>
 
                 <p className="boldText">Please sign in with your google email</p>
             </div>
@@ -19,4 +20,4 @@ const login: React.FC = () => {
     )
 }
 
-export default login;
+export default Login;
