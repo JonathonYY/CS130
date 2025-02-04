@@ -15,7 +15,7 @@ const Account: React.FC = () => {
 
                 <img 
                     src="logo1.png" 
-                    alt="home page logo" 
+                    alt="logo" 
                     className="logoGeneral"
                     onClick={() => router.push("/")}
                 />
@@ -26,7 +26,7 @@ const Account: React.FC = () => {
             <p>Really cool account settings go here yippee!</p>
 
             <div className="buttonContainer">
-                <Link href="/account" style = {{marginLeft: 25}}>View my listings</Link>
+                <Link href="/sellers_home" style = {{marginLeft: 25}}>View my listings</Link>
 
                 <Link href="/account">Update account</Link>
 

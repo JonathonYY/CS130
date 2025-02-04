@@ -102,3 +102,9 @@ body {
   align-items: center; 
   width: 100%; 
 }
+
+
+/*Sellers Home Page Specific Styles*/
+.createButton {
+  cursor: pointer;
+}
