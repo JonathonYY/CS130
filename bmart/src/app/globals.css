@@ -62,6 +62,7 @@ body {
 
 /*Login Page Specific Styles*/
 .loginContainer {
+  text-align: center;
   transform: translate(0, 35%);
 }
 
@@ -75,13 +76,11 @@ body {
 .loginButton {
   margin-top: 25px;
   display: block;
-  text-align: center;
 }
 
 .boldText {
   margin-top: 25px;
   display: block;
-  text-align: center;
   font-weight: bold;
   font-size: 24px;
 }
@@ -107,4 +106,21 @@ body {
 /*Sellers Home Page Specific Styles*/
 .createButton {
   cursor: pointer;
+}
+
+
+/*View listings page specific styles*/
+.viewListingsLogo {
+  display: 'block';
+  float: 'right'
+}
+
+.viewListingsContainer {
+  text-align: center;
+}
+
+.viewListingsTitle {
+  display: block;
+  font-weight: bold;
+  font-size: 24px;
 }
