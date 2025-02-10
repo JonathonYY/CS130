@@ -1,27 +1,44 @@
-'use client'
+"use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import ReactPaginate from "react-paginate";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-
 // Define TypeScript interface for items
-interface Item {
-  id: number;
-  title: string;
+interface Product {
+  id: string;
+  name: string;
+  description: string;
 }
 
-
-// Sample Data (Replace with API or dynamic data)
-const items: Item[] = Array.from({ length: 20 }, (_, i) => ({
-  id: i + 1,
-  title: `Item ${i + 1}`
-}));
-
-
 const HomeGrid: React.FC = () => {
+  async function fetchAllListings() {
+    const response = await fetch("/api/listing", {
+      method: "GET",
+    });
+
+    const { result, error } = await response.json();
+
+    if (error) {
+      console.log(error);
+    } else {
+      console.log(result);
+      setProductListings(result);
+    }
+  }
+
+  // define state for productListings
+  const [items, setProductListings] = useState<Product[]>([]);
+
+  // fetch all listings from firestore database and update state
+
+  // run on page load
+  useEffect(() => {
+    fetchAllListings();
+  }, []);
+
   const router = useRouter();
 
   const itemsPerPage = 8; // 4x2 Grid
@@ -40,7 +57,7 @@ const HomeGrid: React.FC = () => {
   // Upon clicking on a card, pull view listing page.
   // NOTE: NextJS does not allow for a way to pass data to other page apart from passing it in url. Will need to make another db query in
   // view listing page. Alternatively put view listings in pop up window on the same page as this?
-  const viewListing = (item: Item) => {
+  const viewListing = (item: Product) => {
     router.push(`/view_listing?id=${item.id}`);
   };
 
@@ -49,9 +66,13 @@ const HomeGrid: React.FC = () => {
       <Row>
         {currentItems.map((item) => (
           <Col key={item.id} xs={6} md={3} className="mb-3">
-            <Card  onClick={() => viewListing(item)} style={{cursor:"pointer"}} >
+            <Card
+              onClick={() => viewListing(item)}
+              style={{ cursor: "pointer" }}
+            >
               <Card.Body>
-                <Card.Title>{item.title}</Card.Title>
+                <Card.Title>{item.name}</Card.Title>
+                <Card.Text>{item.description}</Card.Text>
                 <Card.Text>View item</Card.Text>
               </Card.Body>
             </Card>
