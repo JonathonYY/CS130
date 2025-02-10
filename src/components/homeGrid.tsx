@@ -14,7 +14,10 @@ interface Product {
 }
 
 const HomeGrid: React.FC = () => {
+  const [loading, setLoading] = useState(false);
+
   async function fetchAllListings() {
+    setLoading(true);
     const response = await fetch("/api/listing", {
       method: "GET",
     });
@@ -26,6 +29,7 @@ const HomeGrid: React.FC = () => {
     } else {
       console.log(result);
       setProductListings(result);
+      setLoading(false);
     }
   }
 
@@ -61,6 +65,10 @@ const HomeGrid: React.FC = () => {
     router.push(`/view_listing?id=${item.id}`);
   };
 
+  if (loading) {
+    return <p>Loading items...</p>;
+  }
+
   return (
     <Container className="mt-4">
       <Row>
@@ -79,7 +87,6 @@ const HomeGrid: React.FC = () => {
           </Col>
         ))}
       </Row>
-
       {/* Pagination */}
       <ReactPaginate
         previousLabel={"← Previous"}
