@@ -6,6 +6,7 @@ import addListing from "@/lib/firebase/firestore/listing/addListing";
 export async function GET() {
   const { result, error } = await getAllListings();
 
+  // TODO: Processing to only return listings that do not have a selected buyer
   return NextResponse.json({ result: result, error: error });
 }
 
