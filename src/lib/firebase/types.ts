@@ -1,3 +1,9 @@
+// defining a typescript type for listing data
+interface DataToInsert {
+    name: string;
+    description: string;
+  }
+
 type User = {
     first: string,
     last: string,
@@ -8,5 +14,5 @@ type User = {
     buyer_rating: number,
     seller_rating: number,
     pfp: string,
-    id: number,
+    id: string,
 }

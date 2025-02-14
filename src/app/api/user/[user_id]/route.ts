@@ -16,8 +16,8 @@ export async function GET(
     return NextResponse.json({ user_id: user_id }, { status: 200 });
   }
 
-// PUT
-export async function PUT(
+// PATCH user by id
+export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ user_id: string }> }
 ) {
@@ -35,7 +35,7 @@ export async function PUT(
   return NextResponse.json({ user_id: user_id }, { status: 200 });
 }
 
-// DELETE
+// DELETE user by id
 export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ user_id: string }> }
