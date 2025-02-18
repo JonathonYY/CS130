@@ -9,7 +9,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 // Define TypeScript interface for items
 interface Product {
   id: string;
-  name: string;
+  title: string;
   description: string;
 }
 
@@ -22,13 +22,13 @@ const HomeGrid: React.FC = () => {
       method: "GET",
     });
 
-    const { result, error } = await response.json();
+    const { data, error } = await response.json();
 
     if (error) {
       console.log(error);
     } else {
-      console.log(result);
-      setProductListings(result);
+      console.log(data);
+      setProductListings(data.listings);
       setLoading(false);
     }
   }
@@ -79,7 +79,7 @@ const HomeGrid: React.FC = () => {
               style={{ cursor: "pointer" }}
             >
               <Card.Body>
-                <Card.Title>{item.name}</Card.Title>
+                <Card.Title>{item.title}</Card.Title>
                 <Card.Text>{item.description}</Card.Text>
                 <Card.Text>View item</Card.Text>
               </Card.Body>
