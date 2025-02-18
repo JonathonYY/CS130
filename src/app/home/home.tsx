@@ -46,7 +46,7 @@ const Home: React.FC = () => {
                 />
             </div>
 
-            <hr />
+            <hr style={{marginTop: 14}}/>
 
             <HomeGrid />
         </div>

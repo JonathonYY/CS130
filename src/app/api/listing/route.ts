@@ -49,5 +49,5 @@ export async function GET(req: Request) {
   const { result, error } = await getAllListings();
   // console.log(result);
 
-  return NextResponse.json({ result: result, error: error });
+  return NextResponse.json({ data: result, error: error });
 }

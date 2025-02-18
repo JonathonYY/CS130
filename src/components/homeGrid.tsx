@@ -1,39 +1,40 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Card } from "react-bootstrap";
-import ReactPaginate from "react-paginate";
 import { useRouter } from "next/navigation";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { Container, Card, CardContent, Typography, Pagination } from '@mui/material';
+import Grid from '@mui/material/Grid2'; 
 
 // Define TypeScript interface for items
 interface Product {
   id: string;
-  title: string;
+  name: string;
   description: string;
 }
 
+// TODO: switch item descriptions for images
 const HomeGrid: React.FC = () => {
+  // States for informing users data is being fetched
   const [loading, setLoading] = useState(false);
 
+  // Fetch all listings from the database, extract important info for cards
   async function fetchAllListings() {
     setLoading(true);
     const response = await fetch("/api/listing", {
       method: "GET",
     });
 
-    const { result, error } = await response.json();
+    const { data, error } = await response.json();
     console.log(response.json)
 
     if (error) {
       console.log("Error");
       console.log(error);
-    } else if (result) {
-
-      const listings: Product[] = result.map((element) => ({
+    } else {
+      const listings: Product[] = data.map((element: { id: any; name: any; description: any; }) => ({
         id: element.id, 
-        title: element.title, 
-        description: element.description
+        name: element.name || 'Title', 
+        description: element.description || 'Description'
       }));
 
       console.log(listings);
@@ -46,8 +47,6 @@ const HomeGrid: React.FC = () => {
   // define state for productListings
   const [items, setProductListings] = useState<Product[]>([]);
 
-  // fetch all listings from firestore database and update state
-
   // run on page load
   useEffect(() => {
     fetchAllListings();
@@ -57,72 +56,64 @@ const HomeGrid: React.FC = () => {
   const router = useRouter();
 
 
-  const itemsPerPage = 8; // 4x2 Grid
-  const [currentPage, setCurrentPage] = useState<number>(0);
+  const itemsPerPage = 9; // 3x3 Grid
 
 
   // Get current items based on pagination
-  const offset = currentPage * itemsPerPage;
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const offset = (currentPage - 1) * itemsPerPage;
   const currentItems = items.slice(offset, offset + itemsPerPage);
   const pageCount = Math.ceil(items.length / itemsPerPage);
 
 
   // Handle page change
-  const handlePageClick = (selectedItem: { selected: number }) => {
-    setCurrentPage(selectedItem.selected);
+  const handlePageClick = (event: React.ChangeEvent<unknown>, selected: number) => {
+    setCurrentPage(selected);
   };
 
 
   // Upon clicking on a card, pull view listing page.
-  // NOTE: NextJS does not allow for a way to pass data to other page apart from passing it in url. Will need to make another db query in
-  // view listing page. Alternatively put view listings in pop up window on the same page as this?
   const viewListing = (item: Product) => {
     router.push(`/view_listing?id=${item.id}`);
   };
 
 
+  // Display while items are being fetched
   if (loading) {
     return <p>Loading items...</p>;
   }
 
 
+  // Displays items
   return (
-    <Container className="mt-4">
-      <Row>
+    <Container sx={{mt: 4}}>
+      <Grid container rowSpacing={3} columnSpacing={{xs: 3, md: 6}}>
         {currentItems.map((item) => (
-          <Col key={item.id} xs={6} md={3} className="mb-3">
-            <Card
+          // For 2x4 grid - md: 3, for 3x3 grid - md: 4
+          <Grid size={{xs: 6, md: 4}} key={item.id}>
+            <Card 
+              sx={{ 
+                cursor: 'pointer', 
+                border: '1px solid #ccc', 
+                borderRadius: 2,
+              }} 
               onClick={() => viewListing(item)}
-              style={{ cursor: "pointer" }}
             >
-              <Card.Body>
-                <Card.Title>{item.title}</Card.Title>
-                <Card.Text>{item.description}</Card.Text>
-                <Card.Text>View item</Card.Text>
-              </Card.Body>
+              <CardContent>
+                <Typography variant="h6" noWrap>{item.name}</Typography>
+                <Typography variant="body2" color="text.secondary" noWrap>{item.description}</Typography>
+                <Typography variant="body2" color="text.secondary" noWrap>View item</Typography>
+              </CardContent>
             </Card>
-          </Col>
+          </Grid>
         ))}
-      </Row>
+      </Grid>
       {/* Pagination */}
-      <ReactPaginate
-        previousLabel={"← Previous"}
-        nextLabel={"Next →"}
-        breakLabel={"..."}
-        pageCount={pageCount}
-        marginPagesDisplayed={2}
-        pageRangeDisplayed={3}
-        onPageChange={handlePageClick}
-        containerClassName={"pagination justify-content-center mt-3"}
-        pageClassName={"page-item"}
-        pageLinkClassName={"page-link"}
-        previousClassName={"page-item"}
-        previousLinkClassName={"page-link"}
-        nextClassName={"page-item"}
-        nextLinkClassName={"page-link"}
-        breakClassName={"page-item"}
-        breakLinkClassName={"page-link"}
-        activeClassName={"active"}
+      <Pagination
+        count={pageCount}
+        page={currentPage}
+        onChange={handlePageClick}
+        sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}
       />
     </Container>
   );
