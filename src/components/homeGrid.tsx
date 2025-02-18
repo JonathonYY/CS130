@@ -22,13 +22,23 @@ const HomeGrid: React.FC = () => {
       method: "GET",
     });
 
-    const { data, error } = await response.json();
+    const { result, error } = await response.json();
+    console.log(response.json)
 
     if (error) {
+      console.log("Error");
       console.log(error);
-    } else {
-      console.log(data);
-      setProductListings(data.listings);
+    } else if (result) {
+
+      const listings: Product[] = result.map((element) => ({
+        id: element.id, 
+        title: element.title, 
+        description: element.description
+      }));
+
+      console.log(listings);
+
+      setProductListings(listings);
       setLoading(false);
     }
   }
@@ -43,20 +53,25 @@ const HomeGrid: React.FC = () => {
     fetchAllListings();
   }, []);
 
+
   const router = useRouter();
+
 
   const itemsPerPage = 8; // 4x2 Grid
   const [currentPage, setCurrentPage] = useState<number>(0);
+
 
   // Get current items based on pagination
   const offset = currentPage * itemsPerPage;
   const currentItems = items.slice(offset, offset + itemsPerPage);
   const pageCount = Math.ceil(items.length / itemsPerPage);
 
+
   // Handle page change
   const handlePageClick = (selectedItem: { selected: number }) => {
     setCurrentPage(selectedItem.selected);
   };
+
 
   // Upon clicking on a card, pull view listing page.
   // NOTE: NextJS does not allow for a way to pass data to other page apart from passing it in url. Will need to make another db query in
@@ -65,9 +80,11 @@ const HomeGrid: React.FC = () => {
     router.push(`/view_listing?id=${item.id}`);
   };
 
+
   if (loading) {
     return <p>Loading items...</p>;
   }
+
 
   return (
     <Container className="mt-4">
