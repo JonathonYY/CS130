@@ -9,9 +9,7 @@ export default async function patchListing(doc_id: string, data: PatchListingDat
     const docRef = doc(db, "listings", doc_id);
     try {
         // update each entry
-        for (const [key, value] of Object.entries(data)) {
-            await updateDoc(docRef, {[key]: value});
-        }
+        await updateDoc(docRef, data as { [key: string] : any })
 
         result = await getDoc(docRef);
 
