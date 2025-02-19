@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import {db} from "@/lib/firebase/config";
-import {getDoc, doc, updateDoc, increment} from "firebase/firestore";
+import { db } from "@/lib/firebase/config";
+import { getDoc, doc, updateDoc, increment, serverTimestamp } from "firebase/firestore";
 import { Listing, User } from "@/lib/firebase/firestore/types";
 
 /*
@@ -99,7 +99,7 @@ export async function PATCH(
 
     ratings[user_id] = rating;
 
-    await updateDoc(listingRef, {ratings: ratings});
+    await updateDoc(listingRef, { ratings: ratings, updated: serverTimestamp() });
 
     return NextResponse.json({ data: { listing_id: listing_id }, error: null });
   } catch (e: unknown) {

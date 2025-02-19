@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import {db} from "@/lib/firebase/config";
-import {getDoc, doc, updateDoc, arrayUnion} from "firebase/firestore";
+import { db } from "@/lib/firebase/config";
+import { getDoc, doc, updateDoc, arrayUnion, serverTimestamp } from "firebase/firestore";
 import { Listing } from "@/lib/firebase/firestore/types";
 
 /*
@@ -43,7 +43,7 @@ export async function PATCH(
       throw new Error("User already reported listing");
     }
 
-    await updateDoc(listingRef, {reporters: arrayUnion(user_id)});
+    await updateDoc(listingRef, { reporters: arrayUnion(user_id), updated: serverTimestamp() });
 
     return NextResponse.json({ data: { listing_id: listing_id }, error: null });
   } catch (e: unknown) {
