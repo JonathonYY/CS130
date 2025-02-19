@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { newListing } from "@/lib/firebase/firestore/types";
 import deleteListing from "@/lib/firebase/firestore/listing/deleteListing";
+import { newListing, PatchListingData } from "@/lib/firebase/firestore/types";
 import getListing from "@/lib/firebase/firestore/listing/getListing";
+import patchListing from "@/lib/firebase/firestore/listing/patchListing"
 
 /*
  * Get a Listing by id
@@ -19,11 +20,18 @@ export async function GET(
   { params }: { params: Promise<{ listing_id: string }> }
 ) {
   // get URL parameter listing_id
-  const listing_id = (await params).listing_id;
+  const listing_id: string = (await params).listing_id;
 
-  let result = await getListing(listing_id)
-
-  return NextResponse.json(result);
+  try {
+    let result, err = await getListing(listing_id)
+    return NextResponse.json({data: result, error: err});
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      return NextResponse.json({ data: null, error: e.message});
+    } else {
+      return NextResponse.json({ data: null, error: "unknown error"});
+    }
+  }
 }
 
 /*
@@ -52,9 +60,10 @@ export async function PATCH(
   const listing_id = (await params).listing_id;
 
   // get updated listing data from req body
-  const data = await req.json();
+  const data: PatchListingData = await req.json();
 
   // TODO: update listing in db
+  patchListing(listing_id, data);
 
   return NextResponse.json({ data: newListing(), error: null });
 }
