@@ -1,5 +1,5 @@
 import { db } from "../../config";
-import { collection, getDoc, doc, getDocs } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 
 export default async function getListing(doc_id: string) {
     let result;
@@ -12,7 +12,7 @@ export default async function getListing(doc_id: string) {
         if (result.exists()) {
             result = result.data();
         } else {
-            throw new Error("No document exists");
+            throw new Error("No listing exists for given id");
         }
     } catch (err) {
         error = err;
