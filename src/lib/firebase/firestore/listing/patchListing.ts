@@ -1,5 +1,5 @@
 import { db } from "../../config";
-import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { PatchListingData } from "../types";
 
 export default async function patchListing(doc_id: string, data: PatchListingData) {
@@ -8,8 +8,12 @@ export default async function patchListing(doc_id: string, data: PatchListingDat
 
     const docRef = doc(db, "listings", doc_id);
     try {
+        // add timestamp to data
+        let update_data = data as { [key: string] : any }
+        update_data['updated'] = serverTimestamp();
+
         // update each entry
-        await updateDoc(docRef, data as { [key: string] : any })
+        await updateDoc(docRef, update_data)
 
         result = await getDoc(docRef);
 
