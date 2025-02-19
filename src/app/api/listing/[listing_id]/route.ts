@@ -59,13 +59,18 @@ export async function PATCH(
   // get URL parameter listing_id
   const listing_id = (await params).listing_id;
 
-  // get updated listing data from req body
-  const data: PatchListingData = await req.json();
+  try {
+    // get updated listing data from req body
+    const data: PatchListingData = await req.json();
 
-  // TODO: update listing in db
-  patchListing(listing_id, data);
-
-  return NextResponse.json({ data: newListing(), error: null });
+    let result, err = await patchListing(listing_id, data)
+    return NextResponse.json({data: result, error: err});
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      return NextResponse.json({ data: null, error: e.message});
+    } else {
+      return NextResponse.json({ data: null, error: "unknown error"});
+  }
 }
 
 /*
