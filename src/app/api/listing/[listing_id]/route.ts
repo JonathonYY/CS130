@@ -23,8 +23,8 @@ export async function GET(
   const listing_id: string = (await params).listing_id;
 
   try {
-    let result, err = await getListing(listing_id)
-    return NextResponse.json({data: result, error: err});
+    let { result, error } = await getListing(listing_id)
+    return NextResponse.json({data: result, error: error});
   } catch (e: unknown) {
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message});
@@ -63,13 +63,14 @@ export async function PATCH(
     // get updated listing data from req body
     const data: PatchListingData = await req.json();
 
-    let result, err = await patchListing(listing_id, data)
-    return NextResponse.json({data: result, error: err});
+    let { result, error }  = await patchListing(listing_id, data)
+    return NextResponse.json({data: result, error: error});
   } catch (e: unknown) {
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message});
     } else {
       return NextResponse.json({ data: null, error: "unknown error"});
+    }
   }
 }
 
