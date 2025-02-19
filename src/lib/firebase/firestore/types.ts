@@ -1,5 +1,15 @@
 import { Timestamp } from "firebase/firestore";
 
+export interface AddListingData {
+  user_id: string,
+  title: string,
+  price: number,
+  condition: string,
+  category: string,
+  description: string,
+  image_paths: string[], // list of paths to imgs
+}
+
 export interface PatchListingData {
   title: string,
   price: number,
