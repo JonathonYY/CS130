@@ -11,9 +11,8 @@ export default async function getListing(doc_id: string) {
 
         if (result.exists()) {
             result = result.data();
-            console.log("Document data: ", result.data());
         } else {
-            console.log("No document exists");
+            throw new Error("No document exists");
         }
     } catch (err) {
         error = err;
