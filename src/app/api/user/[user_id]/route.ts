@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { newUser } from "@/lib/firebase/firestore/types";
+import { getUser } from "@/lib/firebase/firestore/user/userUtil";
 
 /*
  * Get a User by id
@@ -16,12 +17,19 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ user_id: string }> }
 ) {
-  // get URL parameter user_id
-  const user_id = (await params).user_id;
+  try {
+    // get URL parameter user_id
+    const user_id = (await params).user_id;
+    const user = await getUser(user_id);
 
-  // TODO: get User from db
-
-  return NextResponse.json({ data: newUser(), error: null });
+    return NextResponse.json({ data: user, error: null });
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      return NextResponse.json({ data: null, error: e.message });
+    } else {
+      return NextResponse.json({ data: null, error: "unknown error" });
+    }
+  }
 }
 
 /*

@@ -2,12 +2,12 @@ import { db } from "../../config";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { User, newUser } from "../types";
 
-export default async function addUser(
+export async function addUser(
   first: string,
   last: string,
   email_address: string,
   user_id: string,
-  pfp?: string) {
+  pfp?: string): Promise<string> {
     // check if User exists
     const ref = doc(db, "users", user_id);
     const data = await getDoc(ref);
@@ -27,4 +27,21 @@ export default async function addUser(
     }
 
     return ref.id;
+}
+
+export async function getUser(user_id: string): Promise<User> {
+  // check if User exists
+  const ref = doc(db, "users", user_id);
+  const data = await getDoc(ref);
+  if (!data.exists()) {
+    throw new Error("user does not exist");
+  }
+
+  const user = data.data() as User;
+  if (!user) {
+    throw new Error("user data invalid");
+  }
+  user.id = ref.id;
+
+  return user;
 }
