@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import {db} from "@/lib/firebase/config";
-import {getDoc, doc, updateDoc} from "firebase/firestore";
+import {getDoc, doc, updateDoc, increment} from "firebase/firestore";
 import { Listing, User } from "@/lib/firebase/firestore/types";
 
 /*
@@ -45,7 +45,7 @@ export async function PATCH(
     if (!listingData) {
       throw new Error("Listing data invalid");
     }
-    
+
     // extract relevant fields
     const {owner, selected_buyer, ratings} = listingData;
     if (![owner, selected_buyer].includes(user_id)) {
@@ -66,13 +66,10 @@ export async function PATCH(
       if (buyerData) {
         if (user_id in ratings) {
           // update existing rating
-          const newCumRating = (buyerData?.cum_buyer_rating  ?? 0 ) - ratings[user_id] + rating;
-          await updateDoc(buyerRef, { cum_buyer_rating: newCumRating });
+          await updateDoc(buyerRef, { cum_buyer_rating: increment(rating - ratings[user_id]) });
         } else {
           // add new rating
-          const newCumRating = (buyerData?.cum_buyer_rating ?? 0) + rating;
-          const numSales = (buyerData?.completed_purchases ?? 0) + 1;
-          await updateDoc(buyerRef, { cum_buyer_rating: newCumRating, completed_purchases: numSales });
+          await updateDoc(buyerRef, { cum_buyer_rating: increment(rating), completed_purchases: increment(1) });
         }
       } else {
         throw new Error("Selected buyer data invalid");
@@ -90,13 +87,10 @@ export async function PATCH(
       if (sellerData) {
         if (user_id in ratings) {
           // update existing rating
-          const newCumRating = (sellerData?.cum_seller_rating  ?? 0 ) - ratings[user_id] + rating;
-          await updateDoc(sellerRef, { cum_seller_rating: newCumRating });
+          await updateDoc(sellerRef, { cum_seller_rating: increment(rating - ratings[user_id]) });
         } else {
           // add new rating
-          const newCumRating = (sellerData?.cum_seller_rating ?? 0) + rating;
-          const numSales = (sellerData?.completed_sales ?? 0) + 1;
-          await updateDoc(sellerRef, { cum_seller_rating: newCumRating, completed_sales: numSales });
+          await updateDoc(sellerRef, { cum_seller_rating: increment(rating), completed_sales: increment(1) });
         }
       } else {
         throw new Error("Owner data invalid");
@@ -110,9 +104,9 @@ export async function PATCH(
     return NextResponse.json({ data: { listing_id: listing_id }, error: null });
   } catch (e: unknown) {
     if (e instanceof Error) {
-      return NextResponse.json({ data: null, error: e.message});
+      return NextResponse.json({ data: null, error: e.message });
     } else {
-      return NextResponse.json({ data: null, error: "unknown error"});
+      return NextResponse.json({ data: null, error: "unknown error" });
     }
   }
 }
