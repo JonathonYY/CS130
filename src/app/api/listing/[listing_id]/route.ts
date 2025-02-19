@@ -24,7 +24,7 @@ export async function GET(
 
   try {
     let { result, error } = await getListing(listing_id)
-    return NextResponse.json({data: result, error: error});
+    return NextResponse.json({ data: result, error: error });
   } catch (e: unknown) {
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message});
@@ -64,7 +64,7 @@ export async function PATCH(
     const data: PatchListingData = await req.json();
 
     let { result, error }  = await patchListing(listing_id, data)
-    return NextResponse.json({data: result, error: error});
+    return NextResponse.json({ data: result, error: error });
   } catch (e: unknown) {
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message});
