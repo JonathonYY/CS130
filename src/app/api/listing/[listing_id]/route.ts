@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { newListing } from "@/lib/firebase/firestore/types";
+import getListing from "@/lib/firebase/firestore/listing/getListing";
 
 /*
  * Get a Listing by id
@@ -19,9 +20,9 @@ export async function GET(
   // get URL parameter listing_id
   const listing_id = (await params).listing_id;
 
-  // TODO: get Listing from db
+  let result = await getListing(listing_id)
 
-  return NextResponse.json({ data: newListing(), error: null });
+  return NextResponse.json(result);
 }
 
 /*
