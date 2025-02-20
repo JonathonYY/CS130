@@ -69,3 +69,17 @@ export function newUser(): User {
     "pfp": "",
   };
 }
+
+export interface AddUserRequest {
+  first: string,
+  last: string,
+  email_address: string,
+  user_id: string,
+  pfp?: string,
+}
+
+export interface UpdateUserRequest {
+  first?: string,
+  last?: string,
+  pfp?: string,
+}

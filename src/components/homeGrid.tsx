@@ -22,6 +22,10 @@ const HomeGrid: React.FC = () => {
       method: "GET",
     });
 
+    const test = await fetch("/api/user/123456789", {
+      method: "DELETE",
+    });
+
     const { data, error } = await response.json();
 
     if (error) {

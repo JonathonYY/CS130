@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { AddUserRequest } from "@/lib/firebase/firestore/types";
 import { addUser } from "@/lib/firebase/firestore/user/userUtil";
 
 /*
@@ -20,16 +21,16 @@ import { addUser } from "@/lib/firebase/firestore/user/userUtil";
 export async function POST(req: Request) {
   try {
     // get new user data from req body
-    const data = await req.json();
-    const { first, last, email_address, user_id, pfp } = data;
+    const data: AddUserRequest = await req.json();
 
-    if (!first || !last || !email_address || !user_id) {
+    // validate input
+    if (!data.first || !data.last || !data.email_address || !data.user_id) {
       throw new Error("missing required fields");
     }
 
-    const retreived_id = await addUser(first, last, email_address, user_id, pfp);
+    const id: string = await addUser(data);
 
-    return NextResponse.json({ data: { user_id: retreived_id }, error: null });
+    return NextResponse.json({ data: { user_id: id }, error: null });
   } catch (e: unknown) {
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message});

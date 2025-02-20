@@ -1,47 +1,60 @@
 import { db } from "../../config";
-import { doc, setDoc, getDoc } from "firebase/firestore";
-import { User, newUser } from "../types";
+import { doc, setDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { User, newUser, AddUserRequest, UpdateUserRequest } from "../types";
 
-export async function addUser(
-  first: string,
-  last: string,
-  email_address: string,
-  user_id: string,
-  pfp?: string): Promise<string> {
-    // check if User exists
-    const ref = doc(db, "users", user_id);
-    const data = await getDoc(ref);
-    if (!data.exists()) {
-      // create new User object
-      const user: User = newUser();
-      user.first = first;
-      user.last = last;
-      user.email_address = email_address
-      if (pfp) {
-        user.pfp = pfp;
-      }
-
-      // set User in db
-      console.log("adding user to db");
-      await setDoc(ref, user);
+export async function addUser(data: AddUserRequest): Promise<string> {
+  // check if User exists
+  const ref = doc(db, "users", data.user_id);
+  const result = await getDoc(ref);
+  if (!result.exists()) {
+    // create new User object
+    const user: User = newUser();
+    user.first = data.first;
+    user.last = data.last;
+    user.emqail_address = data.email_address
+    if (data.pfp) {
+      user.pfp = data.pfp;
     }
 
-    return ref.id;
+    // set new User in db
+    await setDoc(ref, user);
+  }
+
+  return ref.id;
 }
 
 export async function getUser(user_id: string): Promise<User> {
-  // check if User exists
+  // get User from db
   const ref = doc(db, "users", user_id);
-  const data = await getDoc(ref);
-  if (!data.exists()) {
+  const result = await getDoc(ref);
+
+  // check if User exists
+  if (!result.exists()) {
     throw new Error("user does not exist");
   }
 
-  const user = data.data() as User;
-  if (!user) {
-    throw new Error("user data invalid");
-  }
+  const user: User = result.data() as User;
   user.id = ref.id;
 
   return user;
+}
+
+export async function updateUser(user_id: string, data: UpdateUserRequest): Promise<User> {
+  // set updated User in db
+  const ref = doc(db, "users", user_id);
+  await updateDoc(ref, data as {[key: string]: any});
+
+  // get updated User for return
+  const result = await getDoc(ref);
+  const user = result.data() as User;
+
+  return user;
+}
+
+export async function deleteUser(user_id: string): Promise<string> {
+  // delete User in db
+  const ref = doc(db, "users", user_id);
+  await deleteDoc(ref);
+
+  return ref.id;
 }
