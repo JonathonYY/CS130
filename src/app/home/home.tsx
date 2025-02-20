@@ -3,6 +3,8 @@
 import HomeGrid from "../../components/homeGrid";
 import { useRouter } from "next/navigation";
 import "../globals.css";
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
 
 
 const Home: React.FC = () => {
@@ -18,7 +20,23 @@ const Home: React.FC = () => {
                     onClick={() => router.push("/")}
                 />
 
-                <p>Search bar goes here</p>
+                <TextField
+                    id="standard-search"
+                    label="Search field"
+                    type="search"
+                    variant="outlined"
+                    size="small"
+                    sx={{mt: 1.75}}
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <img src = "search.svg" width = "24" height = "24"/>
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
+                />
 
                 <img 
                     src="icon.png"
@@ -28,7 +46,7 @@ const Home: React.FC = () => {
                 />
             </div>
 
-            <hr />
+            <hr style={{marginTop: 14}}/>
 
             <HomeGrid />
         </div>

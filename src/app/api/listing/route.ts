@@ -45,18 +45,9 @@ export async function GET(req: Request) {
   const queryData = Object.fromEntries((new URL(req.url)).searchParams.entries());
   const { query, limit, last_listing_id } = queryData;
 
-  // TODO: query listings from db
-  const listing: Listing = newListing();
+  // TODO: finish query listings impl
+  const { result, error } = await getAllListings();
+  // console.log(result);
 
-  return NextResponse.json({ data: { listings: [{
-    updated: listing.updated,
-    title: listing.title,
-    price: listing.price,
-    owner_id: listing.owner,
-    owner_pfp: "",
-    seller_rating: 0,
-    description: listing.description,
-    thumbnail: listing.image_paths.length > 0 ? listing.image_paths[0] : "",
-    id: listing.id,
-  }]}, error: null });
+  return NextResponse.json({ data: result, error: error });
 }
