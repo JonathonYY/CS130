@@ -11,7 +11,7 @@ export async function addUser(data: AddUserRequest): Promise<string> {
     const user: User = newUser();
     user.first = data.first;
     user.last = data.last;
-    user.emqail_address = data.email_address
+    user.email_address = data.email_address
     if (data.pfp) {
       user.pfp = data.pfp;
     }
