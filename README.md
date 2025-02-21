@@ -39,3 +39,6 @@ Make sure you have a .env.local file within the root directory
 It contains private configuration variables that can't be pushed onto GitHub,
 so you'll have to create it in order to run the project locally.
 It should be on the Notion in "The Backend" section.
+
+## Testing
+We utilize [jest](https://jestjs.io/docs/getting-started) for mocking and [ts-jest](https://kulshekhar.github.io/ts-jest/docs/getting-started/installation) to support typescript with jest.
