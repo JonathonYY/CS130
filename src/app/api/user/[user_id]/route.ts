@@ -38,9 +38,10 @@ export async function GET(
  * Params:
  *  user_id: id of the User to update
  * Request body:
- *  first: first name [optional]
- *  last: last name [optional]
- *  pfp: path to pfp image [optional]
+ *  first?: first name
+ *  last?: last name
+ *  phone_number?: phone number
+ *  pfp?: path to pfp image
  * Return:
  *  data: the updated User object corresponding to the requested id
  *  error: error or null

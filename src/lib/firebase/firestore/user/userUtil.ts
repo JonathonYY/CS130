@@ -1,22 +1,12 @@
 import { db } from "../../config";
 import { doc, setDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
-import { User, newUser, AddUserRequest, UpdateUserRequest } from "../types";
+import { User } from "../types";
 
-export async function addUser(data: AddUserRequest): Promise<string> {
-  // check if User exists
-  const ref = doc(db, "users", data.user_id);
+export async function addUser(user_id: string, user: User): Promise<string> {
+  // create User in db if not exists
+  const ref = doc(db, "users", user_id);
   const result = await getDoc(ref);
   if (!result.exists()) {
-    // create new User object
-    const user: User = newUser();
-    user.first = data.first;
-    user.last = data.last;
-    user.email_address = data.email_address
-    if (data.pfp) {
-      user.pfp = data.pfp;
-    }
-
-    // set new User in db
     await setDoc(ref, user);
   }
 
@@ -39,14 +29,14 @@ export async function getUser(user_id: string): Promise<User> {
   return user;
 }
 
-export async function updateUser(user_id: string, data: UpdateUserRequest): Promise<User> {
+export async function updateUser(user_id: string, data: { [key: string]: any }): Promise<User> {
   // set updated User in db
   const ref = doc(db, "users", user_id);
-  await updateDoc(ref, data as {[key: string]: any});
+  await updateDoc(ref, data);
 
   // get updated User for return
   const result = await getDoc(ref);
-  const user = result.data() as User;
+  const user: User = result.data() as User;
 
   return user;
 }

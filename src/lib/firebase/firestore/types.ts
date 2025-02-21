@@ -71,15 +71,17 @@ export function newUser(): User {
 }
 
 export interface AddUserRequest {
+  user_id: string,
   first: string,
   last: string,
   email_address: string,
-  user_id: string,
+  phone_number?: string,
   pfp?: string,
 }
 
 export interface UpdateUserRequest {
   first?: string,
   last?: string,
+  phone_number?: string,
   pfp?: string,
 }
