@@ -1,13 +1,11 @@
 'use client'
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import Link from "next/link";
 import "../globals.css";
-import Avatar from '@mui/material/Avatar';
-import IconButton from "@mui/material/IconButton";
+import {IconButton, Box, Modal, Button, Avatar} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
-import Box from "@mui/material/Box";
 
 
 const Account: React.FC = () => {
@@ -16,12 +14,13 @@ const Account: React.FC = () => {
     // Change this to get profile pic from API after logging in
     const [avatar, setAvatar] = useState<string>("../../../public/icon.png");
 
-
+    // Allows the profile picture to be changed upon clicking avatar
     const profileEditClick = () => {
         document.getElementById("profilePicChange")?.click();
     };
 
-    
+
+    // Handles changing the profile picture
     const changeProfilePic = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         console.log(file);
@@ -36,6 +35,17 @@ const Account: React.FC = () => {
         } else {
             alert("Please select valid image");
         }
+    }
+
+
+    // Opens up modal for deleting account
+    const [deleteModal, setDeleteModal] = useState<boolean>(false);
+    const handleOpen = () => setDeleteModal(true);
+    const handleClose = () => setDeleteModal(false);
+
+    // Deletes account, TODO: implementation
+    const deleteAccount = () => {
+        redirect("/");
     }
 
 
@@ -82,14 +92,31 @@ const Account: React.FC = () => {
             </div>
 
             <div className="buttonContainer">
-                <Link href="/sellers_home" style = {{marginLeft: 25}}>View my listings</Link>
+                <Button>
+                    <Link href="/sellers_home" style = {{marginLeft: 25}}>View my listings</Link>
+                </Button>
 
-                <Link href="/account">Update account</Link>
+                <Button>
+                    <Link href="/account">Update account</Link>
+                </Button>
+                
+                <Button onClick={handleOpen}>Delete account</Button>
 
-                <Link href="/">Delete account</Link>
-
-                <Link href="/" style = {{marginRight: 25}}>Log out</Link>
+                <Button>
+                    <Link href="/" style = {{marginRight: 25}}>Log out</Link>
+                </Button>
             </div>
+
+            <Modal
+                open={deleteModal}
+                onClose={handleClose}
+            >
+                <Box className="deleteModal">
+                    <p>Are you sure you want to delete your account?</p>
+                    <Button onClick={deleteAccount}>Yes</Button>
+                    <Button onClick={handleClose}>No</Button>
+                </Box>
+            </Modal>
         </div>
     )
 }
