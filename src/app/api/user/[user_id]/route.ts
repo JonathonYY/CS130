@@ -20,7 +20,8 @@ export async function GET(
   try {
     // get URL parameter user_id
     const user_id: string = (await params).user_id;
-    const user: User = await getUser(user_id);
+    const user: { [key: string]: any } = await getUser(user_id);
+    user.id = user_id;
 
     return NextResponse.json({ data: user, error: null });
   } catch (e: unknown) {
@@ -64,7 +65,8 @@ export async function PATCH(
       }
     })
 
-    const user: User = await updateUser(user_id, data);
+    const user: { [key: string]: any } = await updateUser(user_id, data);
+    user.id = user_id;
 
     return NextResponse.json({ data: user, error: null });
   } catch (e: unknown) {
