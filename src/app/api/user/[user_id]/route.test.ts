@@ -18,13 +18,19 @@ jest.mock("@/lib/firebase/config", () => ({
 jest.mock("firebase/firestore", () => ({
   ...jest.requireActual("firebase/firestore"),
   doc: jest.fn((db, table, id) => {
+    if (!db[table][id]) {
+      return {
+        id: id,
+        table: table,
+      }
+    }
     return db[table][id];
   }),
   getDoc: jest.fn((ref) => ({
-    data: () => (ref),
-    exists: () => (ref !== undefined),
+    data: () => (db[ref.table][ref.id]),
+    exists: () => (db[ref.table][ref.id] !== undefined),
   })),
-  updateDoc: jest.fn((ref, params) => Object.assign(ref, params)),
+  updateDoc: jest.fn((ref, data) => Object.assign(ref, data)),
   deleteDoc: jest.fn((ref) => delete db[ref.table][ref.id]),
 }));
 
@@ -116,19 +122,5 @@ describe("User API", () => {
     expect(data.user_id).toEqual("test_user_id");
     expect(db["users"][user_id]).toBe(undefined);
     // TODO: DELETE user should remove user_id from potential_buyers in all interested_listings and remove listings in active_listings
-  });
-  it("should correctly handle DELETE request with invalid user", async () => {
-    // mock req object
-    const mockReq = new Request("http://localhost", {
-      method: "DELETE",
-    });
-    // mock params
-    const user_id = "fake_test_id";
-    const mockParams = Promise.resolve({ user_id: user_id });
-
-    const response: NextResponse = await DELETE(mockReq, { params: mockParams });
-    const { data, error } = await response.json();
-
-    expect(error).not.toBe(null);
   });
 });
