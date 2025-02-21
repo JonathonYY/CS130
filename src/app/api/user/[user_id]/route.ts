@@ -57,7 +57,7 @@ export async function PATCH(
     // get updated user data from req body
     const data: UpdateUserRequest = await req.json();
 
-    // validate input
+    // validate input for only valid fields
     Object.keys(data).forEach((key) => {
       if (!['first', 'last', 'pfp'].includes(key)) {
         throw new Error('invalid user field');

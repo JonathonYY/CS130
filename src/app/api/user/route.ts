@@ -23,22 +23,22 @@ export async function POST(req: Request) {
   try {
     // get new user data from req body
     const data: AddUserRequest = await req.json();
+    const { user_id, first, last, email_address, phone_number, pfp } = data;
 
-    // validate input
-    if (!data.first || !data.last || !data.email_address || !data.user_id) {
+    // validate input for required fields
+    if (!first || !last || !email_address || !user_id) {
       throw new Error("missing required fields");
     }
 
-    const user_id: string = data.user_id;
     const user: User = newUser();
-    user.first = data.first;
-    user.last = data.last;
-    user.email_address = data.email_address;
-    if (data.phone_number) {
-      user.phone_number = data.phone_number;
+    user.first = first;
+    user.last = last;
+    user.email_address = email_address;
+    if (phone_number) {
+      user.phone_number = phone_number;
     }
-    if (data.pfp) {
-      user.pfp = data.pfp;
+    if (pfp) {
+      user.pfp = pfp;
     }
     const id: string = await addUser(user_id, user);
 
