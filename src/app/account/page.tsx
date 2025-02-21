@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { redirect, useRouter } from "next/navigation";
 import Link from "next/link";
 import "../globals.css";
@@ -10,6 +10,22 @@ import EditIcon from '@mui/icons-material/Edit';
 
 const Account: React.FC = () => {
     const router = useRouter();
+
+    // States for informing users data is being fetched
+    const [loading, setLoading] = useState(true);
+
+    // Make get call to get user info
+    // TODO: Impl get call
+    async function getUserInfo() {
+        setTimeout(() => {setLoading(false)}, 1000);
+    }
+
+
+    // run on page load
+    useEffect(() => {
+        getUserInfo();
+    }, []);
+
 
     // Change this to get profile pic from API after logging in
     const [avatar, setAvatar] = useState<string>("../../../public/icon.png");
@@ -43,7 +59,8 @@ const Account: React.FC = () => {
     const handleOpen = () => setDeleteModal(true);
     const handleClose = () => setDeleteModal(false);
 
-    // Deletes account, TODO: implementation
+    // Deletes account
+    // TODO: implementation
     const deleteAccount = () => {
         redirect("/");
     }
@@ -73,39 +90,45 @@ const Account: React.FC = () => {
                 onChange = {changeProfilePic}
             />
 
-            <div className="accountContainer">
-                <Box position="relative" display="inline-block">
-                    <Avatar src={avatar} sx={{width: 125, height: 125}} />
-                    <IconButton 
-                        sx={{ 
-                        position: "absolute", 
-                        top: 0, 
-                        right: 0, 
-                        backgroundColor: "white", 
-                            "&:hover": { backgroundColor: "lightgray" }
-                        }}
-                        size="small"
-                    >
-                        <EditIcon fontSize="small" onClick = {profileEditClick} />
-                    </IconButton>
-                </Box>
-            </div>
+            {(loading &&
+                <p>Loading user data</p>
+            ) || (
+                <div>
+                    <div className="accountContainer">
+                        <Box position="relative" display="inline-block">
+                            <Avatar src={avatar} sx={{width: 125, height: 125}} />
+                            <IconButton 
+                                sx={{ 
+                                position: "absolute", 
+                                top: 0, 
+                                right: 0, 
+                                backgroundColor: "white", 
+                                    "&:hover": { backgroundColor: "lightgray" }
+                                }}
+                                size="small"
+                            >
+                                <EditIcon fontSize="small" onClick = {profileEditClick} />
+                            </IconButton>
+                        </Box>
+                    </div>
 
-            <div className="buttonContainer">
-                <Button>
-                    <Link href="/sellers_home" style = {{marginLeft: 25}}>View my listings</Link>
-                </Button>
+                    <div className="buttonContainer">
+                        <Button>
+                            <Link href="/sellers_home" style = {{marginLeft: 25}}>View my listings</Link>
+                        </Button>
 
-                <Button>
-                    <Link href="/account">Update account</Link>
-                </Button>
-                
-                <Button onClick={handleOpen}>Delete account</Button>
+                        <Button>
+                            <Link href="/account">Update account</Link>
+                        </Button>
+                        
+                        <Button onClick={handleOpen}>Delete account</Button>
 
-                <Button>
-                    <Link href="/" style = {{marginRight: 25}}>Log out</Link>
-                </Button>
-            </div>
+                        <Button>
+                            <Link href="/" style = {{marginRight: 25}}>Log out</Link>
+                        </Button>
+                    </div>
+                </div>
+            )}
 
             <Modal
                 open={deleteModal}
