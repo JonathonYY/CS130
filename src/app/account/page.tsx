@@ -4,8 +4,28 @@ import React, { useState, useEffect } from "react";
 import { redirect, useRouter } from "next/navigation";
 import Link from "next/link";
 import "../globals.css";
-import {IconButton, Box, Modal, Button, Avatar} from "@mui/material";
+import { 
+    IconButton, 
+    Box, 
+    Modal, 
+    Button, 
+    Avatar, 
+    TextField, 
+    InputAdornment
+} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
+import LockIcon from '@mui/icons-material/Lock';
+
+
+// Define properties needed for user settings
+interface User {
+    email: string,
+    first: string,
+    last: string,
+    pfp: string,
+    buyerRating: number,
+    sellerRating: number,
+}
 
 
 const Account: React.FC = () => {
@@ -14,10 +34,28 @@ const Account: React.FC = () => {
     // States for informing users data is being fetched
     const [loading, setLoading] = useState(true);
 
+    // States for user data
+    const [userData, setUserData] = useState<User>({
+        email: "",
+        first: "",
+        last: "",
+        pfp: "",
+        buyerRating: 0,
+        sellerRating: 0
+    });
+
     // Make get call to get user info
     // TODO: Impl get call
     async function getUserInfo() {
         setTimeout(() => {setLoading(false)}, 1000);
+        setUserData({
+            email: "test@g.ucla.edu",
+            first: "Joe",
+            last: "Bruin",
+            pfp: "../../../public/icon.png",
+            buyerRating: 4,
+            sellerRating: 4
+        });
     }
 
 
@@ -26,9 +64,6 @@ const Account: React.FC = () => {
         getUserInfo();
     }, []);
 
-
-    // Change this to get profile pic from API after logging in
-    const [avatar, setAvatar] = useState<string>("../../../public/icon.png");
 
     // Allows the profile picture to be changed upon clicking avatar
     const profileEditClick = () => {
@@ -39,12 +74,15 @@ const Account: React.FC = () => {
     // Handles changing the profile picture
     const changeProfilePic = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        console.log(file);
+        // console.log(file);
         if (file && ["image/png", "image/jpeg", "image/svg+xml"].includes(file.type)) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 if (e.target?.result) {
-                    setAvatar(e.target.result as string); // Update avatar
+                    setUserData({
+                        ...userData,
+                        pfp: e.target?.result as string || ""
+                    }); // Update avatar
                 }
             };
             reader.readAsDataURL(file);
@@ -54,13 +92,29 @@ const Account: React.FC = () => {
     }
 
 
+    // Handles form changes
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setUserData({
+            ...userData,
+            [event.target.name]: event.target.value
+        });
+    }
+
+
+    // Handles updating the account
+    // TODO: implementation of PATCH API
+    const handleUpdate = () => {
+        console.log(userData);
+    }
+
+
     // Opens up modal for deleting account
     const [deleteModal, setDeleteModal] = useState<boolean>(false);
     const handleOpen = () => setDeleteModal(true);
     const handleClose = () => setDeleteModal(false);
 
     // Deletes account
-    // TODO: implementation
+    // TODO: implementation of DELETE API
     const deleteAccount = () => {
         redirect("/");
     }
@@ -96,7 +150,7 @@ const Account: React.FC = () => {
                 <div>
                     <div className="accountContainer">
                         <Box position="relative" display="inline-block">
-                            <Avatar src={avatar} sx={{width: 125, height: 125}} />
+                            <Avatar src={userData.pfp} sx={{width: 125, height: 125}} />
                             <IconButton 
                                 sx={{ 
                                 position: "absolute", 
@@ -110,6 +164,60 @@ const Account: React.FC = () => {
                                 <EditIcon fontSize="small" onClick = {profileEditClick} />
                             </IconButton>
                         </Box>
+
+                        <TextField 
+                            fullWidth
+                            label="Email" 
+                            value={userData.email}
+                            name="email"
+                            onChange={handleInputChange}
+                            slotProps={{
+                                input: {
+                                    readOnly: true,
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <LockIcon />
+                                        </InputAdornment>
+                                    )
+                                }
+                            }}
+                        />
+
+                        <TextField 
+                            fullWidth
+                            label="First Name" 
+                            value={userData.first}
+                            name="first"
+                            onChange={handleInputChange}
+                            style={{marginTop: 10}}
+                            slotProps={{
+                                input: {
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <EditIcon />
+                                        </InputAdornment>
+                                    )
+                                }
+                            }}
+                        />
+
+                        <TextField 
+                            fullWidth
+                            label="Last Name" 
+                            value={userData.last}
+                            name="last"
+                            onChange={handleInputChange}
+                            style={{marginTop: 10}}
+                            slotProps={{
+                                input: {
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <EditIcon />
+                                        </InputAdornment>
+                                    )
+                                }
+                            }}
+                        />
                     </div>
 
                     <div className="buttonContainer">
@@ -117,9 +225,7 @@ const Account: React.FC = () => {
                             <Link href="/sellers_home" style = {{marginLeft: 25}}>View my listings</Link>
                         </Button>
 
-                        <Button>
-                            <Link href="/account">Update account</Link>
-                        </Button>
+                        <Button onClick={handleUpdate}>Update Account</Button>
                         
                         <Button onClick={handleOpen}>Delete account</Button>
 
@@ -130,6 +236,7 @@ const Account: React.FC = () => {
                 </div>
             )}
 
+            {/* Modal for deleting account */}
             <Modal
                 open={deleteModal}
                 onClose={handleClose}
