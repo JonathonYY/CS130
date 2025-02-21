@@ -24,8 +24,6 @@ export async function getUser(user_id: string): Promise<User> {
   }
 
   const user: User = result.data() as User;
-  user.id = ref.id;
-
   return user;
 }
 
@@ -36,8 +34,8 @@ export async function updateUser(user_id: string, data: { [key: string]: any }):
 
   // get updated User for return
   const result = await getDoc(ref);
+  
   const user: User = result.data() as User;
-
   return user;
 }
 
