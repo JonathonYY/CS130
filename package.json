@@ -10,15 +10,19 @@
     "test": "jest"
   },
   "dependencies": {
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.14",
     "@types/react-router-dom": "^5.3.3",
     "bootstrap": "^5.3.3",
     "firebase": "^11.3.0",
     "next": "15.1.6",
+    "node": "^18.20.7",
     "npm-check": "^6.0.1",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",
-    "react-paginate": "^8.3.0"
+    "react-paginate": "^8.3.0",
+    "ts-jest": "^29.2.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

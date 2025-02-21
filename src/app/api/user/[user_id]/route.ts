@@ -22,6 +22,7 @@ export async function GET(
     const user_id: string = (await params).user_id;
     const user: { [key: string]: any } = await getUser(user_id);
     user.id = user_id;
+    delete user.last_reported;
 
     return NextResponse.json({ data: user, error: null });
   } catch (e: unknown) {
@@ -67,6 +68,7 @@ export async function PATCH(
 
     const user: { [key: string]: any } = await updateUser(user_id, data);
     user.id = user_id;
+    delete user.last_reported;
 
     return NextResponse.json({ data: user, error: null });
   } catch (e: unknown) {
