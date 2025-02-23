@@ -42,3 +42,7 @@ It should be on the Notion in "The Backend" section.
 
 ## Testing
 We utilize [jest](https://jestjs.io/docs/getting-started) for mocking and [ts-jest](https://kulshekhar.github.io/ts-jest/docs/getting-started/installation) to support typescript with jest.
+
+Test files are named in the format of <src>.test.ts, and are co-located with the file they are testing. This means that, for example, each API route, route.ts, should have a route.test.ts file in the same directory.
+
+All `jest` tests are collected and run together with `npm test`.

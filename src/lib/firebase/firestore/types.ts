@@ -49,7 +49,7 @@ export function newListing(): Listing {
     "image_paths": [],
     "owner_pfp": "",
     "owner_name": "",
-    seller_rating: 0
+    "seller_rating": 0
   };
 }
 
