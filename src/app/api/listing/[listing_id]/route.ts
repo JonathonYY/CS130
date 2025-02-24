@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { newListing } from "@/lib/firebase/firestore/types";
+import { newListing, PatchListingData } from "@/lib/firebase/firestore/types";
+import getListing from "@/lib/firebase/firestore/listing/getListing";
+import patchListing from "@/lib/firebase/firestore/listing/patchListing"
 
 /*
  * Get a Listing by id
@@ -17,11 +19,18 @@ export async function GET(
   { params }: { params: Promise<{ listing_id: string }> }
 ) {
   // get URL parameter listing_id
-  const listing_id = (await params).listing_id;
+  const listing_id: string = (await params).listing_id;
 
-  // TODO: get Listing from db
-
-  return NextResponse.json({ data: newListing(), error: null });
+  try {
+    let { result, error } = await getListing(listing_id)
+    return NextResponse.json({ data: result, error: error });
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      return NextResponse.json({ data: null, error: e.message});
+    } else {
+      return NextResponse.json({ data: null, error: "unknown error"});
+    }
+  }
 }
 
 /*
@@ -49,12 +58,19 @@ export async function PATCH(
   // get URL parameter listing_id
   const listing_id = (await params).listing_id;
 
-  // get updated listing data from req body
-  const data = await req.json();
+  try {
+    // get updated listing data from req body
+    const data: PatchListingData = await req.json();
 
-  // TODO: update listing in db
-
-  return NextResponse.json({ data: newListing(), error: null });
+    let { result, error }  = await patchListing(listing_id, data)
+    return NextResponse.json({ data: result, error: error });
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      return NextResponse.json({ data: null, error: e.message });
+    } else {
+      return NextResponse.json({ data: null, error: "unknown error"});
+    }
+  }
 }
 
 /*

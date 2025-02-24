@@ -1,5 +1,26 @@
 import { Timestamp } from "firebase/firestore";
 
+export interface AddListingData {
+  user_id: string,
+  title: string,
+  price: number,
+  condition: string,
+  category: string,
+  description: string,
+  image_paths: string[], // list of paths to imgs
+}
+
+export interface PatchListingData {
+  title: string,
+  price: number,
+  condition: string,
+  category: string,
+  description: string,
+  selected_buyer: string, // buyer user_id
+  potential_buyers: string[], // user_ids of potential buyers
+  image_paths: string[], // list of paths to imgs
+}
+
 export interface Listing {
   updated: Timestamp,
   title: string,
@@ -13,7 +34,9 @@ export interface Listing {
   reporters: string[], // user_ids of reporters
   ratings: { [user_id: string]: number }, // strings are user_ids mapped to number ratings
   image_paths: string[], // list of paths to imgs
-  id: string, // firebase listing_id
+	owner_pfp: string
+	owner_name: string // owner first + last
+	seller_rating: number // snapshot at listing creation
 }
 
 export interface User {
