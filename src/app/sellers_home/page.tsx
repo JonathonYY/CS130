@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import "../globals.css";
-import SideMenu from "@/components/seller_sidebar";
+// import SideMenu from "@/components/seller_sidebar";
 import { Box } from "@mui/material";
 import { AppBar,Toolbar,Avatar, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText } from "@mui/material";
 import React, { useState } from "react";
