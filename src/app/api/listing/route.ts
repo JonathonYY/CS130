@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Listing, newListing } from "@/lib/firebase/firestore/types";
 import getAllListings from "@/lib/firebase/firestore/listing/getAllListings";
 import addListing from "@/lib/firebase/firestore/listing/addListing";
+import { Timestamp } from "firebase/firestore";
 
 /*
  * Create new Listing
@@ -36,27 +37,26 @@ export async function POST(req: Request) {
  * Query Params:
  *  query: filter/sort query for Listing search
  *  limit: max number of Listings to retrieve
- *  last_listing_id: id of last Listing retrieved
+ *  last_rating: rating of last listing retrieved
+ *  last_updated: updated Timestamp of last listing retrieved, in millis
  * Return:
  *  data: list of Listings that match the query (truncated data)
  */
+// TODO: update API spec to match changes to input as discussion continuesg
 export async function GET(req: Request) {
-  // get query data from url
-  const queryData = Object.fromEntries((new URL(req.url)).searchParams.entries());
-  const { query, limit, last_listing_id } = queryData;
+  try {
+    // get query data from url
+    const queryData = Object.fromEntries((new URL(req.url)).searchParams.entries());
+    const { query, limit, last_rating, last_updated } = queryData;
 
-  // TODO: query listings from db
-  const listing: Listing = newListing();
+    const response = await getAllListings(query, parseInt(limit), parseFloat(last_rating), parseFloat(last_updated));
 
-  return NextResponse.json({ data: { listings: [{
-    updated: listing.updated,
-    title: listing.title,
-    price: listing.price,
-    owner_id: listing.owner,
-    owner_pfp: "",
-    seller_rating: 0,
-    description: listing.description,
-    thumbnail: listing.image_paths.length > 0 ? listing.image_paths[0] : "",
-    id: listing.id,
-  }]}, error: null });
+    return NextResponse.json({ data: response, error: null })
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      return NextResponse.json({ data: null, error: e.message });
+    } else {
+      return NextResponse.json({ data: null, error: "unknown error" });
+    }
+  }
 }
