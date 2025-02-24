@@ -68,7 +68,7 @@ export async function PATCH(
     await updateDoc(reporterRef, {last_reported: new_timestamp});
 
     if (reporters.length + 1 >= removal_threshold) {
-      deleteListing(listing_id, owner);
+      await deleteListing(listing_id, owner);
     } else {
       await updateDoc(listingRef, { reporters: arrayUnion(user_id), updated: serverTimestamp() });
     }
