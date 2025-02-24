@@ -46,7 +46,7 @@ export default async function deleteListing(listing_id: string, user_id: string)
           await updateDoc(buyerRef, { interested_listings: arrayRemove(listing_id) });
         } else {
           // do not throw an error, but log problem
-          console.warn(`owner ${owner} data invalid`);
+          console.warn(`potential buyer ${buyer} data invalid`);
         }
       }
     }));
