@@ -67,7 +67,7 @@ export async function PATCH(
     return NextResponse.json({ data: result, error: error });
   } catch (e: unknown) {
     if (e instanceof Error) {
-      return NextResponse.json({ data: null, error: e.message});
+      return NextResponse.json({ data: null, error: e.message });
     } else {
       return NextResponse.json({ data: null, error: "unknown error"});
     }

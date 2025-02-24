@@ -10,11 +10,12 @@ export default async function addListing(data: AddListingData) {
     // get user from user_id
     let userRef = doc(db, "users", data.user_id);
     let user = await getDoc(userRef);
+    let user_data: User
 
     if (user.exists()) {
-      result = user.data();
+      user_data = user.data() as User;
     } else {
-        throw new Error("No user exists for given id");
+      throw new Error("No user exists for given id");
     }
 
     // create listing
@@ -31,12 +32,14 @@ export default async function addListing(data: AddListingData) {
       reporters: [], // user_ids of reporters
       ratings: {}, // strings are user_ids mapped to number ratings
       image_paths: data.image_paths, // list of paths to imgs
-      id: "", // firebase listing_id
+      owner_pfp: user_data.pfp,
+      owner_name: `${user_data.first} ${user_data.last}`,
+      seller_rating: user_data.cum_seller_rating,
     }
 
     const docRef = await addDoc(collection(db, "listings"), listing_data);
 
-    result = docRef.id;
+    result = { listing_id: docRef.id };
   } catch (err) {
     error = err;
   }
