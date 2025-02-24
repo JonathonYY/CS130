@@ -34,7 +34,9 @@ export interface Listing {
   reporters: string[], // user_ids of reporters
   ratings: { [user_id: string]: number }, // strings are user_ids mapped to number ratings
   image_paths: string[], // list of paths to imgs
-  id: string, // firebase listing_id
+	owner_pfp: string
+	owner_name: string // owner first + last
+	seller_rating: number // snapshot at listing creation
 }
 
 export interface User {
