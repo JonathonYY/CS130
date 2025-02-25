@@ -11,7 +11,7 @@ jest.mock('firebase/firestore', () => {
   return {
     ...jest.requireActual('firebase/firestore'),
     doc: jest.fn((db, table, id) => {
-      if (!db[table[id]]) { // if doc doesn't exist, return ref anyway
+      if (!db[table][id]) { // if doc doesn't exist, return ref anyway
         return {
           id: id,
           table: table,

@@ -29,6 +29,10 @@ export async function PATCH(
     // get reporter data from req body
     const {user_id} = await req.json();
 
+    if (user_id === undefined) {
+      throw new Error("User not provided");
+    }
+
     const listingRef = doc(db, 'listings', listing_id);
     const listingSnapshot = await getDoc(listingRef);
 

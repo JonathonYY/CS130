@@ -80,6 +80,10 @@ export async function DELETE(
     // get user id from req body
     const {user_id} = await req.json();
 
+    if (user_id === undefined) {
+      throw new Error("User not provided");
+    }
+
     const ret_id: string = await deleteListing(listing_id, user_id);
 
     return NextResponse.json({ data: { listing_id: ret_id }, error: null });

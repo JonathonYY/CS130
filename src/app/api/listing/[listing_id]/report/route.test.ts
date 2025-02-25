@@ -168,6 +168,52 @@ describe('Report listing PATCH function', () => {
     expect(updateDoc).toHaveBeenCalledTimes(0);
   });
 
+  it('Error: no user provided', async () => {
+    // Mock req object
+    const mockReq = new Request('http://localhost', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    });
+    // Mock params as a promise
+    const mockParams = Promise.resolve({ listing_id: "listing1" });
+
+    const response: NextResponse = await PATCH(mockReq, { params: mockParams });
+
+    const jsonResponse = await response.json();
+    // check for correct output
+    expect(jsonResponse.data).toBeNull();
+    expect(jsonResponse.error).toBe("User not provided");
+
+    // check no doc updates
+    expect(updateDoc).toHaveBeenCalledTimes(0);
+  });
+
+  it('Error: missing user', async () => {
+    // Mock req object
+    const mockReq = new Request('http://localhost', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ user_id: 'invalid_user' }),
+    });
+    // Mock params as a promise
+    const mockParams = Promise.resolve({ listing_id: "listing1" });
+
+    const response: NextResponse = await PATCH(mockReq, { params: mockParams });
+
+    const jsonResponse = await response.json();
+    // check for correct output
+    expect(jsonResponse.data).toBeNull();
+    expect(jsonResponse.error).toBe("User not found");
+
+    // check no doc updates
+    expect(updateDoc).toHaveBeenCalledTimes(0);
+  });
+
   it('Error: repeat report', async () => {
     // Mock req object
     const mockReq = new Request('http://localhost', {

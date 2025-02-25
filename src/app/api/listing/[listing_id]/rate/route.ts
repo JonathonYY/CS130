@@ -33,6 +33,10 @@ export async function PATCH(
       throw new Error("Must provide a rating between 1 and 5");
     }
 
+    if (user_id === undefined) {
+      throw new Error("User not provided");
+    }
+
     // Reference to listing in firestore
     const listingRef = doc(db, 'listings', listing_id);
     const listingSnapshot = await getDoc(listingRef);

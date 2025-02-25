@@ -318,6 +318,35 @@ describe('Rate listing PATCH function', () => {
     expect(serverTimestamp).toHaveBeenCalledTimes(0);
   });
 
+  it('Error: user not provided', async () => {
+    // Mock params as a promise
+    const mockParams = Promise.resolve({ listing_id: "invalid_listing" });
+
+    // Mock req object
+    const mockReq = new Request('http://localhost', {
+      method: 'PATCH',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ rating: 3 }),
+    });
+
+    const response: NextResponse = await PATCH(mockReq, { params: mockParams });
+
+    const jsonResponse = await response.json();
+
+    // check for correct output
+    expect(jsonResponse.data).toBeNull();
+    expect(jsonResponse.error).toBe('User not provided');
+
+    // confirm update is not reached
+    expect(getDoc).toHaveBeenCalledTimes(0);
+    expect(doc).toHaveBeenCalledTimes(0);
+    expect(updateDoc).toHaveBeenCalledTimes(0);
+    expect(increment).toHaveBeenCalledTimes(0);
+    expect(serverTimestamp).toHaveBeenCalledTimes(0);
+  });
+
   it('Error: unauthorized user', async () => {
     // Mock params as a promise
     const mockParams = Promise.resolve({ listing_id: "listing1" });

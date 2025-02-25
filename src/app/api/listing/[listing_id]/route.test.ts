@@ -41,6 +41,27 @@ describe('Test listing DELETE API endpoint', () => {
     expect(deleteListingMock.mock.calls[0][1]).toBe("valid_user");
   });
 
+  it('User not provided', async () => {
+    // Mock req object
+    const mockReq = new Request('http://localhost', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    });
+    // Mock params as a promise
+    const mockParams = Promise.resolve({ listing_id: "invalid_listing" });
+
+    const response: NextResponse = await DELETE(mockReq, { params: mockParams });
+    const jsonResponse = await response.json();
+
+    expect(jsonResponse.data).toBeNull();
+    expect(jsonResponse.error).toBe("User not provided");
+
+    expect(deleteListingMock).toHaveBeenCalledTimes(0);
+  });
+
   it('Unauthorized user', async () => {
     // Mock req object
     const mockReq = new Request('http://localhost', {
