@@ -13,6 +13,7 @@ export async function addUser(user_id: string, user: User): Promise<string> {
   return ref.id;
 }
 
+// Gets the User associated with user_id from Firestore. Throws an error if User does not exist.
 export async function getUser(user_id: string): Promise<User> {
   // get User from db
   const ref = doc(db, "users", user_id);
@@ -28,6 +29,9 @@ export async function getUser(user_id: string): Promise<User> {
 }
 
 export async function updateUser(user_id: string, data: { [key: string]: any }): Promise<User> {
+  // get user to check if it exists
+  await getUser(user_id);
+
   // set updated User in db
   const ref = doc(db, "users", user_id);
   await updateDoc(ref, data);
@@ -40,8 +44,13 @@ export async function updateUser(user_id: string, data: { [key: string]: any }):
 }
 
 export async function deleteUser(user_id: string): Promise<string> {
+  // get user to check if it exists
+  await getUser(user_id);
+
   // delete User in db
   const ref = doc(db, "users", user_id);
+
+  // TODO: should delete all listings in active_listings and remove user_id from potential_buyers in all interested_listings
   await deleteDoc(ref);
 
   return ref.id;

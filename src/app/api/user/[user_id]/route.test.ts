@@ -4,16 +4,7 @@ import { GET, PATCH, DELETE } from "./route";
 const { db } = jest.requireMock("@/lib/firebase/config");
 
 jest.mock("@/lib/firebase/config", () => ({
-  db: {
-    users: {
-      test_user_id: {
-        first: "test_first",
-        id: "test_user_id", // backwards reference to mock deleteDoc
-        table: "users", // backwards reference to mock deleteDoc
-      },
-    },
-    // TODO: mock listing table to test DELETE user API cleanup
-  }
+  db: {},
 }));
 jest.mock("firebase/firestore", () => ({
   ...jest.requireActual("firebase/firestore"),
@@ -38,6 +29,14 @@ describe("User API", () => {
   beforeEach(() => {
     // Reset mocks before each test to ensure clean state
     jest.clearAllMocks();
+    db.users = {
+      test_user_id: {
+        first: "test_first",
+        id: "test_user_id", // backwards reference to mock deleteDoc
+        table: "users", // backwards reference to mock deleteDoc
+      },
+    };
+    // TODO: mock listing table to test DELETE user API cleanup
   });
   it("should correctly handle GET request", async () => {
     // mock req object
@@ -60,7 +59,7 @@ describe("User API", () => {
       method: "GET",
     });
     // mock params
-    const user_id = "fake_test_id";
+    const user_id = "fake_user_id";
     const mockParams = Promise.resolve({ user_id: user_id });
 
     const response: NextResponse = await GET(mockReq, { params: mockParams });
@@ -106,6 +105,21 @@ describe("User API", () => {
 
     expect(error).toBe("invalid user field");
   });
+  it("should correctly handle PATCH request with invalid user", async () => {
+    // mock req object
+    const mockReq = new Request("http://localhost", {
+      method: "PATCH",
+      body: JSON.stringify({}),
+    });
+    // mock params
+    const user_id = "fake_user_id";
+    const mockParams = Promise.resolve({ user_id: user_id });
+
+    const response: NextResponse = await PATCH(mockReq, { params: mockParams });
+    const { data, error } = await response.json();
+
+    expect(error).toBe("user does not exist");
+  });
   it("should correctly handle DELETE request", async () => {
     // mock req object
     const mockReq = new Request("http://localhost", {
@@ -122,5 +136,19 @@ describe("User API", () => {
     expect(data.user_id).toEqual("test_user_id");
     expect(db["users"][user_id]).toBe(undefined);
     // TODO: DELETE user should remove user_id from potential_buyers in all interested_listings and remove listings in active_listings
+  });
+  it("should correctly handle DELETE request with invalid user", async () => {
+    // mock req object
+    const mockReq = new Request("http://localhost", {
+      method: "DELETE",
+    });
+    // mock params
+    const user_id = "fake_user_id";
+    const mockParams = Promise.resolve({ user_id: user_id });
+
+    const response: NextResponse = await DELETE(mockReq, { params: mockParams });
+    const { data, error } = await response.json();
+
+    expect(error).toBe("user does not exist");
   });
 });
