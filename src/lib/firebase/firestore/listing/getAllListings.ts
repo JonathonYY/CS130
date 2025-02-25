@@ -25,21 +25,27 @@ export default async function getAllListings(req?: string, req_limit?: number, l
   let result;
   const listingsRef = collection(db, 'listings');
 
-  const q_limit = (req_limit !== undefined && req_limit > 0) ? req_limit : 100; // if limit is not passed in, set to 100
-  const prev_ts = (last_timestamp !== undefined) ? Timestamp.fromMillis(last_timestamp) : Timestamp.now();
-  const prev_rating = (last_rating !== undefined) ? last_rating : 5.1;  // if no prior rating, start out of bounds
+  const q_limit = (req_limit !== undefined && !Number.isNaN(req_limit) && req_limit > 0) ? req_limit : 100; // if limit is not passed in, set to 100
+  const prev_ts = (last_timestamp !== undefined && !Number.isNaN(last_timestamp)) ? Timestamp.fromMillis(last_timestamp) : Timestamp.now();
+  const prev_rating = (last_timestamp !== undefined && !Number.isNaN(last_rating)) ? last_rating : 5.1;  // if no prior rating, start out of bounds
 
   if (req !== undefined) {
     // query provided
     // currently, only prefix-match on title; will add the rest of the matchers in next commit
     const q = query(listingsRef, orderBy('title'), limit(q_limit),
                     where('title', '>=', req.toLowerCase()),
-                    where('title', '<=', req.toLowerCase()+"\uf8ff"));
+                    where('title', '<=', req.toLowerCase()+"\uf8ff"),
+                    where('selected_buyer', '==', ""));
 
     result = await getDocs(q);
     result = result.docs.map((doc) => (transformListing(doc)));
   } else {
-    const q = query(listingsRef, orderBy('seller_rating', 'desc'), orderBy('updated', 'desc'), limit(q_limit), startAt(prev_rating, prev_ts));
+    const q = query(listingsRef,
+                    orderBy('seller_rating', 'desc'),
+                    orderBy('updated', 'desc'),
+                    limit(q_limit),
+                    startAt(prev_rating, prev_ts),
+                    where('selected_buyer', '==', ""));
 
     result = await getDocs(q);
     result = result.docs.map((doc) => (transformListing(doc)));
