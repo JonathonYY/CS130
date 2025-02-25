@@ -51,7 +51,7 @@ export async function GET(req: Request) {
 
     const response = await getAllListings(query, parseInt(limit), parseFloat(last_rating), parseFloat(last_updated));
 
-    return NextResponse.json({ data: response, error: null })
+    return NextResponse.json({ data: {listings: response}, error: null })
   } catch (e: unknown) {
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message });
