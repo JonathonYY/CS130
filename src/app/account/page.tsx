@@ -4,15 +4,18 @@ import React, { useState, useEffect } from "react";
 import { redirect, useRouter } from "next/navigation";
 import Link from "next/link";
 import "../globals.css";
-import { 
-    IconButton, 
-    Box, 
-    Modal, 
-    Button, 
-    Avatar, 
-    TextField, 
-    InputAdornment
+import {
+    IconButton,
+    Box,
+    Modal,
+    Button,
+    Avatar,
+    TextField,
+    InputAdornment,
+    createTheme,
+    ThemeProvider
 } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import EditIcon from '@mui/icons-material/Edit';
 import LockIcon from '@mui/icons-material/Lock';
 
@@ -23,8 +26,32 @@ interface User {
     first: string,
     last: string,
     pfp: string,
+    phone: string,
     buyerRating: number,
     sellerRating: number,
+}
+
+
+// Adding in button color to palette
+declare module '@mui/material/styles' {
+    interface Palette {
+        buttonBlue: Palette['primary'];
+        deleteRed: Palette['primary'];
+    }
+
+    interface PaletteOptions {
+        buttonBlue?: PaletteOptions['primary'];
+        deleteRed?: PaletteOptions['primary'];
+    }
+}
+
+
+// Override button color
+declare module '@mui/material/Button' {
+    interface ButtonPropsColorOverrides {
+        buttonBlue: true;
+        deleteRed: true;
+    }
 }
 
 
@@ -40,19 +67,34 @@ const Account: React.FC = () => {
         first: "",
         last: "",
         pfp: "",
+        phone: "",
         buyerRating: 0,
-        sellerRating: 0
+        sellerRating: 0,
     });
+
+    // Create button color theme
+    const theme = createTheme({
+        palette: {
+            buttonBlue: {
+                main: "#8BB8E8"
+            },
+
+            deleteRed: {
+                main: "#E88C8C"
+            }
+        }
+    })
 
     // Make get call to get user info
     // TODO: Impl get call
     async function getUserInfo() {
-        setTimeout(() => {setLoading(false)}, 1000);
+        setTimeout(() => { setLoading(false) }, 1000);
         setUserData({
             email: "test@g.ucla.edu",
             first: "Joe",
             last: "Bruin",
             pfp: "../../../public/icon.png",
+            phone: "+1 (888)-888-8888",
             buyerRating: 4,
             sellerRating: 4
         });
@@ -102,7 +144,7 @@ const Account: React.FC = () => {
 
 
     // Handles updating the account
-    // TODO: implementation of PATCH API
+    // TODO: implementation of PATCH API. Remember first and last name are required
     const handleUpdate = () => {
         console.log(userData);
     }
@@ -125,126 +167,183 @@ const Account: React.FC = () => {
             <div className="logoContainer">
                 <p className="bigHeader">My account</p>
 
-                <img 
-                    src="logo1.png" 
-                    alt="logo" 
+                <img
+                    src="logo1.png"
+                    alt="logo"
                     className="logoGeneral"
                     onClick={() => router.push("/")}
                 />
-            </div>    
+            </div>
 
-            <hr style = {{marginTop: -10}}/>
+            <hr style={{ marginTop: -10 }} />
 
             {/* Hidden input for changing profile pic */}
-            <input 
+            <input
                 id="profilePicChange"
                 type="file"
                 accept="image/png, image/jpeg, image/svg+xml"
                 style={{ display: "none" }}
-                onChange = {changeProfilePic}
+                onChange={changeProfilePic}
             />
 
             {(loading &&
                 <p>Loading user data</p>
-            ) || (
-                <div>
-                    <div className="accountContainer">
-                        <Box position="relative" display="inline-block">
-                            <Avatar src={userData.pfp} sx={{width: 125, height: 125}} />
-                            <IconButton 
-                                sx={{ 
-                                position: "absolute", 
-                                top: 0, 
-                                right: 0, 
-                                backgroundColor: "white", 
-                                    "&:hover": { backgroundColor: "lightgray" }
-                                }}
-                                size="small"
-                            >
-                                <EditIcon fontSize="small" onClick = {profileEditClick} />
-                            </IconButton>
-                        </Box>
+            ) || ( // May consider moving this section to a separate component file
+                    <div style={{ marginTop: 20 }}>
+                        <Grid container sx={{ marginLeft: 4, marginRight:-2 }} spacing={20} alignItems="flex-start">
+                            <Grid display="flex" flexDirection="column" alignItems="center">
+                                <Box position="relative" display="inline-block">
+                                    <Avatar src={userData.pfp} sx={{ width: 125, height: 125 }} />
+                                    <IconButton
+                                        sx={{
+                                            position: "absolute",
+                                            top: 0,
+                                            right: 0,
+                                            backgroundColor: "white",
+                                            "&:hover": { backgroundColor: "lightgray" }
+                                        }}
+                                        size="small"
+                                    >
+                                        <EditIcon fontSize="small" onClick={profileEditClick} />
+                                    </IconButton>
+                                </Box>
 
-                        <TextField 
-                            fullWidth
-                            label="Email" 
-                            value={userData.email}
-                            name="email"
-                            onChange={handleInputChange}
-                            slotProps={{
-                                input: {
-                                    readOnly: true,
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <LockIcon />
-                                        </InputAdornment>
-                                    )
-                                }
-                            }}
-                        />
+                                <div className="ratings">
+                                    <p><b>Buyer rating: {userData.buyerRating}/5</b></p>
 
-                        <TextField 
-                            fullWidth
-                            label="First Name" 
-                            value={userData.first}
-                            name="first"
-                            onChange={handleInputChange}
-                            style={{marginTop: 10}}
-                            slotProps={{
-                                input: {
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <EditIcon />
-                                        </InputAdornment>
-                                    )
-                                }
-                            }}
-                        />
+                                    <p><b>Seller rating: {userData.sellerRating}/5</b></p>
+                                </div>
+                            </Grid>
 
-                        <TextField 
-                            fullWidth
-                            label="Last Name" 
-                            value={userData.last}
-                            name="last"
-                            onChange={handleInputChange}
-                            style={{marginTop: 10}}
-                            slotProps={{
-                                input: {
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <EditIcon />
-                                        </InputAdornment>
-                                    )
-                                }
-                            }}
-                        />
-                    </div>
+                            <Grid container spacing={2} size={{ sm: 9.625, md: 9.625 }}>
+                                <Grid size={{ xs: 12, md: 12 }}>
+                                    <TextField
+                                        label="Email"
+                                        value={userData.email}
+                                        name="email"
+                                        sx={{ width: '100%' }}
+                                        onChange={handleInputChange}
+                                        slotProps={{
+                                            input: {
+                                                readOnly: true,
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <LockIcon />
+                                                    </InputAdornment>
+                                                )
+                                            }
+                                        }}
+                                    />
+                                </Grid>
 
-                    <div className="buttonContainer">
-                        <Button>
-                            <Link href="/sellers_home" style = {{marginLeft: 25}}>View my listings</Link>
-                        </Button>
+                                <Grid size={{ xs: 12, md: 12 }}>
+                                    <TextField
+                                        fullWidth
+                                        label="First Name - Required"
+                                        value={userData.first}
+                                        name="first"
+                                        onChange={handleInputChange}
+                                        style={{ marginTop: 10 }}
+                                        slotProps={{
+                                            input: {
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <EditIcon />
+                                                    </InputAdornment>
+                                                )
+                                            }
+                                        }}
+                                    />
+                                </Grid>
 
-                        <Button onClick={handleUpdate}>Update Account</Button>
+                                <Grid size={{ xs: 12, md: 12 }}>
+                                    <TextField
+                                        fullWidth
+                                        label="Last Name - Required"
+                                        value={userData.last}
+                                        name="last"
+                                        onChange={handleInputChange}
+                                        style={{ marginTop: 10 }}
+                                        slotProps={{
+                                            input: {
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <EditIcon />
+                                                    </InputAdornment>
+                                                )
+                                            }
+                                        }}
+                                    />
+                                </Grid>
+
+                                <Grid size={{ xs: 12, md: 12 }}>
+                                    <TextField
+                                        fullWidth
+                                        label="Phone Number - Optional"
+                                        value={userData.phone}
+                                        name="phone"
+                                        onChange={handleInputChange}
+                                        style={{ marginTop: 10 }}
+                                        slotProps={{
+                                            input: {
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <EditIcon />
+                                                    </InputAdornment>
+                                                )
+                                            }
+                                        }}
+                                    />
+                                </Grid>
+
+                            </Grid>
+                        </Grid>
+
+                        <ThemeProvider theme={theme}>
+                            <Grid container spacing={20} sx={{ marginTop: 10, marginLeft: 4, marginRight: -21 }}>
+                                <Grid size={{xs: 3, sm: 3, md: 3}}>
+                                    <Button variant="contained" color="buttonBlue">
+                                        <Link href="/sellers_home">View my listings</Link>
+                                    </Button>
+                                </Grid>
+
+                                <Grid size={{md: 3}}>
+                                    <Button variant="contained" onClick={handleUpdate} color="buttonBlue">Update Account</Button>
+                                </Grid>
+
+                                <Grid size={{md: 3}}>
+                                    <Button variant="contained" onClick={handleOpen} color="deleteRed">Delete account</Button>
+                                </Grid>
+
+                                <Grid size={{md: 3}}>
+                                    <Button variant="contained" color="deleteRed">
+                                        <Link href="/">Log out</Link>
+                                    </Button>
+                                </Grid>
+
+                            </Grid>    
+                        </ThemeProvider>
                         
-                        <Button onClick={handleOpen}>Delete account</Button>
 
-                        <Button>
-                            <Link href="/" style = {{marginRight: 25}}>Log out</Link>
-                        </Button>
                     </div>
-                </div>
-            )}
+                )}
 
             {/* Modal for deleting account */}
             <Modal
                 open={deleteModal}
                 onClose={handleClose}
             >
-                <Box className="deleteModal">
-                    <p>Are you sure you want to delete your account?</p>
-                    <Button onClick={deleteAccount}>Yes</Button>
-                    <Button onClick={handleClose}>No</Button>
+                <Box className="modals">
+                    <p><b>Are you sure you want to delete your account?</b></p>
+                    <div style={{marginTop: 10}}>
+                        <ThemeProvider theme={theme}>
+                            <Grid container spacing={3}>
+                                <Button onClick={deleteAccount} variant="contained" color="deleteRed">Yes</Button>
+                                <Button onClick={handleClose} variant="contained" color="buttonBlue">No</Button>
+                            </Grid>
+                            
+                        </ThemeProvider>    
+                    </div>
                 </Box>
             </Modal>
         </div>

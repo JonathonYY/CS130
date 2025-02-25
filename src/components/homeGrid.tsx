@@ -25,7 +25,7 @@ const HomeGrid: React.FC = () => {
     });
 
     const { data, error } = await response.json();
-    console.log(response.json)
+    // console.log(data)
 
     if (error) {
       console.log("Error");
@@ -37,7 +37,7 @@ const HomeGrid: React.FC = () => {
         description: element.description || 'Description'
       }));
 
-      console.log(listings);
+      // console.log(listings);
 
       setProductListings(listings);
       setLoading(false);
@@ -87,10 +87,10 @@ const HomeGrid: React.FC = () => {
   // Displays items
   return (
     <Container sx={{mt: 4}}>
-      <Grid container rowSpacing={3} columnSpacing={{xs: 3, md: 6}}>
+      <Grid container rowSpacing={3} columnSpacing={{sm: 6, md: 6}}>
         {currentItems.map((item) => (
           // For 2x4 grid - md: 3, for 3x3 grid - md: 4
-          <Grid size={{xs: 6, md: 4}} key={item.id}>
+          <Grid size={{sm: 4, md: 4}} key={item.id}>
             <Card 
               sx={{ 
                 cursor: 'pointer', 
