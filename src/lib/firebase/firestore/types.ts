@@ -22,7 +22,7 @@ export interface User {
   first: string,
   last: string,
   email_address: string,
-  phone_number: string,
+  phone_number: string, // empty string if not provided (default to email)
   active_listings: string[], // listing_ids owned by seller
   interested_listings: string[], // listing_ids owned by buyer
   completed_sales: number, // number of completed sales
@@ -65,7 +65,21 @@ export function newUser(): User {
     "completed_purchases": 0,
     "cum_buyer_rating": 0,
     "cum_seller_rating": 0,
-    "last_reported": Timestamp.now(),
+    "last_reported": Timestamp.fromMillis(0),
     "pfp": "",
   };
+}
+
+export interface AddUserRequest {
+  user_id: string,
+  first: string,
+  last: string,
+  email_address: string,
+}
+
+export interface UpdateUserRequest {
+  first?: string,
+  last?: string,
+  phone_number?: string,
+  pfp?: string,
 }
