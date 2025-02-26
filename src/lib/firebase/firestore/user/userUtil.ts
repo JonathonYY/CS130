@@ -1,6 +1,7 @@
 import { db } from "../../config";
-import { doc, setDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
-import { User } from "../types";
+import { doc, setDoc, getDoc, updateDoc, deleteDoc, arrayRemove } from "firebase/firestore";
+import { User, Listing } from "../types";
+import deleteListing from "../listing/deleteListing";
 
 export async function addUser(user_id: string, user: User): Promise<string> {
   // create User in db if not exists
@@ -44,13 +45,38 @@ export async function updateUser(user_id: string, data: { [key: string]: any }):
 }
 
 export async function deleteUser(user_id: string): Promise<string> {
-  // get user to check if it exists
-  await getUser(user_id);
+  // get user and check if it exists
+  const user: User = await getUser(user_id);
+
+  // delete user_id from all interested listings
+  await Promise.all(user.interested_listings.map(async (listing_id) => {
+    // get interested listing
+    const listingRef = doc(db, 'listings', listing_id);
+    const result = await getDoc(listingRef);
+    if (!result.exists()) {
+      // warn instead of error so that remaining cleanup operation continues
+      console.warn(`listing ${listing_id} not found when deleting user ${user_id} from interested listings`);
+    } else {
+      // remove user_id from relevant fields
+      const listing: Listing = result.data() as Listing;
+      await updateDoc(listingRef, {
+        "potential_buyers": arrayRemove(user_id),
+        "selected_buyer": listing.selected_buyer === user_id ? "" : listing.selected_buyer,
+      });
+    }
+  }));
+
+  // delete all active listings owned by User with user_id
+  await Promise.all(user.active_listings.map(async (listing_id) => {
+    try {
+      await deleteListing(listing_id, user_id);
+    } catch (e: unknown) {
+      console.warn(`${(e as Error).message} when deleting listing ${listing_id} from active listings of user ${user_id}`)
+    }
+  }));
 
   // delete User in db
   const ref = doc(db, "users", user_id);
-
-  // TODO: should delete all listings in active_listings and remove user_id from potential_buyers in all interested_listings
   await deleteDoc(ref);
 
   return ref.id;
