@@ -1,8 +1,10 @@
 import { db } from "../../config";
-import { getDocs, collection, query, limit, Timestamp, orderBy, startAt, endAt, where, or } from "firebase/firestore";
+import { getDocs, collection, query, limit, Timestamp, orderBy, startAt, where, WhereFilterOp } from "firebase/firestore";
+import { QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
 import { Listing } from "../types";
+import { SearchFields, parseInput, hasParams } from "./parseInput";
 
-function transformListing(doc) {
+function transformListing(doc: QueryDocumentSnapshot<DocumentData, DocumentData>) {
   const data = doc.data() as Listing;
 
   return {
@@ -21,21 +23,50 @@ function transformListing(doc) {
   };
 }
 
+function stringToWhereFilterOp(op: string): WhereFilterOp {
+  switch(op) {
+    case '<': return '<';
+    case '<=': return '<=';
+    case '>': return '>';
+    case '>=': return '>=';
+    default: throw new Error(`Invalid WhereFilterOp string: ${op}`);
+  }
+}
+
 export default async function getAllListings(req?: string, req_limit?: number, last_rating?: number, last_timestamp?: number) {
   let result;
   const listingsRef = collection(db, 'listings');
 
+  // process arguments for pagination
   const q_limit = (req_limit !== undefined && !Number.isNaN(req_limit) && req_limit > 0) ? req_limit : 100; // if limit is not passed in, set to 100
   const prev_ts = (last_timestamp !== undefined && !Number.isNaN(last_timestamp)) ? Timestamp.fromMillis(last_timestamp) : Timestamp.now();
   const prev_rating = (last_timestamp !== undefined && !Number.isNaN(last_rating)) ? last_rating : 5.1;  // if no prior rating, start out of bounds
 
-  if (req !== undefined) {
-    // query provided
-    // currently, only prefix-match on title; will add the rest of the matchers in next commit
-    const q = query(listingsRef, orderBy('title'), limit(q_limit),
-                    where('title', '>=', req.toLowerCase()),
-                    where('title', '<=', req.toLowerCase()+"\uf8ff"),
-                    where('selected_buyer', '==', ""));
+  const parsed_req: SearchFields = parseInput(req);
+
+  if (hasParams(parsed_req)) {
+    const {search_str, category, condition, owner, cmp_op, price} = parsed_req;
+    let op: WhereFilterOp;
+    try {
+      op = stringToWhereFilterOp(cmp_op);
+    } catch {
+      op = ">=";
+    }
+
+    const q = query(listingsRef,
+                    orderBy('seller_rating', 'desc'), // order response by rating, recency
+                    orderBy('updated', 'desc'),
+                    limit(q_limit),
+                    where('title', '>=', search_str),
+                    where('title', '<=', search_str+"\uf8ff"),
+                    where('category', '>=', category),
+                    where('category', '<=', category+"\uf8ff"),
+                    where('condition', '>=', condition),
+                    where('condition', '<=', condition+"\uf8ff"),
+                    where('owner_name', '>=', owner),
+                    where('owner_name', '<=', owner+"\uf8ff"),
+                    where('price', op, price)
+                  );
 
     result = await getDocs(q);
     result = result.docs.map((doc) => (transformListing(doc)));
