@@ -81,23 +81,14 @@ import { POST } from './route';
 import { GET } from './[listing_id]/route'
 
 const { db } = jest.requireMock('@/lib/firebase/config');
-const { getDoc, doc, collection, addDoc } = jest.requireMock('firebase/firestore');
-
-// const getListingMock = jest.spyOn(getListing, 'default').mockImplementation((
-//     (doc_id: string) => {
-//         return Promise.resolve({ doc_id, error
-
-//         }); }
-// ));
+const { doc, collection, getDoc, addDoc, serverTimestamp } = jest.requireMock('firebase/firestore');
 
 jest.mock('@/lib/firebase/config', () => ({
     db: {}
 }))
 
 jest.mock('firebase/firestore', () => {
-    // const originalModule = jest.requireActual('firebase/firestore')
     return {
-        // ...originalModule,
         doc: jest.fn((db, table, id) => {
             return db[table][id];
         }),
@@ -117,18 +108,7 @@ jest.mock('firebase/firestore', () => {
                 id: 'new_id'
             }
         }),
-        arrayUnion: jest.fn((val) => ([val])), // manually confirm correct arguments passed
         serverTimestamp: jest.fn(() => { return 'MOCK_TIME'; }),
-        Timestamp: {
-            // ...originalModule.Timestamp,
-            now: jest.fn(() => {
-                return {
-                    toMillis(): number {
-                        return 300000; // hardcode to return time as 300000 millis
-                    }
-                };
-            })
-        }
     };
 });
 
@@ -222,6 +202,7 @@ describe('Test POST listing', () => {
 
         expect(doc.mock.calls[0][1]).toBe('users')
         expect(doc.mock.calls[0][2]).toBe('user1')
+        expect(getDoc).toHaveBeenCalled();
         expect(addDoc).toHaveBeenCalled();
 
         // check for correct output
@@ -280,6 +261,7 @@ describe('Test POST listing', () => {
 
         expect(doc.mock.calls[0][1]).toBe('users')
         expect(doc.mock.calls[0][2]).toBe('user_invalid')
+        expect(getDoc).toHaveBeenCalled();
         expect(addDoc).not.toHaveBeenCalled();
 
         // check for correct output
@@ -308,6 +290,7 @@ describe('Test POST listing', () => {
         const jsonResponse = await response.json();
 
         expect(doc).not.toHaveBeenCalled();
+        expect(getDoc).not.toHaveBeenCalled();
         expect(addDoc).not.toHaveBeenCalled();
 
         // check for correct output
@@ -338,6 +321,7 @@ describe('Test POST listing', () => {
         const jsonResponse = await response.json();
 
         expect(doc).not.toHaveBeenCalled();
+        expect(getDoc).not.toHaveBeenCalled();
         expect(addDoc).not.toHaveBeenCalled();
 
         // check for correct output
