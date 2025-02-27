@@ -1,5 +1,6 @@
 import { db } from "../../config";
 import { doc, getDoc } from "firebase/firestore";
+import { GetListingOutput } from "../types";
 
 export default async function getListing(doc_id: string) {
     const docRef = doc(db, "listings", doc_id);
