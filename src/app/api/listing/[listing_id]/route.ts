@@ -23,13 +23,13 @@ export async function GET(
   const listing_id: string = (await params).listing_id;
 
   try {
-    let { result, error } = await getListing(listing_id)
-    return NextResponse.json({ data: result, error: error });
+    const result = await getListing(listing_id);
+    return NextResponse.json({ data: result, error: null});
   } catch (e: unknown) {
     if (e instanceof Error) {
-      return NextResponse.json({ data: null, error: e.message});
+      return NextResponse.json({ data: null, error: e.message });
     } else {
-      return NextResponse.json({ data: null, error: "unknown error"});
+      return NextResponse.json({ data: null, error: "unknown error" });
     }
   }
 }
@@ -56,12 +56,28 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ listing_id: string }> }
 ) {
-  // get URL parameter listing_id
-  const listing_id = (await params).listing_id;
-
   try {
+    // get URL parameter listing_id
+    const listing_id = (await params).listing_id;
+
     // get updated listing data from req body
     const data: PatchListingData = await req.json();
+
+    // validate input for only valid fields
+    Object.keys(data).forEach((key) => {
+      if (![
+        'title',
+        'price',
+        'condition',
+        'category',
+        'description',
+        'selected_buyer',
+        'potential_buyers',
+        'image_paths'
+      ].includes(key)) {
+        throw new Error('invalid listing field');
+      }
+    })
 
     let { result, error }  = await patchListing(listing_id, data)
     return NextResponse.json({ data: result, error: error });

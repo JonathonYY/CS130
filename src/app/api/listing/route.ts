@@ -24,8 +24,8 @@ export async function POST(req: Request) {
     // get updated listing data from req body
     const data: AddListingData = await req.json();
 
-    let { result, error } = await addListing(data);
-    return NextResponse.json({ data: result, error: error });
+    let result = await addListing(data);
+    return NextResponse.json({ data: result, error: {}});
   } catch (e: unknown) {
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message});
