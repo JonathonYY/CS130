@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { GET } from "./route";
 import { POST } from './route';
 import { GET as GET2 } from "./[listing_id]/route";
@@ -75,41 +74,6 @@ describe('Test GET all listings API endpoint', () => {
     await GET(mockReq);
     expect(getAllListingsMock.mock.calls[0]).toEqual(["this is a query string", 150, 4.5, 199000000]);
   });
-=======
-import { NextResponse } from 'next/server';
-import { POST } from './route';
-import { GET } from './[listing_id]/route'
-
-const { db } = jest.requireMock('@/lib/firebase/config');
-const { doc, collection, getDoc, addDoc, serverTimestamp } = jest.requireMock('firebase/firestore');
-
-jest.mock('@/lib/firebase/config', () => ({
-    db: {}
-}))
-
-jest.mock('firebase/firestore', () => {
-    return {
-        doc: jest.fn((db, table, id) => {
-            return db[table][id];
-        }),
-        collection: jest.fn((db, table) => {
-            return db[table];
-        }),
-        getDoc: jest.fn((ref) => ({
-            data: () => {
-                return ref;
-            },
-            exists: () => (ref !== undefined),
-        })),
-        addDoc: jest.fn((collection, data) => {
-            collection['new_id'] = data
-            
-            return {
-                id: 'new_id'
-            }
-        }),
-        serverTimestamp: jest.fn(() => { return 'MOCK_TIME'; }),
-    };
 });
 
 describe('Test POST listing', () => {
@@ -216,7 +180,7 @@ describe('Test POST listing', () => {
             }
         });
         const mockParams = Promise.resolve(jsonResponse.data);
-        const response2: NextResponse = await GET(mockReq, {params: mockParams});
+        const response2: NextResponse = await GET2(mockReq, {params: mockParams});
 
         const jsonResponse2 = await response2.json();
 
@@ -328,7 +292,6 @@ describe('Test POST listing', () => {
         expect(jsonResponse.data).toBeNull;
         expect(jsonResponse.error).not.toBeNull();
     });
->>>>>>> 45f20bd (fix up POST listing and add unit tests)
 });
 
 describe('Test POST listing', () => {
