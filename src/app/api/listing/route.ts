@@ -24,13 +24,37 @@ export async function POST(req: Request) {
     // get updated listing data from req body
     const data: AddListingData = await req.json();
 
+    const desired_fields = [
+      'user_id',
+      'title',
+      'price',
+      'condition',
+      'category',
+      'description',
+      'image_paths',
+    ]
+
+    // validate input for only valid fields
+    Object.keys(data).forEach((key) => {
+      if (!desired_fields.includes(key)) {
+        throw new Error('invalid listing field');
+      }
+    });
+
+    // validate all fields are present
+    desired_fields.forEach((val) => {
+      if (!Object.keys(data).includes(val)) {
+        throw new Error('missing listing field');
+      }
+    })
+
     let result = await addListing(data);
-    return NextResponse.json({ data: result, error: {}});
+    return NextResponse.json({ data: result, error: null});
   } catch (e: unknown) {
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message});
     } else {
-      return NextResponse.json({ data: null, error: "unknown error"});
+      return NextResponse.json({ data: null, error: 'unknown error'});
     }
   }
 }
@@ -56,6 +80,7 @@ export async function GET(req: Request) {
 
     const response = await getAllListings(query, parseInt(limit), parseFloat(last_rating), parseFloat(last_updated));
 
+<<<<<<< HEAD
     return NextResponse.json({ data: {listings: response}, error: null })
   } catch (e: unknown) {
     if (e instanceof Error) {
@@ -64,4 +89,17 @@ export async function GET(req: Request) {
       return NextResponse.json({ data: null, error: "unknown error" });
     }
   }
+=======
+  return NextResponse.json({ data: { listings: [{
+    updated: listing.updated,
+    title: listing.title,
+    price: listing.price,
+    owner_id: listing.owner,
+    owner_pfp: '',
+    seller_rating: 0,
+    description: listing.description,
+    thumbnail: listing.image_paths.length > 0 ? listing.image_paths[0] : '',
+    // id: listing.id,
+  }]}, error: null });
+>>>>>>> 45f20bd (fix up POST listing and add unit tests)
 }

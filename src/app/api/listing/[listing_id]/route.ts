@@ -19,10 +19,10 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ listing_id: string }> }
 ) {
-  // get URL parameter listing_id
-  const listing_id: string = (await params).listing_id;
-
   try {
+    // get URL parameter listing_id
+    const listing_id: string = (await params).listing_id;
+
     const result = await getListing(listing_id);
     return NextResponse.json({ data: result, error: null});
   } catch (e: unknown) {
@@ -77,9 +77,9 @@ export async function PATCH(
       ].includes(key)) {
         throw new Error('invalid listing field');
       }
-    })
+    });
 
-    let result = await patchListing(listing_id, data)
+    let result = await patchListing(listing_id, data);
     return NextResponse.json({ data: result, error: null });
   } catch (e: unknown) {
     if (e instanceof Error) {

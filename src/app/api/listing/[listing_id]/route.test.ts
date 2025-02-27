@@ -109,10 +109,8 @@ describe('Test listing DELETE API endpoint', () => {
 import { NextResponse } from "next/server";
 import { GET, PATCH } from "./route";
 
-import * as getListing from "@/lib/firebase/firestore/listing/getListing";
-
 const { db } = jest.requireMock("@/lib/firebase/config");
-const { getDoc, doc, updateDoc, arrayUnion, serverTimestamp, Timestamp } = jest.requireMock("firebase/firestore");
+const { getDoc, doc, updateDoc, serverTimestamp } = jest.requireMock("firebase/firestore");
 
 // const getListingMock = jest.spyOn(getListing, "default").mockImplementation((
 //     (doc_id: string) => {

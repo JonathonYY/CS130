@@ -7,12 +7,12 @@ export default async function addListing(data: AddListingData) {
   let error = null;
 
   // get user from user_id
-  let userRef = doc(db, "users", data.user_id);
-  let user = await getDoc(userRef);
+  const userRef = doc(db, "users", data.user_id);
+  const userSnapshot = await getDoc(userRef);
   let user_data: User
 
-  if (user.exists()) {
-    user_data = user.data() as User;
+  if (userSnapshot.exists()) {
+    user_data = userSnapshot.data() as User;
   } else {
     throw new Error("No user exists for given id");
   }
