@@ -179,19 +179,38 @@ describe('Test GET, PATCH listing', () => {
         }
         db.listings = {
             listing1: {
-                id: 'listing1',
-                owner: 'user3',
-                reporters: ['user2']
+                "updated": "MOCK_TIME0",
+                "title": "Listing1",
+                "price": 30,
+                "condition": "good",
+                "category": "food",
+                "description": "",
+                "owner": "user1",
+                "owner_name": "A",
+                "owner_pfp": "",
+                "seller_rating": 4,
+                "selected_buyer": "",
+                "potential_buyers": [],
+                "reporters": [],
+                "ratings": {},
+                "image_paths": [],
             },
             listing2: {
-                id: 'listing2',
-                owner: 'user3',
-                reporters: ['r1', 'r2', 'r3', 'r4']
-            },
-            listing3: {
-                id: 'listing3',
-                owner: 'user3',
-                reporters: ['user1']
+                "updated": "MOCK_TIME0",
+                "title": "Listing2",
+                "price": 60,
+                "condition": "used",
+                "category": "object",
+                "description": "asdf",
+                "owner": "user2",
+                "owner_name": "A",
+                "owner_pfp": "",
+                "seller_rating": 3.5,
+                "selected_buyer": "",
+                "potential_buyers": [],
+                "reporters": [],
+                "ratings": {},
+                "image_paths": [], 
             },
         }
     });
@@ -217,9 +236,19 @@ describe('Test GET, PATCH listing', () => {
 
         // check for correct output
         expect(jsonResponse.data).toEqual({
-            id: 'listing1',
-            owner: 'user3',
-            reporters: ['user2']
+            "updated": "MOCK_TIME0",
+            "title": "Listing1",
+            "price": 30,
+            "condition": "good",
+            "category": "food",
+            "description": "",
+            "owner": "user1",
+            "owner_name": "A",
+            "owner_pfp": "",
+            "seller_rating": 4,
+            "selected_buyer": "",
+            "potential_buyers": [],
+            "image_paths": [],
         });
         expect(jsonResponse.error).toBeNull();
     });
@@ -244,7 +273,7 @@ describe('Test GET, PATCH listing', () => {
         expect(doc.mock.calls[0][2]).toBe('invalid_id')
 
         // check for correct output
-        expect(jsonResponse.data).toEqual({});
+        expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).not.toBeNull();
     });
 
@@ -255,10 +284,10 @@ describe('Test GET, PATCH listing', () => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ name: 'new_title' }),
+            body: JSON.stringify({ title: 'new_title' }),
         });
         // Mock params as a promise
-        const mockParams = Promise.resolve({ listing_id: "listing1" });
+        const mockParams = Promise.resolve({ listing_id: "listing2" });
 
         const response: NextResponse = await PATCH(mockReq, { params: mockParams });
 
@@ -266,29 +295,39 @@ describe('Test GET, PATCH listing', () => {
         // check for correct output
 
         expect(doc.mock.calls[0][1]).toBe('listings');
-        expect(doc.mock.calls[0][2]).toBe('listing1');
+        expect(doc.mock.calls[0][2]).toBe('listing2');
         expect(getDoc).toHaveBeenCalled();
         expect(updateDoc).toHaveBeenCalled();
         expect(serverTimestamp).toHaveBeenCalled();
 
         expect(jsonResponse.data).toEqual({
-            id: 'listing1',
-            owner: 'user3',
-            reporters: ['user2'],
-            name: 'new_title',
-            updated: 'MOCK_TIME'
+            "updated": "MOCK_TIME",
+            "title": "new_title",
+            "price": 60,
+            "condition": "used",
+            "category": "object",
+            "description": "asdf",
+            "owner": "user2",
+            "owner_name": "A",
+            "owner_pfp": "",
+            "seller_rating": 3.5,
+            "selected_buyer": "",
+            "potential_buyers": [],
+            "reporters": [],
+            "ratings": {},
+            "image_paths": [], 
         });
         expect(jsonResponse.error).toBeNull();
     });
 
-    it('Try to update listing on invalid id', async () => {
+    it('Try to update listing an invalid id', async () => {
         // Mock req object
         const mockReq = new Request('http://localhost', {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ name: 'new_title' }),
+            body: JSON.stringify({ title: 'new_title' }),
         });
         // Mock params as a promise
         const mockParams = Promise.resolve({ listing_id: "invalid_id" });
@@ -304,7 +343,33 @@ describe('Test GET, PATCH listing', () => {
         expect(updateDoc).toHaveBeenCalled();
         expect(serverTimestamp).toHaveBeenCalled();
 
-        expect(jsonResponse.data).toEqual({});
+        expect(jsonResponse.data).toBeNull();
+        expect(jsonResponse.error).not.toBeNull();
+    });
+
+    it('Try to update listing with an invalid field', async () => {
+        // Mock req object
+        const mockReq = new Request('http://localhost', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ blah: 'blah' }),
+        });
+        // Mock params as a promise
+        const mockParams = Promise.resolve({ listing_id: "invalid_id" });
+
+        const response: NextResponse = await PATCH(mockReq, { params: mockParams });
+
+        const jsonResponse = await response.json();
+        // check for correct output
+
+        expect(doc).not.toHaveBeenCalled();
+        expect(getDoc).not.toHaveBeenCalled();
+        expect(updateDoc).not.toHaveBeenCalled();
+        expect(serverTimestamp).not.toHaveBeenCalled();
+
+        expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).not.toBeNull();
     });
 });

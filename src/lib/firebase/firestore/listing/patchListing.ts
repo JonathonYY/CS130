@@ -3,9 +3,6 @@ import { doc, updateDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { PatchListingData } from "../types";
 
 export default async function patchListing(doc_id: string, data: PatchListingData) {
-    let result;
-    let error = null;
-
     const docRef = doc(db, "listings", doc_id);
     // add timestamp to data
     let update_data = data as { [key: string] : any }
@@ -14,13 +11,12 @@ export default async function patchListing(doc_id: string, data: PatchListingDat
     // update each entry
     await updateDoc(docRef, update_data)
 
-    result = await getDoc(docRef);
+    const docSnapshot = await getDoc(docRef);
 
-    if (result.exists()) {
-        result = result.data();
+    if (docSnapshot.exists()) {
+        const result = docSnapshot.data();
+        return result;
     } else {
         throw new Error("No listing exists for given id");
     }
-
-    return result;
 }

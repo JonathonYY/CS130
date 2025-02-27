@@ -79,8 +79,8 @@ export async function PATCH(
       }
     })
 
-    let { result, error }  = await patchListing(listing_id, data)
-    return NextResponse.json({ data: result, error: error });
+    let result = await patchListing(listing_id, data)
+    return NextResponse.json({ data: result, error: null });
   } catch (e: unknown) {
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message });
