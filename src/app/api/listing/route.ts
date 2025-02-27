@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       'category',
       'description',
       'image_paths',
-    ]
+    ];
 
     // validate input for only valid fields
     Object.keys(data).forEach((key) => {
@@ -47,9 +47,9 @@ export async function POST(req: Request) {
       if (!Object.keys(data).includes(val)) {
         throw new Error('missing listing field');
       }
-    })
+    });
 
-    let result = await addListing(data);
+    const result = await addListing(data);
     return NextResponse.json({ data: result, error: null});
   } catch (e: unknown) {
     if (e instanceof Error) {
