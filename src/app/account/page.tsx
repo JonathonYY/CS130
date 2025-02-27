@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from "react";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import "../globals.css";
 import {
@@ -84,7 +84,7 @@ const Account: React.FC = () => {
             }
         }
     })
-    
+
 
     // Make get call to get user info
     const getUserInfo = async () => {
@@ -97,7 +97,7 @@ const Account: React.FC = () => {
         if (error) {
             console.log("Error");
             console.log(error);
-          } else {
+        } else {
             // console.log(data)
 
             setUserData({
@@ -156,10 +156,19 @@ const Account: React.FC = () => {
     }
 
 
+    // Opens up modal for updating account
+    const [updateModal, setUpdateModal] = useState<boolean>(false);
+    const handleOpenUpdate = () => setUpdateModal(true);
+    const handleCloseUpdate = () => setUpdateModal(false);
+
+    // Handles message displayed by update modal
+    const [updateModalMessage, setUpdateModalMessage] = useState<String>("");
+
     // Handles updating the account
     const handleUpdate = async () => {
         if (userData.first == "" || userData.last == "") {
-            console.log("Missing required fields!");
+            setUpdateModalMessage("Missing required fields!");
+            handleOpenUpdate();
             return;
         }
 
@@ -175,21 +184,22 @@ const Account: React.FC = () => {
         });
 
         const { data, error } = await response.json();
-        
+
         if (error) {
-            console.log("Error");
+            setUpdateModalMessage("Error updating account!");
             console.log(error);
         } else {
-            console.log("Success");
+            setUpdateModalMessage("Successfully updated account!");
             console.log(data);
         }
+        handleOpenUpdate();
     }
 
 
     // Opens up modal for deleting account
     const [deleteModal, setDeleteModal] = useState<boolean>(false);
-    const handleOpen = () => setDeleteModal(true);
-    const handleClose = () => setDeleteModal(false);
+    const handleOpenDelete = () => setDeleteModal(true);
+    const handleCloseDelete = () => setDeleteModal(false);
 
     // Deletes account
     // TODO: implementation of DELETE API
@@ -200,7 +210,7 @@ const Account: React.FC = () => {
         });
 
         const { data, error } = await response.json();
-        
+
         if (error) {
             console.log("Error");
             console.log(error);
@@ -239,9 +249,9 @@ const Account: React.FC = () => {
 
             {(loading &&
                 <p>Loading user data</p>
-            ) || ( 
+            ) || (
                     <div style={{ marginTop: 20 }}>
-                        <Grid container sx={{ marginLeft: 4, marginRight:-2 }} spacing={20} alignItems="flex-start">
+                        <Grid container sx={{ marginLeft: 4, marginRight: -2 }} spacing={20} alignItems="flex-start">
                             <Grid display="flex" flexDirection="column" alignItems="center">
                                 <Box position="relative" display="inline-block">
                                     <Avatar src={userData.pfp} sx={{ width: 125, height: 125 }} />
@@ -352,53 +362,61 @@ const Account: React.FC = () => {
 
                         <ThemeProvider theme={theme}>
                             <Grid container spacing={20} sx={{ marginTop: 10, marginLeft: 4, marginRight: -21 }}>
-                                <Grid size={{xs: 3, sm: 3, md: 3}}>
+                                <Grid size={{ xs: 3, sm: 3, md: 3 }}>
                                     <Button variant="contained" color="buttonBlue">
                                         <Link href="/sellers_home">View my listings</Link>
                                     </Button>
                                 </Grid>
 
-                                <Grid size={{md: 3}}>
+                                <Grid size={{ md: 3 }}>
                                     <Button variant="contained" onClick={handleUpdate} color="buttonBlue">Update Account</Button>
                                 </Grid>
 
-                                <Grid size={{md: 3}}>
-                                    <Button variant="contained" onClick={handleOpen} color="deleteRed">Delete account</Button>
+                                <Grid size={{ md: 3 }}>
+                                    <Button variant="contained" onClick={handleOpenDelete} color="deleteRed">Delete account</Button>
                                 </Grid>
 
-                                <Grid size={{md: 3}}>
+                                <Grid size={{ md: 3 }}>
                                     <Button variant="contained" color="deleteRed">
                                         <Link href="/">Log out</Link>
                                     </Button>
                                 </Grid>
 
-                            </Grid>    
+                            </Grid>
                         </ThemeProvider>
-                        
+
 
                     </div>
                 )}
 
-            {/* Modal for deleting account */}
+            {/* Modal for updating account */}
             <Modal
-                open={deleteModal}
-                onClose={handleClose}
+                open={updateModal}
+                onClose={handleCloseUpdate}
             >
                 <Box className="modals">
-                    <p><b>Are you sure you want to delete your account?</b></p>
-                    <div style={{marginTop: 10}}>
-                        <ThemeProvider theme={theme}>
-                            <Grid container spacing={3}>
-                                <Button onClick={deleteAccount} variant="contained" color="deleteRed">Yes</Button>
-                                <Button onClick={handleClose} variant="contained" color="buttonBlue">No</Button>
-                            </Grid>
-                            
-                        </ThemeProvider>    
-                    </div>
+                    <p><b>{updateModalMessage}</b></p>
                 </Box>
             </Modal>
 
-            {/* Modals for different outcomes for updating account */}
+            {/* Modal for deleting account */}
+            <Modal
+                open={deleteModal}
+                onClose={handleCloseDelete}
+            >
+                <Box className="modals">
+                    <p><b>Are you sure you want to delete your account?</b></p>
+                    <div style={{ marginTop: 10 }}>
+                        <ThemeProvider theme={theme}>
+                            <Grid container spacing={3}>
+                                <Button onClick={deleteAccount} variant="contained" color="deleteRed">Yes</Button>
+                                <Button onClick={handleCloseDelete} variant="contained" color="buttonBlue">No</Button>
+                            </Grid>
+
+                        </ThemeProvider>
+                    </div>
+                </Box>
+            </Modal>
         </div>
     )
 }
