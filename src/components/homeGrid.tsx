@@ -31,7 +31,7 @@ const HomeGrid: React.FC = () => {
       console.log("Error");
       console.log(error);
     } else {
-      const listings: Product[] = data.map((element: { id: any; name: any; description: any; }) => ({
+      const listings: Product[] = data.listings.map((element: { id: any; name: any; description: any; }) => ({
         id: element.id, 
         name: element.name || 'Title', 
         description: element.description || 'Description'
