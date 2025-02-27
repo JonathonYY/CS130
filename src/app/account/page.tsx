@@ -84,20 +84,33 @@ const Account: React.FC = () => {
             }
         }
     })
+    
 
     // Make get call to get user info
-    // TODO: Impl get call
-    async function getUserInfo() {
-        setTimeout(() => { setLoading(false) }, 1000);
-        setUserData({
-            email: "test@g.ucla.edu",
-            first: "Joe",
-            last: "Bruin",
-            pfp: "../../../public/icon.png",
-            phone: "+1 (888)-888-8888",
-            buyerRating: 4,
-            sellerRating: 4
+    const getUserInfo = async () => {
+        // TODO: change GET call to call for user_id based on auth instead of preset
+        const response = await fetch("/api/user/abcdef", {
+            method: "GET",
         });
+
+        const { data, error } = await response.json();
+        if (error) {
+            console.log("Error");
+            console.log(error);
+          } else {
+            // console.log(data)
+
+            setUserData({
+                email: data.email_address,
+                first: data.first,
+                last: data.last,
+                pfp: data.pfp,
+                phone: data.phone_number,
+                buyerRating: data.cum_buyer_rating,
+                sellerRating: data.cum_seller_rating
+            });
+            setLoading(false);
+        }
     }
 
 
@@ -144,9 +157,32 @@ const Account: React.FC = () => {
 
 
     // Handles updating the account
-    // TODO: implementation of PATCH API. Remember first and last name are required
-    const handleUpdate = () => {
-        console.log(userData);
+    const handleUpdate = async () => {
+        if (userData.first == "" || userData.last == "") {
+            console.log("Missing required fields!");
+            return;
+        }
+
+        // TODO: change PATCH call to call for user_id based on auth instead of preset
+        const response = await fetch("/api/user/abcdef", {
+            body: JSON.stringify({
+                first: userData.first,
+                last: userData.last,
+                pfp: userData.pfp,
+                phone_number: userData.phone
+            }),
+            method: "PATCH",
+        });
+
+        const { data, error } = await response.json();
+        
+        if (error) {
+            console.log("Error");
+            console.log(error);
+        } else {
+            console.log("Success");
+            console.log(data);
+        }
     }
 
 
@@ -157,8 +193,23 @@ const Account: React.FC = () => {
 
     // Deletes account
     // TODO: implementation of DELETE API
-    const deleteAccount = () => {
-        redirect("/");
+    async function deleteAccount() {
+        // TODO: change DELETE call to call for user_id based on auth instead of preset
+        const response = await fetch("/api/user/abcdef", {
+            method: "DELETE",
+        });
+
+        const { data, error } = await response.json();
+        
+        if (error) {
+            console.log("Error");
+            console.log(error);
+        } else {
+            console.log("Success");
+            console.log(data);
+        }
+
+        router.push("/");
     }
 
 
@@ -188,7 +239,7 @@ const Account: React.FC = () => {
 
             {(loading &&
                 <p>Loading user data</p>
-            ) || ( // May consider moving this section to a separate component file
+            ) || ( 
                     <div style={{ marginTop: 20 }}>
                         <Grid container sx={{ marginLeft: 4, marginRight:-2 }} spacing={20} alignItems="flex-start">
                             <Grid display="flex" flexDirection="column" alignItems="center">
@@ -346,6 +397,8 @@ const Account: React.FC = () => {
                     </div>
                 </Box>
             </Modal>
+
+            {/* Modals for different outcomes for updating account */}
         </div>
     )
 }

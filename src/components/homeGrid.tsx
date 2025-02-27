@@ -18,7 +18,7 @@ const HomeGrid: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   // Fetch all listings from the database, extract important info for cards
-  async function fetchAllListings() {
+  const fetchAllListings = async () => {
     setLoading(true);
     const response = await fetch("/api/listing", {
       method: "GET",
