@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { newListing } from "@/lib/firebase/firestore/types";
 import getAllListings from "@/lib/firebase/firestore/listing/getAllListings";
 
 /*
@@ -33,10 +32,10 @@ export async function POST(req: Request) {
  * Params:
  *  None
  * Query Params:
- *  query: filter/sort query for Listing search
- *  limit: max number of Listings to retrieve
- *  last_rating: rating of last listing retrieved
- *  last_updated: updated Timestamp of last listing retrieved, in millis
+ *  query?: filter/sort query for Listing search
+ *  limit?: max number of Listings to retrieve
+ *  last_rating?: rating of last listing retrieved
+ *  last_updated?: updated Timestamp of last listing retrieved, in millis
  * Return:
  *  data: list of Listings that match the query (truncated data)
  */
