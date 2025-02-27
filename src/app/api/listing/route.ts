@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Listing, newListing, AddListingData } from "@/lib/firebase/firestore/types";
+import addListing from "@/lib/firebase/firestore/listing/addListing";
 import getAllListings from "@/lib/firebase/firestore/listing/getAllListings";
 
 /*
@@ -80,7 +81,6 @@ export async function GET(req: Request) {
 
     const response = await getAllListings(query, parseInt(limit), parseFloat(last_rating), parseFloat(last_updated));
 
-<<<<<<< HEAD
     return NextResponse.json({ data: {listings: response}, error: null })
   } catch (e: unknown) {
     if (e instanceof Error) {
@@ -89,17 +89,4 @@ export async function GET(req: Request) {
       return NextResponse.json({ data: null, error: "unknown error" });
     }
   }
-=======
-  return NextResponse.json({ data: { listings: [{
-    updated: listing.updated,
-    title: listing.title,
-    price: listing.price,
-    owner_id: listing.owner,
-    owner_pfp: '',
-    seller_rating: 0,
-    description: listing.description,
-    thumbnail: listing.image_paths.length > 0 ? listing.image_paths[0] : '',
-    // id: listing.id,
-  }]}, error: null });
->>>>>>> 45f20bd (fix up POST listing and add unit tests)
 }
