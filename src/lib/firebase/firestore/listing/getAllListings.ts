@@ -23,16 +23,6 @@ function transformListing(doc: QueryDocumentSnapshot<DocumentData, DocumentData>
   };
 }
 
-function stringToWhereFilterOp(op: string): WhereFilterOp {
-  switch(op) {
-    case '<': return '<';
-    case '<=': return '<=';
-    case '>': return '>';
-    case '>=': return '>=';
-    default: throw new Error(`Invalid WhereFilterOp string: ${op}`);
-  }
-}
-
 export default async function getAllListings(req?: string, req_limit?: number, last_rating?: number, last_timestamp?: number) {
   let result;
   const listingsRef = collection(db, 'listings');
@@ -46,17 +36,13 @@ export default async function getAllListings(req?: string, req_limit?: number, l
 
   if (hasParams(parsed_req)) {
     const {search_str, category, condition, owner, cmp_op, price} = parsed_req;
-    let op: WhereFilterOp;
-    try {
-      op = stringToWhereFilterOp(cmp_op);
-    } catch {
-      op = ">=";
-    }
 
     const q = query(listingsRef,
                     orderBy('seller_rating', 'desc'), // order response by rating, recency
                     orderBy('updated', 'desc'),
                     limit(q_limit),
+                    startAt(prev_rating, prev_ts),
+                    where('selected_buyer', '==', ""),
                     where('title', '>=', search_str),
                     where('title', '<=', search_str+"\uf8ff"),
                     where('category', '>=', category),
@@ -65,7 +51,7 @@ export default async function getAllListings(req?: string, req_limit?: number, l
                     where('condition', '<=', condition+"\uf8ff"),
                     where('owner_name', '>=', owner),
                     where('owner_name', '<=', owner+"\uf8ff"),
-                    where('price', op, price)
+                    where('price', (cmp_op as WhereFilterOp), price)
                   );
 
     result = await getDocs(q);

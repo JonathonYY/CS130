@@ -31,7 +31,7 @@ describe("Extract search params from input", () => {
     expect(res1).toEqual(exp_res1);
     expect(hasParams(res1)).toBe(true);
 
-    const i2 = "search_with&^characters seller:Alice Jones price<:80.17 category:Food split";
+    const i2 = 'search_with&^characters seller:"Alice Jones" price<:80.17 category:Food split';
     const res2 = parseInput(i2);
     const exp_res2: SearchFields = {
       condition: '',
@@ -96,6 +96,33 @@ describe("Extract search params from input", () => {
     }
     expect(res6).toEqual(exp_res6);
     expect(hasParams(res6)).toBe(true);
+
+    // confirm quotes required for multi-word name
+    const i7 = "TEST SEARCH STR seller:David Johnson condition:new category:furniture";
+    const res7 = parseInput(i7);
+    const exp_res7: SearchFields = {
+      condition: 'new',
+      category: 'furniture',
+      owner: 'david',
+      price: 0,
+      cmp_op: '>=',
+      search_str: 'test search str  johnson'
+    }
+    expect(res7).toEqual(exp_res7);
+    expect(hasParams(res7)).toBe(true);
+
+    const i8 = 'seller:"FIRST MIDDLE LAST " condition:new category:furniture';
+    const res8 = parseInput(i8);
+    const exp_res8: SearchFields = {
+      condition: 'new',
+      category: 'furniture',
+      owner: 'first middle last',
+      price: 0,
+      cmp_op: '>=',
+      search_str: ''
+    }
+    expect(res8).toEqual(exp_res8);
+    expect(hasParams(res8)).toBe(true);
   });
 
   it("Should register as having no params on empty search", async () => {

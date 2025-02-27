@@ -7,7 +7,7 @@ export interface SearchFields {
   price: number
 }
 
-export function parseInput(req: string | undefined): SearchFields {
+export function parseInput(req?: string): SearchFields {
   const result: SearchFields = {
     search_str: '',
     category: '',
@@ -21,7 +21,7 @@ export function parseInput(req: string | undefined): SearchFields {
     return result;
   }
 
-  const sellerPattern = /seller:([\p{Letter}\p{Mark}]+ ?\w*)/u;
+  const sellerPattern = /seller:(([\p{Letter}\p{Mark}]+)|("([\p{Letter}\p{Mark}]+ ?)+"))/u;
   const categoryPattern = /category:(\w+)/;
   const conditionPattern = /condition:(\w+)/;
   const pricePattern = /price([<>]=?):(\d+\.?\d*)/;
@@ -42,7 +42,11 @@ export function parseInput(req: string | undefined): SearchFields {
 
   const sellerMatch = req.match(sellerPattern);
   if (sellerMatch) {
-    result['owner'] = sellerMatch[1].trim().toLowerCase();
+    if (sellerMatch[1].includes('"')) {
+      result['owner'] = sellerMatch[1].slice(1, -1).trim().toLowerCase();
+    } else {
+      result['owner'] = sellerMatch[1].trim().toLowerCase();
+    }
     req = req.replace(sellerMatch[0], '');
   }
 

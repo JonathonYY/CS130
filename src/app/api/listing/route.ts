@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { Listing, newListing } from "@/lib/firebase/firestore/types";
+import { newListing } from "@/lib/firebase/firestore/types";
 import getAllListings from "@/lib/firebase/firestore/listing/getAllListings";
-import addListing from "@/lib/firebase/firestore/listing/addListing";
-import { Timestamp } from "firebase/firestore";
 
 /*
  * Create new Listing
@@ -26,7 +24,7 @@ export async function POST(req: Request) {
 
   // TODO: addListing to db
 
-  return NextResponse.json({ data: { listing_id: newListing().id }, error: null });
+  return NextResponse.json({ data: { listing_id: "listing_id" }, error: null });
 }
 
 /*
@@ -42,7 +40,6 @@ export async function POST(req: Request) {
  * Return:
  *  data: list of Listings that match the query (truncated data)
  */
-// TODO: update API spec to match changes to input as discussion continuesg
 export async function GET(req: Request) {
   try {
     // get query data from url
