@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { Listing, newListing } from "@/lib/firebase/firestore/types";
 import getAllListings from "@/lib/firebase/firestore/listing/getAllListings";
-import addListing from "@/lib/firebase/firestore/listing/addListing";
 
 /*
  * Create new Listing
@@ -25,7 +23,7 @@ export async function POST(req: Request) {
 
   // TODO: addListing to db
 
-  return NextResponse.json({ data: { listing_id: newListing().id }, error: null });
+  return NextResponse.json({ data: { listing_id: "listing_id" }, error: null });
 }
 
 /*
@@ -34,20 +32,27 @@ export async function POST(req: Request) {
  * Params:
  *  None
  * Query Params:
- *  query: filter/sort query for Listing search
- *  limit: max number of Listings to retrieve
- *  last_listing_id: id of last Listing retrieved
+ *  query?: filter/sort query for Listing search
+ *  limit?: max number of Listings to retrieve
+ *  last_rating?: rating of last listing retrieved
+ *  last_updated?: updated Timestamp of last listing retrieved, in millis
  * Return:
  *  data: list of Listings that match the query (truncated data)
  */
 export async function GET(req: Request) {
-  // get query data from url
-  const queryData = Object.fromEntries((new URL(req.url)).searchParams.entries());
-  const { query, limit, last_listing_id } = queryData;
+  try {
+    // get query data from url
+    const queryData = Object.fromEntries((new URL(req.url)).searchParams.entries());
+    const { query, limit, last_rating, last_updated } = queryData;
 
-  // TODO: finish query listings impl
-  const { result, error } = await getAllListings();
-  // console.log(result);
+    const response = await getAllListings(query, parseInt(limit), parseFloat(last_rating), parseFloat(last_updated));
 
-  return NextResponse.json({ data: result, error: error });
+    return NextResponse.json({ data: {listings: response}, error: null })
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      return NextResponse.json({ data: null, error: e.message });
+    } else {
+      return NextResponse.json({ data: null, error: "unknown error" });
+    }
+  }
 }
