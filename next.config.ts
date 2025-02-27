@@ -6,9 +6,8 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "firebasestorage.googleapis.com",
-        port: "",
-        pathname: "/images/**",
-        search: "",
+        port: "", // Leave empty if not needed
+        pathname: "/v0/b/bmart-5f635.firebasestorage.app/o/**", // Allow all paths under your bucket
       },
     ],
   },

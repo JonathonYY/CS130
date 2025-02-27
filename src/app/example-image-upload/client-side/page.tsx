@@ -41,7 +41,7 @@ export default function Upload() {
       {uploadedUrl && (
         <div>
           <p>Uploaded image:</p>
-          <img
+          <Image
             src={uploadedUrl}
             alt="Uploaded image"
             width={300}
