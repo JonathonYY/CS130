@@ -7,7 +7,6 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const image = formData.get("image") as File;
-    console.log("HELLO");
 
     if (!image) {
       return NextResponse.json({ data: null, error: "No image provided" });
@@ -19,7 +18,6 @@ export async function POST(request: NextRequest) {
     const storageRef = ref(storage, `images/${image.name}`);
     await uploadBytes(storageRef, buffer); // Use the Buffer
     const url = await getDownloadURL(storageRef);
-    console.log(url);
 
     return NextResponse.json({ data: url, error: null });
   } catch (error) {

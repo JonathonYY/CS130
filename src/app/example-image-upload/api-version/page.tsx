@@ -35,8 +35,6 @@ export default function Upload() {
       }
 
       setUploadedUrl(data); // Access the URL directly
-      console.log("File Uploaded Successfully");
-      console.log(data); //log the url to the console.
     } catch (error) {
       console.error("error uploading file", error);
     } finally {
