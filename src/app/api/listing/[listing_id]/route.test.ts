@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import * as deleteListing from "@/lib/firebase/firestore/listing/deleteListing";
 
 const { db } = jest.requireMock("@/lib/firebase/config");
-const { getDoc, doc, updateDoc, serverTimestamp, arrayUnion } = jest.requireMock("firebase/firestore");
+const { getDoc, doc, updateDoc, serverTimestamp } = jest.requireMock("firebase/firestore");
 
 const deleteListingMock = jest.spyOn(deleteListing, "default").mockImplementation(
   (listing_id: string, user_id: string) => {
@@ -156,7 +156,7 @@ describe('Test GET listing', () => {
 
         // check for correct output
         expect(jsonResponse.data).toBeNull();
-        expect(jsonResponse.error).not.toBeNull();
+        expect(jsonResponse.error).toEqual('No listing exists for given id');
     });
 });
 
@@ -285,7 +285,7 @@ describe('Test PATCH listing', () => {
         expect(serverTimestamp).toHaveBeenCalled();
 
         expect(jsonResponse.data).toBeNull();
-        expect(jsonResponse.error).not.toBeNull();
+        expect(jsonResponse.error).toEqual('No listing exists for given id');
     });
 
     it('Try to update listing with an invalid field', async () => {
@@ -298,7 +298,7 @@ describe('Test PATCH listing', () => {
             body: JSON.stringify({ blah: 'blah' }),
         });
         // Mock params as a promise
-        const mockParams = Promise.resolve({ listing_id: 'invalid_id' });
+        const mockParams = Promise.resolve({ listing_id: 'listing1' });
 
         const response: NextResponse = await PATCH(mockReq, { params: mockParams });
 
@@ -311,7 +311,33 @@ describe('Test PATCH listing', () => {
         expect(serverTimestamp).not.toHaveBeenCalled();
 
         expect(jsonResponse.data).toBeNull();
-        expect(jsonResponse.error).not.toBeNull();
+        expect(jsonResponse.error).toEqual('invalid listing field');
+    });
+
+    it('Try to update listing with a negative price', async () => {
+        // Mock req object
+        const mockReq = new Request('http://localhost', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ price: -5 }),
+        });
+        // Mock params as a promise
+        const mockParams = Promise.resolve({ listing_id: 'listing1' });
+
+        const response: NextResponse = await PATCH(mockReq, { params: mockParams });
+
+        const jsonResponse = await response.json();
+        // check for correct output
+
+        expect(doc).not.toHaveBeenCalled();
+        expect(getDoc).not.toHaveBeenCalled();
+        expect(updateDoc).not.toHaveBeenCalled();
+        expect(serverTimestamp).not.toHaveBeenCalled();
+
+        expect(jsonResponse.data).toBeNull();
+        expect(jsonResponse.error).toEqual('price must be nonnegative');
     });
 });
 

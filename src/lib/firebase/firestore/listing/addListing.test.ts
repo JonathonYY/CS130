@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import addListing from "./addListing";
 
 const { db } = jest.requireMock("@/lib/firebase/config");
-const { doc, collection, getDoc, updateDoc, addDoc, serverTimestamp, arrayUnion } = jest.requireMock("firebase/firestore");
+const { doc, getDoc, addDoc } = jest.requireMock("firebase/firestore");
 
 jest.mock('@/lib/firebase/config', () => ({
     db: {}

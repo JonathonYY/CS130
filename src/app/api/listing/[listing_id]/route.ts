@@ -40,14 +40,14 @@ export async function GET(
  * Params:
  *  listing_id: id of the Listing to get
  * Request body:
- *  title: title of the Listing
- *  price: price of the Listing
- *  condition: condition of the Listing
- *  category: category of the Listing
- *  description: description of the Listing
- *  selected_buyer_id: id of the selected buyer
- *  potential_buyer_ids: list of ids of potential buyers
- *  image_paths: list of paths to images for the Listing
+ *  title?: title of the Listing
+ *  price?: price of the Listing
+ *  condition?: condition of the Listing
+ *  category?: category of the Listing
+ *  description?: description of the Listing
+ *  selected_buyer_id?: id of the selected buyer
+ *  potential_buyer_ids?: list of ids of potential buyers
+ *  image_paths?: list of paths to images for the Listing
  * Return:
  *  data: the updated Listing object corresponding to the requested id
  *  error: error or null
@@ -78,6 +78,10 @@ export async function PATCH(
         throw new Error('invalid listing field');
       }
     });
+
+    if (Object.keys(data).includes('price') && data['price'] < 0) {
+      throw new Error('price must be nonnegative');
+    }
 
     const result = await patchListing(listing_id, data);
     return NextResponse.json({ data: result, error: null});
