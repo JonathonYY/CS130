@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import * as deleteListing from "@/lib/firebase/firestore/listing/deleteListing";
 
 const { db } = jest.requireMock("@/lib/firebase/config");
-const { getDoc, doc, updateDoc, serverTimestamp } = jest.requireMock("firebase/firestore");
+const { getDoc, doc, updateDoc, serverTimestamp, arrayUnion } = jest.requireMock("firebase/firestore");
 
 const deleteListingMock = jest.spyOn(deleteListing, "default").mockImplementation(
   (listing_id: string, user_id: string) => {
@@ -684,8 +684,6 @@ describe('Test PATCH listing', () => {
             'seller_rating': 3.5,
             'selected_buyer': '',
             'potential_buyers': [],
-            'reporters': [],
-            'ratings': {},
             'image_paths': [], 
         });
         expect(jsonResponse.error).toBeNull();
