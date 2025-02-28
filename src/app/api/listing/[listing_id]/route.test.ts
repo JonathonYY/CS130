@@ -777,4 +777,3 @@ describe('Test listing DELETE API endpoint', () => {
     expect(deleteListingMock.mock.calls[0][1]).toBe("valid_user");
   });
 });
-
