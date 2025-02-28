@@ -21,3 +21,6 @@ const firebase_app =
 export const db = getFirestore(firebase_app);
 export const auth = getAuth(firebase_app);
 export const provider = new GoogleAuthProvider();
+provider.setCustomParameters({
+  hd: 'g.ucla.edu'
+});
