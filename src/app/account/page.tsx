@@ -270,9 +270,9 @@ const Account: React.FC = () => {
                                 </Box>
 
                                 <div className="ratings">
-                                    <p><b>Buyer rating: {userData.buyerRating}/5</b></p>
+                                    <p><b>Buyer rating: <br /> {userData.buyerRating}/5</b></p>
 
-                                    <p><b>Seller rating: {userData.sellerRating}/5</b></p>
+                                    <p><b>Seller rating: <br /> {userData.sellerRating}/5</b></p>
                                 </div>
                             </Grid>
 
