@@ -3,26 +3,36 @@
 import HomeGrid from "../../components/homeGrid";
 import { useRouter } from "next/navigation";
 import "../globals.css";
-import { auth } from "@/lib/firebase/config";
-import { useState, useEffect } from "react";
-import { onAuthStateChanged } from "firebase/auth";
+import { useAuth } from "@/lib/authContext";
 
 const Home: React.FC = () => {
   const router = useRouter();
 
-  const [currUser, setCurrUser] = useState(null);
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      setCurrUser(user);
-    } else {
-      setCurrUser(null);
-    }
-  });
+  const { user, signInWithGoogle, signOutUser } = useAuth();
 
   return (
     <div>
-      <h1>Hello {currUser?.displayName}</h1>
+      {user ? (
+        <div>
+          <button
+            onClick={signOutUser}
+            className="border border-black rounded-sm bg-blue-300 p-4"
+          >
+            Click Here to Sign Out!
+          </button>
+        </div>
+      ) : (
+        <div>
+          <p>You are not signed in</p>
+          <button
+            onClick={signInWithGoogle}
+            className="border border-black rounded-sm bg-blue-300 p-4"
+          >
+            Click Here to Sign In!
+          </button>
+        </div>
+      )}
+      <h1>Hello {user?.displayName}</h1>
       <div className="logoContainer">
         <img
           src="logo1.png"
@@ -34,15 +44,13 @@ const Home: React.FC = () => {
         <p>Search bar goes here</p>
 
         <img
-          src={currUser?.photoURL ?? "icon.png"}
+          src={user?.photoURL ?? "public/icon.png"}
           alt="user icon"
           className="userIcon"
           onClick={() => router.push("/login")}
         />
       </div>
-
       <hr />
-
       <HomeGrid />
     </div>
   );

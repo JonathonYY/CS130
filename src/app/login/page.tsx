@@ -1,49 +1,10 @@
 "use client";
 import Link from "next/link";
 import "../globals.css";
-import { auth, provider } from "@/lib/firebase/config";
-import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/authContext";
 
 const Login: React.FC = () => {
-  const [currUser, setCurrUser] = useState();
-
-  function signInWithGoogle() {
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        // The signed-in user info.
-        const user = result.user;
-        setCurrUser(user);
-      })
-      .catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorCode);
-        console.log(errorMessage);
-      });
-  }
-
-  function signOutUser() {
-    signOut(auth)
-      .then(() => {
-        console.log("Sign out successful!");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    setCurrUser(null);
-  }
-
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setCurrUser(user);
-      } else {
-        console.log("User is signed out!");
-      }
-    });
-  }, []);
+  const { user, token, signInWithGoogle, signOutUser } = useAuth();
 
   return (
     <div className="loginBackground">
@@ -55,10 +16,14 @@ const Login: React.FC = () => {
         </Link>
         <button onClick={signInWithGoogle}>Sign In</button>
         <p className="boldText">Please sign in with your google email</p>
-        {currUser ? (
+        {user ? (
           <>
-            <p>Hello {currUser.displayName}</p>
-            <p>Hello {currUser.email}</p>
+            <p>Hello {user.displayName}</p>
+            <p>Hello {user.email}</p>
+            <p>
+              {/* DON'T DO THIS!!! */}
+              User Token is <span className="text-gray-400">{token}</span>
+            </p>
             <button onClick={signOutUser}>Log out</button>
           </>
         ) : (
