@@ -3,9 +3,10 @@ import { POST } from './route';
 import { GET as GET2 } from "./[listing_id]/route";
 import * as getAllListings from "@/lib/firebase/firestore/listing/getAllListings";
 import { NextResponse } from 'next/server';
+import { ACTION_SERVER_ACTION } from "next/dist/client/components/router-reducer/router-reducer-types";
 
 const { db } = jest.requireMock('@/lib/firebase/config');
-const { doc, collection, getDoc, addDoc, serverTimestamp } = jest.requireMock('firebase/firestore');
+const { doc, collection, getDoc, addDoc, updateDoc, serverTimestamp } = jest.requireMock('firebase/firestore');
 
 const getAllListingsMock = jest.spyOn(getAllListings, "default").mockImplementation();
 
@@ -34,6 +35,7 @@ jest.mock('firebase/firestore', () => {
                 id: 'new_id'
             }
         }),
+        updateDoc: jest.fn((ref, params) => { Object.assign(ref, params) }),
         serverTimestamp: jest.fn(() => { return 'MOCK_TIME'; }),
     };
 });
@@ -88,7 +90,8 @@ describe('Test POST listing', () => {
                 last_reported: {
                     toMillis: () => (200000)
                 },
-                pfp: ''
+                pfp: '',
+                active_listings: [],
             },
             user2: {
                 id: 'user2',
@@ -99,7 +102,8 @@ describe('Test POST listing', () => {
                 last_reported: {
                     toMillis: () => (250000)
                 },
-                pfp: ''
+                pfp: '',
+                active_listings: [],
             }
         }
         db.listings = {
@@ -149,7 +153,7 @@ describe('Test POST listing', () => {
             },
             body: JSON.stringify({
                 'user_id': 'user1',
-                'title': 'newlist',
+                'title': 'NewList',
                 'price': 100,
                 'condition': 'new',
                 'category': 'fish',
@@ -189,7 +193,7 @@ describe('Test POST listing', () => {
             'category': 'fish',
             'description': 'asdf',
             'owner': 'user1',
-            'owner_name': 'Joe Bruin',
+            'owner_name': 'joe bruin',
             'owner_pfp': '',
             'seller_rating': 0,
             'selected_buyer': '',

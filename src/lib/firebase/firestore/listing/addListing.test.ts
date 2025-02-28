@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import addListing from "./addListing";
 
 const { db } = jest.requireMock("@/lib/firebase/config");
-const { doc, collection, getDoc, addDoc, serverTimestamp } = jest.requireMock("firebase/firestore");
+const { doc, collection, getDoc, updateDoc, addDoc, serverTimestamp } = jest.requireMock("firebase/firestore");
 
 jest.mock('@/lib/firebase/config', () => ({
     db: {}
@@ -29,6 +29,7 @@ jest.mock('firebase/firestore', () => {
                 id: 'new_id'
             }
         }),
+        updateDoc: jest.fn((ref, params) => { Object.assign(ref, params) }),
         serverTimestamp: jest.fn(() => { return 'MOCK_TIME'; }),
     };
 });
@@ -45,7 +46,8 @@ describe('Test addListing', () => {
                 completed_sales: 0,
                 last_reported: {
                     toMillis: () => (200000)
-                }
+                },
+                active_listings: []
             },
             user2: {
                 id: 'user2',
@@ -53,7 +55,8 @@ describe('Test addListing', () => {
                 completed_purchases: 0,
                 last_reported: {
                     toMillis: () => (250000)
-                }
+                },
+                active_listings: []
             }
         }
         db.listings = {
@@ -114,6 +117,9 @@ describe('Test addListing', () => {
         // check for correct output
         expect(result).toEqual({ listing_id: 'new_id' });
         expect(db['listings']['new_id']).not.toBe(undefined);
+
+        // check active listings in users is updated
+        expect(db['users']['user1']['active_listings']).toEqual(['new_id']);
     });
 
     it('addListing with invalid user_id', async () => {
