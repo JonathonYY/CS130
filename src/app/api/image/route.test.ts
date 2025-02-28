@@ -15,7 +15,7 @@ describe("/api/image", () => {
     // Check response to be NextResponse
     expect(response).toBeInstanceOf(NextResponse);
 
-    //if you want to check that the response is json, you can do this.
+    // to check json fields
     const { data, error } = await response.json();
     expect(data).toBe(null);
     expect(error).toBe("No image provided");
