@@ -1,7 +1,6 @@
 import { db } from "../../config";
 import { doc, collection, getDoc, addDoc, updateDoc, serverTimestamp, Timestamp, arrayUnion } from "firebase/firestore";
 import { User, Listing, AddListingData } from "../types";
-import { updateUser } from "../user/userUtil";
 
 export default async function addListing(data: AddListingData) {
   // get user from user_id
