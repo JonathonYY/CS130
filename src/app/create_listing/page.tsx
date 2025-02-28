@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import "../globals.css";
+import CreateListingForm from "../../components/ItemCreateForm"
+
 
 const CreateListing: React.FC = () => {
   const router = useRouter();
@@ -24,7 +26,6 @@ const CreateListing: React.FC = () => {
     <div>
       <div className="logoContainer">
         <p className="bigHeader">Create Listing</p>
-
         <img
           src="logo1.png"
           alt="logo"
@@ -40,6 +41,7 @@ const CreateListing: React.FC = () => {
       >
         Click me to add an example Product!
       </button>
+      <CreateListingForm/>
       <div className="buttonContainer">
         <Link href="/sellers_home" style={{ marginLeft: 25 }}>
           Publish Listing
