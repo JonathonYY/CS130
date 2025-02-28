@@ -200,7 +200,7 @@ describe('Test POST listing', () => {
             }
         });
         const mockParams = Promise.resolve(jsonResponse.data);
-        const response2: NextResponse = await GET2(mockReq, {params: mockParams});
+        const response2: NextResponse = await GET2(mockReq2, {params: mockParams});
 
         const jsonResponse2 = await response2.json();
 
@@ -250,7 +250,7 @@ describe('Test POST listing', () => {
 
         // check for correct output
         expect(jsonResponse.data).toBeNull();
-        expect(jsonResponse.error).not.toBeNull();
+        expect(jsonResponse.error).toEqual('No user exists for given id');
     });
 
     it('POST with missing field', async () => {
@@ -279,7 +279,7 @@ describe('Test POST listing', () => {
 
         // check for correct output
         expect(jsonResponse.data).toBeNull;
-        expect(jsonResponse.error).not.toBeNull();
+        expect(jsonResponse.error).toEqual('missing listing field');
     });
 
     it('POST with extra invalid field', async () => {
@@ -310,7 +310,37 @@ describe('Test POST listing', () => {
 
         // check for correct output
         expect(jsonResponse.data).toBeNull;
-        expect(jsonResponse.error).not.toBeNull();
+        expect(jsonResponse.error).toEqual('invalid listing field');
+    });
+
+    it('POST with negative price', async () => {
+        // Mock req object
+        const mockReq = new Request('http://localhost', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'user_id': 'user1',
+                'price': -5,
+                'title': 'newlist',
+                'condition': 'new',
+                'category': 'fish',
+                'description': 'asdf',
+                'image_paths': [],
+            }),
+        });
+        const response: NextResponse = await POST(mockReq);
+
+        const jsonResponse = await response.json();
+
+        expect(doc).not.toHaveBeenCalled();
+        expect(getDoc).not.toHaveBeenCalled();
+        expect(addDoc).not.toHaveBeenCalled();
+
+        // check for correct output
+        expect(jsonResponse.data).toBeNull;
+        expect(jsonResponse.error).toEqual('price must be nonnegative');
     });
 });
 
