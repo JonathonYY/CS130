@@ -36,7 +36,7 @@ jest.mock('firebase/firestore', () => {
     };
 });
 
-describe('Test GET, PATCH listing', () => {
+describe('Test GET listing', () => {
     beforeEach(() => {
         // Reset mocks before each test to ensure clean state
         jest.clearAllMocks();
@@ -157,7 +157,68 @@ describe('Test GET, PATCH listing', () => {
         expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).not.toBeNull();
     });
+});
 
+describe('Test PATCH listing', () => {
+    beforeEach(() => {
+        // Reset mocks before each test to ensure clean state
+        jest.clearAllMocks();
+        // Reset mock database to clean slate
+        db.users = {
+            user1: {
+                id: 'user1',
+                cum_seller_rating: 0,
+                completed_sales: 0,
+                last_reported: {
+                    toMillis: () => (200000)
+                }
+            },
+            user2: {
+                id: 'user2',
+                cum_buyer_rating: 0,
+                completed_purchases: 0,
+                last_reported: {
+                    toMillis: () => (250000)
+                }
+            }
+        }
+        db.listings = {
+            listing1: {
+                'updated': 'MOCK_TIME0',
+                'title': 'Listing1',
+                'price': 30,
+                'condition': 'good',
+                'category': 'food',
+                'description': '',
+                'owner': 'user1',
+                'owner_name': 'A',
+                'owner_pfp': '',
+                'seller_rating': 4,
+                'selected_buyer': '',
+                'potential_buyers': [],
+                'reporters': [],
+                'ratings': {},
+                'image_paths': [],
+            },
+            listing2: {
+                'updated': 'MOCK_TIME0',
+                'title': 'Listing2',
+                'price': 60,
+                'condition': 'used',
+                'category': 'object',
+                'description': 'asdf',
+                'owner': 'user2',
+                'owner_name': 'A',
+                'owner_pfp': '',
+                'seller_rating': 3.5,
+                'selected_buyer': '',
+                'potential_buyers': [],
+                'reporters': [],
+                'ratings': {},
+                'image_paths': [], 
+            },
+        }
+    });
     it('Succesfully update listing', async () => {
         // Mock req object
         const mockReq = new Request('http://localhost', {
