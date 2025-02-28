@@ -34,6 +34,22 @@ const products = [
     1: [
       { id: "u1", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
       { id: "u2", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+      { id: "u3", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+      { id: "u4", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+      { id: "u5", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+      { id: "u6", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+      { id: "u7", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+      { id: "u8", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+      { id: "u9", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+      { id: "u10", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+      { id: "u11", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+      { id: "u12", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+      { id: "u13", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+      { id: "u14", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+      { id: "u15", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+      { id: "u16", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+      { id: "u17", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+      { id: "u18", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
     ],
     2: [
       { id: "u3", name: "Charlie", avatar: "https://via.placeholder.com/40", rating: 3 },
@@ -110,9 +126,9 @@ const products = [
           </div>
   
           {/* Right Panel: Interested Users */}
-          <div className="w-2/3 bg-white shadow-lg rounded-lg ml-4 overflow-hidden flex flex-col">
+          <div className="w-2/3 bg-white shadow-lg rounded-lg ml-4 overflow-hidden flex flex-col relative">
             <h2 className="text-lg font-semibold p-4 border-b text-black">Interested Users</h2>
-            <div className="overflow-y-auto overflow-x-hidden flex-1" style={{ maxHeight: "calc(100vh - 100px)" }}>
+            <div className="overflow-y-scroll overflow-x-hidden flex-1" style={{ maxHeight: "calc(100vh - 150px)" }}>
               {selectedProduct && interestedUsers[selectedProduct] ? (
                 <List>
                   {interestedUsers[selectedProduct].map((user) => (
