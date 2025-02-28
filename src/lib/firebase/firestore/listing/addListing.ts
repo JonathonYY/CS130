@@ -1,19 +1,16 @@
 import { db } from "../../config";
 import { doc, collection, getDoc, addDoc, updateDoc, serverTimestamp, Timestamp, arrayUnion } from "firebase/firestore";
 import { User, Listing, AddListingData } from "../types";
-import { updateUser } from "../user/userUtil";
 
 export default async function addListing(data: AddListingData) {
   // get user from user_id
   const userRef = doc(db, "users", data.user_id);
   const userSnapshot = await getDoc(userRef);
-  let user_data: User;
 
-  if (userSnapshot.exists()) {
-    user_data = userSnapshot.data() as User;
-  } else {
+  if (!userSnapshot.exists()) {
     throw new Error("No user exists for given id");
   }
+  const user_data = userSnapshot.data() as User;
 
   // create listing
   const listing_data: Listing = {
@@ -28,7 +25,7 @@ export default async function addListing(data: AddListingData) {
     owner_pfp: user_data.pfp,
     seller_rating: user_data.completed_sales
                     ? user_data.cum_seller_rating / user_data.completed_sales
-                    : 0,
+                    : 3.5, // default rating of 3.5
     selected_buyer: "", // buyer user_id
     potential_buyers: [], // user_ids of potential buyers
     reporters: [], // user_ids of reporters

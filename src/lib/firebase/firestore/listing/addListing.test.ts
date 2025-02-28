@@ -166,7 +166,7 @@ describe('Test addListing', () => {
             'image_paths': [],
         });
 
-        expect(db['listings']['new_id']['seller_rating']).toEqual(0);
+        expect(db['listings']['new_id']['seller_rating']).toBeCloseTo(3.5);
     });
 
 });

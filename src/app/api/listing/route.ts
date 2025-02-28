@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { Listing, newListing, AddListingData } from "@/lib/firebase/firestore/types";
+import { AddListingData } from "@/lib/firebase/firestore/types";
 import addListing from "@/lib/firebase/firestore/listing/addListing";
 import getAllListings from "@/lib/firebase/firestore/listing/getAllListings";
 
@@ -48,6 +48,11 @@ export async function POST(req: Request) {
         throw new Error('missing listing field');
       }
     });
+
+    // validate price is nonnegative
+    if (data.price < 0) {
+      throw new Error('price must be nonnegative');
+    }
 
     const result = await addListing(data);
     return NextResponse.json({ data: result, error: null});
