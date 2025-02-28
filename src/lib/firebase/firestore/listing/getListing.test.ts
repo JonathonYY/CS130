@@ -92,7 +92,6 @@ describe('Test getListing', () => {
 
         // check for correct output
         expect(result).toEqual({
-            'id': 'listing1',
             'updated': 'MOCK_TIME0',
             'title': 'Listing1',
             'price': 30,

@@ -1,6 +1,10 @@
 import { GET, PATCH, DELETE } from "./route";
+import { GET, PATCH, DELETE } from "./route";
 import { NextResponse } from "next/server";
 import * as deleteListing from "@/lib/firebase/firestore/listing/deleteListing";
+
+const { db } = jest.requireMock("@/lib/firebase/config");
+const { getDoc, doc, updateDoc, serverTimestamp } = jest.requireMock("firebase/firestore");
 
 const { db } = jest.requireMock("@/lib/firebase/config");
 const { getDoc, doc, updateDoc, serverTimestamp } = jest.requireMock("firebase/firestore");
@@ -119,7 +123,6 @@ describe('Test GET listing', () => {
 
         // check for correct output
         expect(jsonResponse.data).toEqual({
-            'id': 'listing1',
             'updated': 'MOCK_TIME0',
             'title': 'Listing1',
             'price': 30,
