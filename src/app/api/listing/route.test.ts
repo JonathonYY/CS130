@@ -174,6 +174,24 @@ describe('Test POST listing', () => {
         expect(jsonResponse.data).toEqual({ listing_id: 'new_id' });
         expect(jsonResponse.error).toBeNull();
 
+        expect(db['listings']['new_id']).toEqual({
+            'updated': 'MOCK_TIME',
+            'title': 'newlist',
+            'price': 100,
+            'condition': 'new',
+            'category': 'fish',
+            'description': 'asdf',
+            'owner': 'user1',
+            'owner_name': 'joe bruin',
+            'owner_pfp': '',
+            'seller_rating': 0,
+            'selected_buyer': '',
+            'potential_buyers': [],
+            'reporters': [],
+            'ratings': {},
+            'image_paths': [],  
+        })
+
         const mockReq2 = new Request('http://localhost', {
             method: 'GET',
             headers: {

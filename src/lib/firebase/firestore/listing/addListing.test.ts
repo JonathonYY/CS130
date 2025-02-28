@@ -53,6 +53,8 @@ describe('Test addListing', () => {
                 id: 'user2',
                 cum_buyer_rating: 0,
                 completed_purchases: 0,
+                cum_seller_rating: 9,
+                completed_sales: 3,
                 last_reported: {
                     toMillis: () => (250000)
                 },
@@ -135,4 +137,35 @@ describe('Test addListing', () => {
             })
         }).rejects.toThrow("No user exists for given id");
     });
+
+    it('addListing with seller having nonzero prior sells', async () => {
+        expect(db['listings']['new_id']).toBe(undefined);
+        const result = await addListing({
+            'user_id': 'user2',
+            'title': 'newlist',
+            'price': 100,
+            'condition': 'new',
+            'category': 'fish',
+            'description': 'asdf',
+            'image_paths': [],
+        });
+
+        expect(db['listings']['new_id']['seller_rating']).toBeCloseTo(3);
+    });
+
+    it('addListing with seller having zero prior sells', async () => {
+        expect(db['listings']['new_id']).toBe(undefined);
+        await addListing({
+            'user_id': 'user1',
+            'title': 'newlist',
+            'price': 100,
+            'condition': 'new',
+            'category': 'fish',
+            'description': 'asdf',
+            'image_paths': [],
+        });
+
+        expect(db['listings']['new_id']['seller_rating']).toEqual(0);
+    });
+
 });
