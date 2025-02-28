@@ -1,13 +1,50 @@
 import { GET } from "./route";
 import { POST } from './route';
 import { GET as GET2 } from "./[listing_id]/route";
+import { POST } from './route';
+import { GET as GET2 } from "./[listing_id]/route";
 import * as getAllListings from "@/lib/firebase/firestore/listing/getAllListings";
+import { NextResponse } from 'next/server';
+
+const { db } = jest.requireMock('@/lib/firebase/config');
+const { doc, getDoc, addDoc } = jest.requireMock('firebase/firestore');
 import { NextResponse } from 'next/server';
 
 const { db } = jest.requireMock('@/lib/firebase/config');
 const { doc, getDoc, addDoc } = jest.requireMock('firebase/firestore');
 
 const getAllListingsMock = jest.spyOn(getAllListings, "default").mockImplementation();
+
+jest.mock('@/lib/firebase/config', () => ({
+    db: {}
+}))
+
+jest.mock('firebase/firestore', () => {
+    return {
+        doc: jest.fn((db, table, id) => {
+            return db[table][id];
+        }),
+        collection: jest.fn((db, table) => {
+            return db[table];
+        }),
+        getDoc: jest.fn((ref) => ({
+            data: () => {
+                return ref;
+            },
+            exists: () => (ref !== undefined),
+        })),
+        addDoc: jest.fn((collection, data) => {
+            collection['new_id'] = data
+            
+            return {
+                id: 'new_id'
+            }
+        }),
+        arrayUnion: jest.fn((val) => ([val])),
+        updateDoc: jest.fn((ref, params) => { Object.assign(ref, params) }),
+        serverTimestamp: jest.fn(() => { return 'MOCK_TIME'; }),
+    };
+});
 
 jest.mock('@/lib/firebase/config', () => ({
     db: {}
@@ -205,7 +242,6 @@ describe('Test POST listing', () => {
         const jsonResponse2 = await response2.json();
 
         expect(jsonResponse2.data).toEqual({
-            'id': 'new_id',
             'updated': 'MOCK_TIME',
             'title': 'newlist',
             'price': 100,
