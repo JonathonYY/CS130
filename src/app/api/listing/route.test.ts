@@ -3,7 +3,6 @@ import { POST } from './route';
 import { GET as GET2 } from "./[listing_id]/route";
 import * as getAllListings from "@/lib/firebase/firestore/listing/getAllListings";
 import { NextResponse } from 'next/server';
-import { ACTION_SERVER_ACTION } from "next/dist/client/components/router-reducer/router-reducer-types";
 
 const { db } = jest.requireMock('@/lib/firebase/config');
 const { doc, collection, getDoc, addDoc, updateDoc, serverTimestamp } = jest.requireMock('firebase/firestore');
@@ -35,6 +34,7 @@ jest.mock('firebase/firestore', () => {
                 id: 'new_id'
             }
         }),
+        arrayUnion: jest.fn((val) => ([val])),
         updateDoc: jest.fn((ref, params) => { Object.assign(ref, params) }),
         serverTimestamp: jest.fn(() => { return 'MOCK_TIME'; }),
     };
@@ -248,7 +248,7 @@ describe('Test POST listing', () => {
         expect(addDoc).not.toHaveBeenCalled();
 
         // check for correct output
-        expect(jsonResponse.data).toBeNull;
+        expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).not.toBeNull();
     });
 

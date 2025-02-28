@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import deleteListing from "@/lib/firebase/firestore/listing/deleteListing";
-import { newListing, PatchListingData } from "@/lib/firebase/firestore/types";
+import { PatchListingData } from "@/lib/firebase/firestore/types";
 import getListing from "@/lib/firebase/firestore/listing/getListing";
 import patchListing from "@/lib/firebase/firestore/listing/patchListing"
 

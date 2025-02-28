@@ -22,8 +22,16 @@ export default async function patchListing(doc_id: string, data: Partial<PatchLi
         await updateDoc(docRef, update_data)
 
         const docSnapshot2 = await getDoc(docRef);
-        const result = docSnapshot2.data();
-        return result;
+        if (docSnapshot2.exists()) {
+            let result = docSnapshot2.data();
+            delete result.ratings;
+            delete result.reporters;
+
+            return result;
+        }
+        else {
+            throw new Error("No listing exists for given id");
+        }
     } else {
         throw new Error("No listing exists for given id");
     }

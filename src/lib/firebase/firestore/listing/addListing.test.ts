@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import addListing from "./addListing";
 
 const { db } = jest.requireMock("@/lib/firebase/config");
-const { doc, collection, getDoc, updateDoc, addDoc, serverTimestamp } = jest.requireMock("firebase/firestore");
+const { doc, collection, getDoc, updateDoc, addDoc, serverTimestamp, arrayUnion } = jest.requireMock("firebase/firestore");
 
 jest.mock('@/lib/firebase/config', () => ({
     db: {}
@@ -29,6 +29,7 @@ jest.mock('firebase/firestore', () => {
                 id: 'new_id'
             }
         }),
+        arrayUnion: jest.fn((val) => ([val])),
         updateDoc: jest.fn((ref, params) => { Object.assign(ref, params) }),
         serverTimestamp: jest.fn(() => { return 'MOCK_TIME'; }),
     };

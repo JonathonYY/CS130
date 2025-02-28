@@ -1,5 +1,5 @@
 import { db } from "../../config";
-import { doc, collection, getDoc, addDoc, serverTimestamp, Timestamp } from "firebase/firestore";
+import { doc, collection, getDoc, addDoc, updateDoc, serverTimestamp, Timestamp, arrayUnion } from "firebase/firestore";
 import { User, Listing, AddListingData } from "../types";
 import { updateUser } from "../user/userUtil";
 
@@ -7,7 +7,7 @@ export default async function addListing(data: AddListingData) {
   // get user from user_id
   const userRef = doc(db, "users", data.user_id);
   const userSnapshot = await getDoc(userRef);
-  let user_data: User
+  let user_data: User;
 
   if (userSnapshot.exists()) {
     user_data = userSnapshot.data() as User;
@@ -39,7 +39,8 @@ export default async function addListing(data: AddListingData) {
   const docRef = await addDoc(collection(db, "listings"), listing_data);
   const listing_id = docRef.id;
 
-  updateUser(data.user_id, { active_listings: user_data.active_listings.push(listing_id) });
+  const ref = doc(db, "users", data.user_id);
+  await updateDoc(ref, { active_listings: arrayUnion(listing_id) });
 
   const result = { listing_id: listing_id };
   return result;

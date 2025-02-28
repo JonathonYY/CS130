@@ -32,6 +32,8 @@ export async function getUser(user_id: string): Promise<User> {
 export async function updateUser(user_id: string, data: { [key: string]: any }): Promise<User> {
   // get user to check if it exists
   await getUser(user_id);
+  console.log(user_id);
+  console.log(data);
 
   // set updated User in db
   const ref = doc(db, "users", user_id);

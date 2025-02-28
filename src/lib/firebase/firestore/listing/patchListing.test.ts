@@ -106,8 +106,6 @@ describe('Test patchListing', () => {
             'seller_rating': 4,
             'selected_buyer': '',
             'potential_buyers': [],
-            'reporters': [],
-            'ratings': {},
             'image_paths': [], 
         });
     });
