@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { TextField, Button, Select, MenuItem, InputLabel, FormControl, Typography, Box } from "@mui/material";
+import { TextField, Button, Select, MenuItem, InputLabel, FormControl, Typography, Box, IconButton } from "@mui/material";
 import { styled } from "@mui/system";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const ImageUpload = styled("input")({
   display: "none",
@@ -12,18 +13,25 @@ const CreateListingForm = () => {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
-  const [image, setImage] = useState(null);
+  const [images, setImages] = useState([]);
 
   const handleImageUpload = (event) => {
-    if (event.target.files.length > 0) {
-      setImage(URL.createObjectURL(event.target.files[0]));
-    }
+    const files = Array.from(event.target.files);
+    const newImages = files.map((file) => URL.createObjectURL(file));
+    setImages((prevImages) => [...prevImages, ...newImages]);
+
+  };
+
+  const handleRemoveImage = (index) => {
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
   };
 
   const handleSubmitListing = () => {
-    console.log({ title, price, description, category, condition, image });
+    console.log({ title, price, description, category, condition, images });
     // send data to back end
   };
+
+  const isFormIncomplete = !title || !price || !description || !category || !condition || images.length === 0;
 
   return (
     <Box sx={{ maxWidth: 500, margin: "auto", p: 3, boxShadow: 3, borderRadius: 2 }}>
@@ -84,16 +92,31 @@ const CreateListingForm = () => {
 
       <Box sx={{ mt: 2 }}>
         <label htmlFor="image-upload">
-          <ImageUpload accept="image/*" id="image-upload" type="file" onChange={handleImageUpload} />
+          <ImageUpload accept="image/*" id="image-upload" type="file" multiple onChange={handleImageUpload} />
           <Button variant="contained" component="span" fullWidth>
-            Upload Image
+            Upload Images
           </Button>
         </label>
       </Box>
 
-      {image && <Box component="img" src={image} alt="Uploaded" sx={{ width: "100%", mt: 2, borderRadius: 2 }} />}
+      {images.length > 0 && (
+        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 2 }}>
+          {images.map((img, index) => (
+            <Box key={index} sx={{ position: "relative", width: 100, height: 100 }}>
+              <img src={img} alt={`image ${index}`} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 4 }} />
+              <IconButton
+                sx={{ position: "absolute", top: 0, right: 0, backgroundColor: "rgba(0,0,0,0.6)", color: "white" }}
+                size="small"
+                onClick={() => handleRemoveImage(index)}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          ))}
+        </Box>
+      )}
 
-      <Button variant="contained" color="primary" fullWidth sx={{ mt: 3 }} onClick={handleSubmitListing}>
+      <Button variant="contained" color="primary" fullWidth sx={{ mt: 3 }} onClick={handleSubmitListing} disabled={isFormIncomplete}>
         Create Listing
       </Button>
     </Box>
