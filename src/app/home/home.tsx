@@ -13,27 +13,6 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      {user ? (
-        <div>
-          <button
-            onClick={signOutUser}
-            className="border border-black rounded-sm bg-blue-300 p-4"
-          >
-            Click Here to Sign Out!
-          </button>
-        </div>
-      ) : (
-        <div>
-          <p>You are not signed in</p>
-          <button
-            onClick={signInWithGoogle}
-            className="border border-black rounded-sm bg-blue-300 p-4"
-          >
-            Click Here to Sign In!
-          </button>
-        </div>
-      )}
-      <h1>Hello {user?.displayName}</h1>
       <div className="logoContainer">
         <Image
           src="/logo1.png"
