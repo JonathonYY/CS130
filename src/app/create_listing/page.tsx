@@ -34,13 +34,7 @@ const CreateListing: React.FC = () => {
         />
       </div>
       <hr />
-      <p>Really cool create listings stuff go here! Wow!</p>
-      <button
-        onClick={handleAddListing}
-        className="bg-blue-300 rounded-md p-2 hover:bg-blue-500 m-10"
-      >
-        Click me to add an example Product!
-      </button>
+      
       <CreateListingForm/>
       <div className="buttonContainer">
         <Link href="/sellers_home" style={{ marginLeft: 25 }}>
