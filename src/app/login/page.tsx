@@ -5,7 +5,9 @@ import { useAuth } from "@/lib/authContext";
 
 const Login: React.FC = () => {
   const { user, token, signInWithGoogle, signOutUser } = useAuth();
-
+  if (user) {
+    window.location.href = "/account";
+  }
   return (
     <div className="loginBackground">
       <div className="loginContainer">
@@ -15,15 +17,10 @@ const Login: React.FC = () => {
           Login button goes here
         </Link>
         <button onClick={signInWithGoogle}>Sign In</button>
-        <p className="boldText">Please sign in with your google email</p>
         {user ? (
           <>
             <p>Hello {user.displayName}</p>
             <p>Hello {user.email}</p>
-            <p>
-              {/* DON'T DO THIS!!! */}
-              User Token is <span className="text-gray-400">{token}</span>
-            </p>
             <button onClick={signOutUser}>Log out</button>
           </>
         ) : (
