@@ -120,6 +120,14 @@ const Account: React.FC = () => {
     }, []);
 
 
+    // Opens up modal for updating account
+    const [updateModal, setUpdateModal] = useState<boolean>(false);
+    const handleOpenUpdate = () => setUpdateModal(true);
+    const handleCloseUpdate = () => setUpdateModal(false);
+
+    // Handles message displayed by update modal
+    const [updateModalMessage, setUpdateModalMessage] = useState<String>("");
+
     // Allows the profile picture to be changed upon clicking avatar
     const profileEditClick = () => {
         document.getElementById("profilePicChange")?.click();
@@ -141,7 +149,8 @@ const Account: React.FC = () => {
 
             const { data, error } = await response.json();
             if (error) {
-                console.log("Error uploading image");
+                setUpdateModalMessage("Error Uploading Image!");
+                handleOpenUpdate();
                 console.log(error);
                 return;
             }
@@ -151,7 +160,8 @@ const Account: React.FC = () => {
                 pfp: data
             });
         } else {
-            alert("Please select valid image");
+            setUpdateModalMessage("Invalid image!");
+            handleOpenUpdate();
         }
     }
 
@@ -163,15 +173,7 @@ const Account: React.FC = () => {
             [event.target.name]: event.target.value
         });
     }
-
-
-    // Opens up modal for updating account
-    const [updateModal, setUpdateModal] = useState<boolean>(false);
-    const handleOpenUpdate = () => setUpdateModal(true);
-    const handleCloseUpdate = () => setUpdateModal(false);
-
-    // Handles message displayed by update modal
-    const [updateModalMessage, setUpdateModalMessage] = useState<String>("");
+    
 
     // Handles updating the account
     const handleUpdate = async () => {
