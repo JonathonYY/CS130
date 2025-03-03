@@ -3,6 +3,8 @@
 
 import "../globals.css";
 import { useRouter } from "next/navigation";
+import { User, Listing } from "@/lib/firebase/firestore/types";
+// import { useAuth } from "@/lib/authContext"; require rebase
 
 // import SideMenu from "@/components/seller_sidebar";
 import { AppBar,Toolbar,Avatar, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, IconButton,Divider} from "@mui/material";
@@ -13,7 +15,7 @@ import AddIcon from "@mui/icons-material/Add";
 import React, { useState, useEffect } from "react";
 
 const products = [
-    { id: 1, name: "Product A", image: "https://via.placeholder.com/50" },
+    { id: 1, name: "Product A", image: "https://firebasestorage.googleapis.com/v0/b/bmart-5f635.firebasestorage.app/o/images%2FJavascript.png?alt=media&token=fc37ddb5-01ca-41db-8512-930b59202a43" },
     { id: 2, name: "Product B", image: "https://via.placeholder.com/50" },
     { id: 3, name: "Product C", image: "https://via.placeholder.com/50" },
     { id: 4, name: "Product C", image: "https://via.placeholder.com/50" },
@@ -59,6 +61,48 @@ const products = [
   };
 
   const SellersHome: React.FC = () => {
+    // require rebase
+    // const { user, token, signInWithGoogle, signOutUser } = useAuth();
+    // if (!user) {
+    //   window.location.href = "/login";
+    // }
+    // States for informing users data is being fetched
+    const [loading, setLoading] = useState(false);
+
+    // Fetch active user from the database
+    async function fetchUser() {
+      setLoading(true);
+      const user_id = "test-user" // replace with user.uid later
+      const response = await fetch(`/api/user/${user_id}`, {
+        method: "GET",
+      });
+
+      const { data, error } = await response.json();
+
+      if (error) {
+        console.log("Error");
+        console.log(error);
+      } else {
+        console.log(data)
+        // todo: user processing?
+        // TODO: set user
+      }
+      setLoading(false);
+    }
+
+    // Fetch active listings from database
+    async function fetchActiveListings() {
+      // TODO
+    }
+
+    const [userData, setActiveUser] = useState<User>();
+    const [items, setProductListings] = useState<Listing[]>([]);
+
+    useEffect(() => {
+      fetchUser();
+      fetchActiveListings(); // might need await to run sequentially?
+    }, []);
+
     const router = useRouter();
     const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
     const [isClient, setIsClient] = useState(false);
