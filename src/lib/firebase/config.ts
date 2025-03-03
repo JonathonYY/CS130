@@ -1,6 +1,7 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -18,3 +19,8 @@ const firebase_app =
 
 export const db = getFirestore(firebase_app);
 export const storage = getStorage(firebase_app);
+export const auth = getAuth(firebase_app);
+export const provider = new GoogleAuthProvider();
+provider.setCustomParameters({
+  hd: 'g.ucla.edu'
+});

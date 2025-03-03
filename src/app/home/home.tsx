@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import React, { useState } from "react";
 import HomeGrid from "../../components/homeGrid";
@@ -9,11 +9,12 @@ import Grid from "@mui/material/Grid2";
 import Modal from "@mui/material/Modal";
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
-
+// import { useAuth } from "@/lib/authContext";
+// import Image from "next/image";
 
 const Home: React.FC = () => {
     // For routing purposes
-    const router = useRouter();
+  const router = useRouter();
 
 
     // For handling the advanced search options modal
@@ -21,6 +22,7 @@ const Home: React.FC = () => {
     const handleOpen = () => setSearchModal(true);
     const handleClose = () => setSearchModal(false);
 
+    // const { user, signInWithGoogle, signOutUser } = useAuth();
 
     return (
         <div>
