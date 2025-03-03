@@ -50,6 +50,7 @@ const Slideshow = ({ images, category, condition, rating, description, name, tim
             component="img"
             src={images[currentIndex]}
             alt="Slideshow image"
+            onError={(e) => (e.target.src = "no_image.png")}
             sx={{
                 width: "100%",
                 height: "100%",

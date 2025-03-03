@@ -4,7 +4,7 @@ import FlagIcon from "@mui/icons-material/Flag";
 
 const ReportButton = ({ onClick }) => {
   return (
-    <Button variant="contained" color="error" startIcon={<FlagIcon />} onClick={onClick}>
+    <Button sx={{marginLeft:'auto'}} variant="contained" color="error" startIcon={<FlagIcon />} onClick={onClick}>
       Report
     </Button>
   );
