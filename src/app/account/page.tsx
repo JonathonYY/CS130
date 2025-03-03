@@ -127,20 +127,29 @@ const Account: React.FC = () => {
 
 
     // Handles changing the profile picture
-    const changeProfilePic = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const changeProfilePic = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         // console.log(file);
         if (file && ["image/png", "image/jpeg", "image/svg+xml"].includes(file.type)) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                if (e.target?.result) {
-                    setUserData({
-                        ...userData,
-                        pfp: e.target?.result as string || ""
-                    }); // Update avatar
-                }
-            };
-            reader.readAsDataURL(file);
+            const formData = new FormData();
+            formData.append("image", file);
+
+            const response = await fetch("/api/image", {
+                method: "POST",
+                body: formData,
+            });
+
+            const { data, error } = await response.json();
+            if (error) {
+                console.log("Error uploading image");
+                console.log(error);
+                return;
+            }
+
+            setUserData({
+                ...userData,
+                pfp: data
+            });
         } else {
             alert("Please select valid image");
         }
