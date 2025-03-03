@@ -159,6 +159,7 @@ const Account: React.FC = () => {
                 ...userData,
                 pfp: data
             });
+            // console.log(userData.pfp);
         } else {
             setUpdateModalMessage("Invalid image!");
             handleOpenUpdate();

@@ -2,14 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Card, CardContent, Typography, Pagination } from '@mui/material';
+import { Container, Card, CardContent, Typography, Pagination, CardMedia } from '@mui/material';
 import Grid from '@mui/material/Grid2'; 
 
 // Define TypeScript interface for items
 interface Product {
   id: string;
-  name: string;
+  title: string;
   description: string;
+  image: string;
 }
 
 // TODO: switch item descriptions for images
@@ -25,16 +26,17 @@ const HomeGrid: React.FC = () => {
     });
 
     const { data, error } = await response.json();
-    // console.log(data)
+    console.log(data)
 
     if (error) {
       console.log("Error");
       console.log(error);
     } else {
-      const listings: Product[] = data.listings.map((element: { id: any; name: any; description: any; }) => ({
+      const listings: Product[] = data.listings.map((element: { id: any; title: any; description: any; thumbnail: any }) => ({
         id: element.id, 
-        name: element.name || 'Title', 
-        description: element.description || 'Description'
+        title: element.title || 'Title', 
+        description: element.description || 'Description',
+        image: element.thumbnail || 'no-image.svg'
       }));
 
       // console.log(listings);
@@ -56,7 +58,7 @@ const HomeGrid: React.FC = () => {
   const router = useRouter();
 
 
-  const itemsPerPage = 9; // 3x3 Grid
+  const itemsPerPage = 8; // 3x3 Grid
 
 
   // Get current items based on pagination
@@ -90,7 +92,7 @@ const HomeGrid: React.FC = () => {
       <Grid container rowSpacing={3} columnSpacing={{sm: 6, md: 6}}>
         {currentItems.map((item) => (
           // For 2x4 grid - md: 3, for 3x3 grid - md: 4
-          <Grid size={{sm: 4, md: 4}} key={item.id}>
+          <Grid size={{sm: 3, md: 3}} key={item.id}>
             <Card 
               sx={{ 
                 cursor: 'pointer', 
@@ -99,8 +101,14 @@ const HomeGrid: React.FC = () => {
               }} 
               onClick={() => viewListing(item)}
             >
+              <CardMedia
+                component="img"
+                sx={{ height: "125px", width: "100%", objectFit: "contain" }} 
+                image={item.image}
+              />
+
               <CardContent>
-                <Typography variant="h6" noWrap>{item.name}</Typography>
+                <Typography variant="h6" noWrap>{item.title}</Typography>
                 <Typography variant="body2" color="text.secondary" noWrap>{item.description}</Typography>
                 <Typography variant="body2" color="text.secondary" noWrap>View item</Typography>
               </CardContent>
