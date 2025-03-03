@@ -5,14 +5,12 @@ import "../globals.css";
 import { useRouter } from "next/navigation";
 
 // import SideMenu from "@/components/seller_sidebar";
-import { Box } from "@mui/material";
 import { AppBar,Toolbar,Avatar, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, IconButton,Divider} from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import StarIcon from "@mui/icons-material/Star";
 import AddIcon from "@mui/icons-material/Add";
 import React, { useState, useEffect } from "react";
-import icon from "@mui/icons-material/icon";
 
 const products = [
     { id: 1, name: "Product A", image: "https://via.placeholder.com/50" },
@@ -157,9 +155,9 @@ const products = [
                     </div>
                   ))}
                 </List>
-              ) : (
+              ) : selectedProduct ? (<p className="p-4 text-gray-500">No interested users.</p>): 
                 <p className="p-4 text-gray-500">Select a product to see interested users.</p>
-              )}
+              }
             </div>
           </div>
         </div>
