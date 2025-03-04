@@ -205,6 +205,7 @@ describe('Test POST listing', () => {
         const jsonResponse2 = await response2.json();
 
         expect(jsonResponse2.data).toEqual({
+            'id': 'new_id',
             'updated': 'MOCK_TIME',
             'title': 'newlist',
             'price': 100,
