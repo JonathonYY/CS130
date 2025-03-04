@@ -9,12 +9,16 @@ import Grid from "@mui/material/Grid2";
 import Modal from "@mui/material/Modal";
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
-// import { useAuth } from "@/lib/authContext";
-// import Image from "next/image";
+import { useAuth } from "@/lib/authContext";
 
 const Home: React.FC = () => {
     // For routing purposes
-  const router = useRouter();
+    const router = useRouter();
+
+
+    // For authentication purposes
+    const { user, token, signInWithGoogle, signOutUser } = useAuth();
+    console.log(user);
 
 
     // For handling the advanced search options modal

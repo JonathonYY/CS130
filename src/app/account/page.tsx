@@ -18,6 +18,7 @@ import {
 import Grid from "@mui/material/Grid2";
 import EditIcon from '@mui/icons-material/Edit';
 import LockIcon from '@mui/icons-material/Lock';
+import { useAuth } from "@/lib/authContext";
 
 
 // Define properties needed for user settings
@@ -56,6 +57,7 @@ declare module '@mui/material/Button' {
 
 
 const Account: React.FC = () => {
+    // For routing purposes
     const router = useRouter();
 
     // States for informing users data is being fetched
@@ -86,20 +88,31 @@ const Account: React.FC = () => {
     })
 
 
+    // For authentication purposes
+    const { user, token, signInWithGoogle, signOutUser } = useAuth();
+    const accountURL = "/api/user/" + user?.uid;
+
+
     // Make get call to get user info
     const getUserInfo = async () => {
-        // TODO: change GET call to call for user_id based on auth instead of preset
-        const response = await fetch("/api/user/abcdef", {
+        const response = await fetch(accountURL, {
             method: "GET",
         });
 
         const { data, error } = await response.json();
-        if (error) {
+        if (error && error == "user does not exist") {
+            // If user does not exist, means that they need a new account. Create account then make new GET call if success
+            const createResult = await createNewUser();
+            if (createResult) {
+                getUserInfo();
+            } else {
+                console.log("Error");
+                console.log(error);
+            }
+        } else if (error) {
             console.log("Error");
             console.log(error);
         } else {
-            // console.log(data)
-
             setUserData({
                 email: data.email_address,
                 first: data.first,
@@ -114,10 +127,43 @@ const Account: React.FC = () => {
     }
 
 
+    // Create account for new user
+    const createNewUser = async () => {
+        let first = "First";
+        let last = "Last";
+        if (typeof user?.displayName === 'string') {
+            const splitName = user.displayName.split(" ");
+            first = splitName[0];
+            last = splitName[1];
+        }
+
+        const response = await fetch("/api/user", {
+            body: JSON.stringify({
+                user_id: user?.uid,
+                first: first,
+                last: last,
+                email_address: user?.email
+            }),
+            method: "POST"
+        });
+
+        const { data, error } = await response.json();
+        if (error) {
+            console.log("Error");
+            console.log(error);
+            return false;
+        } else {
+            console.log("Successfully created account");
+            console.log(data);
+            return true;
+        }
+    }
+
+
     // run on page load
     useEffect(() => {
         getUserInfo();
-    }, []);
+    }, [user]);
 
 
     // Opens up modal for updating account
@@ -184,8 +230,7 @@ const Account: React.FC = () => {
             return;
         }
 
-        // TODO: change PATCH call to call for user_id based on auth instead of preset
-        const response = await fetch("/api/user/abcdef", {
+        const response = await fetch(accountURL, {
             body: JSON.stringify({
                 first: userData.first,
                 last: userData.last,
@@ -214,10 +259,8 @@ const Account: React.FC = () => {
     const handleCloseDelete = () => setDeleteModal(false);
 
     // Deletes account
-    // TODO: implementation of DELETE API
     async function deleteAccount() {
-        // TODO: change DELETE call to call for user_id based on auth instead of preset
-        const response = await fetch("/api/user/abcdef", {
+        const response = await fetch(accountURL, {
             method: "DELETE",
         });
 
