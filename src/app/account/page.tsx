@@ -87,7 +87,6 @@ const Account: React.FC = () => {
         }
     })
 
-
     // For authentication purposes
     const { user, token, signInWithGoogle, signOutUser } = useAuth();
     const accountURL = "/api/user/" + user?.uid;

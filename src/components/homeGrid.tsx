@@ -13,15 +13,21 @@ interface Product {
   image: string;
 }
 
-// TODO: switch item descriptions for images
-const HomeGrid: React.FC = () => {
+
+// Define TypeScript interface for props
+type GridProps = {
+  query: string;
+};
+
+
+const HomeGrid: React.FC<GridProps> = ({ query }) => {
   // States for informing users data is being fetched
   const [loading, setLoading] = useState(false);
 
   // Fetch all listings from the database, extract important info for cards
   const fetchAllListings = async () => {
     setLoading(true);
-    const response = await fetch("/api/listing", {
+    const response = await fetch(query, {
       method: "GET",
     });
 
@@ -52,7 +58,7 @@ const HomeGrid: React.FC = () => {
   // run on page load
   useEffect(() => {
     fetchAllListings();
-  }, []);
+  }, [query]);
 
 
   const router = useRouter();

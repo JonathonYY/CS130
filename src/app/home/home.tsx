@@ -15,10 +15,25 @@ const Home: React.FC = () => {
     // For routing purposes
     const router = useRouter();
 
-
     // For authentication purposes
     const { user, token, signInWithGoogle, signOutUser } = useAuth();
-    console.log(user);
+    // console.log(user);
+
+
+    // For handling the search query
+    const [searchInput, setSearchInput] = useState<string>("/api/listing");
+    const [searchQuery, setSearchQuery] = useState<string>("/api/listing");
+
+    const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newQuery = "/api/listing?query=" + event.target.value;
+        setSearchInput(newQuery);
+    }
+    const handleQuerySubmit = () => setSearchQuery(searchInput);
+    const handleQuerySubmitKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === "Enter") {
+            handleQuerySubmit();
+        }
+    }
 
 
     // For handling the advanced search options modal
@@ -26,7 +41,6 @@ const Home: React.FC = () => {
     const handleOpen = () => setSearchModal(true);
     const handleClose = () => setSearchModal(false);
 
-    // const { user, signInWithGoogle, signOutUser } = useAuth();
 
     return (
         <div>
@@ -48,12 +62,14 @@ const Home: React.FC = () => {
                         variant="outlined"
                         size="small"
                         fullWidth
+                        onChange={handleQueryChange}
+                        onKeyDown={handleQuerySubmitKeyDown}
                         sx={{mt: 1.75}}
                         slotProps={{
                             input: {
                                 startAdornment: (
-                                    <InputAdornment position="start">
-                                        <img src = "search.svg" width = "24" height = "24"/>
+                                    <InputAdornment position="start" onClick={handleQuerySubmit} style={{cursor: "pointer"}}>
+                                        <img src = "search.svg" width = "24" height = "24" />
                                     </InputAdornment>
                                 ),
                             },
@@ -76,7 +92,7 @@ const Home: React.FC = () => {
 
             <hr style={{marginTop: 14}}/>
 
-            <HomeGrid />
+            <HomeGrid query={searchQuery}/>
 
             <Modal
                 open={searchModal}
