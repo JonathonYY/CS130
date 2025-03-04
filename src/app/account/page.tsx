@@ -432,7 +432,7 @@ const Account: React.FC = () => {
                                 </Grid>
 
                                 <Grid size={{ md: 3 }}>
-                                    <Button variant="contained" color="deleteRed">
+                                    <Button variant="contained" color="deleteRed" onClick={signOutUser}>
                                         <Link href="/">Log out</Link>
                                     </Button>
                                 </Grid>
