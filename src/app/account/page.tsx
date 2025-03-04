@@ -306,7 +306,7 @@ const Account: React.FC = () => {
             />
 
             {(loading &&
-                <p>Loading user data</p>
+                <p className="loading"><b>Loading user data</b></p>
             ) || (
                     <div style={{ marginTop: 20 }}>
                         <Grid container sx={{ marginLeft: 4, marginRight: -2 }} spacing={20} alignItems="flex-start">

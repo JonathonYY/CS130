@@ -54,6 +54,11 @@ body {
   padding: 16px;
 }
 
+.loading {
+  margin-top: 25px;
+  text-align: center;
+}
+
 
 /*Home Page Specific Styles*/
 .logoHome {
@@ -75,11 +80,6 @@ body {
   font-size: 10px;
   opacity: 0.75;
   cursor: pointer;
-}
-
-.loading {
-  margin-top: 25px;
-  text-align: center;
 }
 
 .searchOptionExample {
