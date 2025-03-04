@@ -90,6 +90,10 @@ const CreateListingForm = () => {
         </Select>
       </FormControl>
 
+      <Typography variant="h7">
+        Images on the home page will be 125 x 125 px
+      </Typography>
+
       <Box sx={{ mt: 2 }}>
         <label htmlFor="image-upload">
           <ImageUpload accept="image/*" id="image-upload" type="file" multiple onChange={handleImageUpload} />
