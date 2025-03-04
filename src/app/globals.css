@@ -77,6 +77,15 @@ body {
   cursor: pointer;
 }
 
+.loading {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.searchOptionExample {
+  font-family: "Consolas";
+}
+
 
 /*Login Page Specific Styles*/
 .loginContainer {

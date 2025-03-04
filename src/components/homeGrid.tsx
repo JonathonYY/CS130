@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Container, Card, CardContent, Typography, Pagination, CardMedia } from '@mui/material';
-import Grid from '@mui/material/Grid2'; 
+import Grid from '@mui/material/Grid2';
 
 // Define TypeScript interface for items
 interface Product {
@@ -22,7 +22,7 @@ type GridProps = {
 
 const HomeGrid: React.FC<GridProps> = ({ query }) => {
   // States for informing users data is being fetched
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Fetch all listings from the database, extract important info for cards
   const fetchAllListings = async () => {
@@ -39,8 +39,8 @@ const HomeGrid: React.FC<GridProps> = ({ query }) => {
       console.log(error);
     } else {
       const listings: Product[] = data.listings.map((element: { id: any; title: any; description: any; thumbnail: any }) => ({
-        id: element.id, 
-        title: element.title || 'Title', 
+        id: element.id,
+        title: element.title || 'Title',
         description: element.description || 'Description',
         image: element.thumbnail || 'no-image.svg'
       }));
@@ -88,28 +88,30 @@ const HomeGrid: React.FC<GridProps> = ({ query }) => {
 
   // Display while items are being fetched
   if (loading) {
-    return <p>Loading items...</p>;
+    return <p className="loading"><b>Loading items...</b></p>;
+  } else if (items.length == 0) {
+    return <p className="loading"><b>No results found!</b></p>
   }
 
 
   // Displays items
   return (
-    <Container sx={{mt: 4}}>
-      <Grid container rowSpacing={3} columnSpacing={{sm: 6, md: 6}}>
+    <Container sx={{ mt: 4 }}>
+      <Grid container rowSpacing={3} columnSpacing={{ sm: 6, md: 6 }}>
         {currentItems.map((item) => (
           // For 2x4 grid - md: 3, for 3x3 grid - md: 4
-          <Grid size={{sm: 3, md: 3}} key={item.id}>
-            <Card 
-              sx={{ 
-                cursor: 'pointer', 
-                border: '1px solid #ccc', 
+          <Grid size={{ sm: 3, md: 3 }} key={item.id}>
+            <Card
+              sx={{
+                cursor: 'pointer',
+                border: '1px solid #ccc',
                 borderRadius: 2,
-              }} 
+              }}
               onClick={() => viewListing(item)}
             >
               <CardMedia
                 component="img"
-                sx={{ height: "125px", width: "100%", objectFit: "contain" }} 
+                sx={{ height: "125px", width: "100%", objectFit: "contain" }}
                 image={item.image}
               />
 

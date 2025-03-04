@@ -94,6 +94,10 @@ const Account: React.FC = () => {
 
     // Make get call to get user info
     const getUserInfo = async () => {
+        if (accountURL === "/api/user/undefined") {
+            return;
+        }
+
         const response = await fetch(accountURL, {
             method: "GET",
         });
@@ -219,7 +223,7 @@ const Account: React.FC = () => {
             [event.target.name]: event.target.value
         });
     }
-    
+
 
     // Handles updating the account
     const handleUpdate = async () => {

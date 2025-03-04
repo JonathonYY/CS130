@@ -44,17 +44,17 @@ const Home: React.FC = () => {
 
     return (
         <div>
-            <Grid container alignItems="center" spacing={2} size={{xs:12, sm: 12, md:12}}>
-                <Grid size={{xs:3, sm: 3, md:3}}>
-                    <img 
-                    src="logo1.png" 
-                    alt="home page logo" 
-                    className="logoGeneral logoHome"
-                    onClick={() => router.push("/")}
+            <Grid container alignItems="center" spacing={2} size={{ xs: 12, sm: 12, md: 12 }}>
+                <Grid size={{ xs: 3, sm: 3, md: 3 }}>
+                    <img
+                        src="logo1.png"
+                        alt="home page logo"
+                        className="logoGeneral logoHome"
+                        onClick={() => window.location.reload()}
                     />
                 </Grid>
 
-                <Grid size={{xs:6, sm: 6, md:6}}>
+                <Grid size={{ xs: 6, sm: 6, md: 6 }}>
                     <TextField
                         id="standard-search"
                         label="Search field"
@@ -64,12 +64,12 @@ const Home: React.FC = () => {
                         fullWidth
                         onChange={handleQueryChange}
                         onKeyDown={handleQuerySubmitKeyDown}
-                        sx={{mt: 1.75}}
+                        sx={{ mt: 1.75 }}
                         slotProps={{
                             input: {
                                 startAdornment: (
-                                    <InputAdornment position="start" onClick={handleQuerySubmit} style={{cursor: "pointer"}}>
-                                        <img src = "search.svg" width = "24" height = "24" />
+                                    <InputAdornment position="start" onClick={handleQuerySubmit} style={{ cursor: "pointer" }}>
+                                        <img src="search.svg" width="24" height="24" />
                                     </InputAdornment>
                                 ),
                             },
@@ -78,28 +78,48 @@ const Home: React.FC = () => {
 
                     <p className="searchOptions" onClick={handleOpen}>Advanced search options</p>
                 </Grid>
-                
-                <Grid size={{xs:3, sm:3, md:3}}>
-                    <img 
+
+                <Grid size={{ xs: 3, sm: 3, md: 3 }}>
+                    <img
                         src="icon.png"
                         alt="user icon"
                         className="userIcon"
                         onClick={() => router.push("/login")}
-                    />    
+                    />
                 </Grid>
-                
+
             </Grid>
 
-            <hr style={{marginTop: 14}}/>
+            <hr style={{ marginTop: 14 }} />
 
-            <HomeGrid query={searchQuery}/>
+            <HomeGrid query={searchQuery} />
 
             <Modal
                 open={searchModal}
                 onClose={handleClose}
             >
-                <Box className="modals">
-                    <p>TODO: Instructions go here</p>
+                <Box className="modals" style={{width: 1000}}>
+                    <p style={{fontSize: 25}}><b>Advanced Search Options</b></p>
+                    <hr style={{backgroundColor: "black"}}/>
+                    <p><b>General input format (all parameters are optional, do not include square brackets):</b></p>
+                    <p className="searchOptionExample">[Search String] seller:[Name] category:[category] condition:[condition] price[comparison]:[number]</p>
+                    
+                    <br />
+
+                    <p><b>Seller parameter formats (include quotations for second option): </b></p>
+                    <p className="searchOptionExample">seller:[first_name]</p>
+                    <p className="searchOptionExample">seller:["first_name last_name"]</p>
+
+                    <br />
+                    <p><b>Price comparison options: </b></p>
+                    <p className="searchOptionExample">&#60;, &#60;=, &#62;=, &#62;</p>
+
+                    <br />
+                    <p><b>Example queries: </b></p>
+                    <p className="searchOptionExample">cards</p>
+                    <p className="searchOptionExample">cards price&#60;=:200</p>
+                    <p className="searchOptionExample">cards seller:"Eric Liu" price&#60;=:200</p>
+                    <p className="searchOptionExample">cards seller:"Eric Liu" condition:new price&#60;=:200</p>
                 </Box>
             </Modal>
         </div>
