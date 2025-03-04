@@ -14,6 +14,19 @@ import StarIcon from "@mui/icons-material/Star";
 import AddIcon from "@mui/icons-material/Add";
 import React, { useState, useEffect } from "react";
 
+interface Product {
+  id: string;
+  name: string;
+  image: string;
+}
+
+interface Interesteduser {
+  id: string;
+  name: string;
+  avatar: string;
+  rating: string; 
+}
+
 const products = [
     { id: 1, name: "Product A", image: "https://firebasestorage.googleapis.com/v0/b/bmart-5f635.firebasestorage.app/o/images%2FJavascript.png?alt=media&token=fc37ddb5-01ca-41db-8512-930b59202a43" },
     { id: 2, name: "Product B", image: "https://via.placeholder.com/50" },
@@ -68,43 +81,63 @@ const products = [
     // }
     // States for informing users data is being fetched
     const [loading, setLoading] = useState(false);
-
+    const [userData, setActiveUser] = useState<User>();
+    const [productIds, setProductIds] = useState<String[]>([]);
+    const [productListings, setProductListings] = useState<Listing[]>([]);
     // Fetch active user from the database
     async function fetchUser() {
       setLoading(true);
-      const user_id = "test-user" // replace with user.uid later
-      const response = await fetch(`/api/user/${user_id}`, {
-        method: "GET",
-      });
-
-      const { data, error } = await response.json();
-
-      if (error) {
-        console.log("Error");
-        console.log(error);
-      } else {
-        console.log(data)
-        // todo: user processing?
-        // TODO: set user
+      try {
+        const user_id = "test-user"; // Replace with actual user.uid later
+        const response = await fetch(`/api/user/${user_id}`);
+        const { data, error } = await response.json();
+    
+        if (error) {
+          console.error("Error fetching user:", error);
+        } else {
+          setActiveUser(data); // Set user data
+          console.log(data.active_listings)
+          setProductIds(data.active_listings || []); // Ensure it's an array
+          fetchActiveListings(data.active_listings || []); // Fetch listings after setting them
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
-
+    
     // Fetch active listings from database
-    async function fetchActiveListings() {
-      // TODO
+    async function fetchActiveListings(listingIds: string[]) {
+      try {
+        const listingData = await Promise.all(
+          listingIds.map(async (listing_id) => {
+            const listing_response = await fetch(`/api/listing/${listing_id}`);
+            const { data, error } = await listing_response.json();
+    
+            if (error) {
+              console.error(`Error fetching listing ${listing_id}:`, error);
+              return null;
+            } else {
+              console.log(`Fetched listing data for ${listing_id}:`, data);
+              return data;
+            }
+          })
+        );
+    
+        console.log("All listings fetched:", listingData.filter(Boolean)); // Remove null entries
+        setProductListings(listingData)
+      } catch (err) {
+        console.error("Error fetching listings:", err);
+      }
     }
-
-    const [userData, setActiveUser] = useState<User>();
-    const [items, setProductListings] = useState<Listing[]>([]);
-
+    
     useEffect(() => {
-      fetchUser();
-      fetchActiveListings(); // might need await to run sequentially?
+      fetchUser(); // No need to pass listings separately
     }, []);
 
     const router = useRouter();
-    const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
     const [isClient, setIsClient] = useState(false);
   
     useEffect(() => {
@@ -112,7 +145,8 @@ const products = [
     }, []);
   
     if (!isClient) return null;
-  
+    console.log(productListings)
+    
     return (
       <div className="h-screen flex flex-col overflow-hidden">
         {/* Navbar */}
@@ -135,17 +169,17 @@ const products = [
             <h2 className="text-lg font-semibold p-4 border-b text-black">Your Products</h2>
             <div className="overflow-y-scroll overflow-x-hidden flex-1" style={{ maxHeight: "calc(100vh - 150px)" }}>
               <List>
-                {products.map((product) => (
+                {productListings.map((product,index) => (
                   <ListItem
-                    key={product.id}
+                    key={product.title}
                     component="button"
-                    onClick={() => setSelectedProduct(product.id)}
-                    className={`hover:bg-gray-200 ${selectedProduct === product.id ? "bg-gray-300" : ""} mx-2`}
+                    onClick={() => setSelectedProduct(product.title)}
+                    className={`hover:bg-gray-200 ${selectedProduct === product.title ? "bg-gray-300" : ""} mx-2`}
                   >
                     <ListItemAvatar>
-                      <Avatar src={product.image} alt={product.name} />
+                      <Avatar src={product.image_paths[0]} alt={product.title} />
                     </ListItemAvatar>
-                    <ListItemText primary={product.name} />
+                    <ListItemText primaryTypographyProps={{style: {color: 'black'}}} primary={product.title} />
                   </ListItem>
                 ))}
               </List>
@@ -162,7 +196,7 @@ const products = [
                     <AddIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="New Listing" />
+                <ListItemText primaryTypographyProps={{style: {color: 'black'}}}   primary="New Listing" />
               </ListItem>
             </div>
           </div>
