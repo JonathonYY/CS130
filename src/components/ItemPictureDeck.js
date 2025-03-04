@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, IconButton, Typography, Avatar } from "@mui/material";
 import { ArrowBackIos, ArrowForwardIos, Edit } from "@mui/icons-material";
 
-const Slideshow = ({ images, category, condition, rating, description, name, timestamp}) => {
+const Slideshow = ({ images, category, condition, rating, description, name, timestamp, owner_pfp}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const prevImage = () => {
@@ -49,8 +49,8 @@ const Slideshow = ({ images, category, condition, rating, description, name, tim
             <Box
             component="img"
             src={images[currentIndex]}
-            alt="Slideshow image"
             onError={(e) => (e.target.src = "no_image.png")}
+            alt="Slideshow image"
             sx={{
                 width: "100%",
                 height: "100%",
@@ -134,7 +134,7 @@ const Slideshow = ({ images, category, condition, rating, description, name, tim
 
             {/* Seller Name and Profile Picture */}
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Avatar alt="Seller Name" src="icon.png" sx={{ width: 40, height: 40, marginRight: '10px' }} />
+                <Avatar alt="Seller Name" src={owner_pfp} sx={{ width: 40, height: 40, marginRight: '10px' }} />
                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                     {name}
                 </Typography>
