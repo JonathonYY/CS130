@@ -36,7 +36,7 @@ export async function updateUser(user_id: string, data: { [key: string]: any }):
 
   // set updated User in db
   const ref = doc(db, "users", user_id);
-  await updateDoc(ref, data);
+  await updateDoc(ref, Object.assign({}, data));
 
   // get updated User for return
   const result = await getDoc(ref);
