@@ -83,7 +83,8 @@ const products = [
     const [loading, setLoading] = useState(false);
     const [userData, setActiveUser] = useState<User>();
     const [productIds, setProductIds] = useState<String[]>([]);
-    const [productListings, setProductListings] = useState<Listing[]>([]);
+    const [productListings, setProductListings] = useState<any[]>([]);
+    const [interestedUsers, setInterestedUsers] = useState<User[]>([]);
     // Fetch active user from the database
     async function fetchUser() {
       setLoading(true);
@@ -169,12 +170,12 @@ const products = [
             <h2 className="text-lg font-semibold p-4 border-b text-black">Your Products</h2>
             <div className="overflow-y-scroll overflow-x-hidden flex-1" style={{ maxHeight: "calc(100vh - 150px)" }}>
               <List>
-                {productListings.map((product,index) => (
+                {productListings.map((product) => (
                   <ListItem
-                    key={product.title}
+                    key={product.id}
                     component="button"
-                    onClick={() => setSelectedProduct(product.title)}
-                    className={`hover:bg-gray-200 ${selectedProduct === product.title ? "bg-gray-300" : ""} mx-2`}
+                    onClick={() => setSelectedProduct(product.id)}
+                    className={`hover:bg-gray-200 ${selectedProduct === product.id ? "bg-gray-300" : ""} mx-2`}
                   >
                     <ListItemAvatar>
                       <Avatar src={product.image_paths[0]} alt={product.title} />
