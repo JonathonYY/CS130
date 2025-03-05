@@ -8,7 +8,7 @@ jest.mock("@/lib/firebase/config", () => ({
 
 async function clearFirestore() {
   const response = await fetch(
-    `http://127.0.0.1:3001/emulator/v1/projects/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/databases/(default)/documents`,
+    `http://${process.env.NEXT_PUBLIC_FIREBASE_EMULATOR_HOST}/emulator/v1/projects/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/databases/(default)/documents`,
     {
       method: 'DELETE',
     }
