@@ -53,6 +53,7 @@ describe("User API", () => {
         owner: "test_user_id_1",
         selected_buyer: "test_user_id_1",
         potential_buyers: ["test_user_id_2"],
+        image_paths: [],
         id: "test_listing_id_1",
         table: "listings",
       },
@@ -61,6 +62,7 @@ describe("User API", () => {
         owner: "test_user_id_1",
         selected_buyer: "",
         potential_buyers: [],
+        image_paths: [],
         id: "test_listing_id_2",
         table: "listings",
       },
@@ -69,6 +71,7 @@ describe("User API", () => {
         owner: "test_user_id_2",
         selected_buyer: "test_user_id_buyer",
         potential_buyers: ["test_user_id_1"],
+        image_paths: [],
         id: "test_listing_id_3",
         table: "listings",
       },
@@ -78,6 +81,7 @@ describe("User API", () => {
         selected_buyer: "test_user_id_1",
         potential_buyers: ["test_user_id_1"],
         id: "test_listing_id_4",
+        image_paths: [],
         table: "listings",
       }
     }

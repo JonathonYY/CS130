@@ -1,6 +1,24 @@
 import {db} from "@/lib/firebase/config";
 import { User, Listing } from "@/lib/firebase/firestore/types";
 import { getDoc, doc, updateDoc, arrayRemove, deleteDoc } from "firebase/firestore";
+import { ref, deleteObject } from "firebase/storage";
+import { storage } from "@/lib/firebase/config";
+
+function extractFilePath(url: string): string {
+  // Regular expression to find the file path part of the URL
+  const regex = /firebasestorage\.app\/o(\/images%2F[^?]+)/;
+
+  // Check if the URL matches the expected pattern
+  const match = url.match(regex);
+
+  if (match && match[1]) {
+    // Decode the URL-encoded file path
+    return decodeURIComponent(match[1]);
+  }
+
+  // If no match, return it directly
+  return url;
+}
 
 export default async function deleteListing(listing_id: string, user_id: string): Promise<string> {
   const listingRef = doc(db, 'listings', listing_id);
@@ -16,7 +34,7 @@ export default async function deleteListing(listing_id: string, user_id: string)
   }
 
   // extract relevant fields
-  const {owner, potential_buyers} = listingData;
+  const {owner, potential_buyers, image_paths} = listingData;
 
   if (user_id === owner) {
     // confirm existence of users before updating to avoid errors
@@ -50,6 +68,16 @@ export default async function deleteListing(listing_id: string, user_id: string)
         }
       }
     }));
+    // remove image files from storage
+    await Promise.all(image_paths.map(async (img_path) => {
+      const file_path = extractFilePath(img_path)
+      const img_ref = ref(storage, file_path);
+      deleteObject(img_ref).then(() => {
+        // File deleted successfully
+      }).catch(() => {
+        console.warn(`Error deleting ${file_path}`);
+      });
+    }))
   } else {
     throw new Error("Unauthorized user");
   }

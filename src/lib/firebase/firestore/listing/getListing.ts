@@ -13,5 +13,7 @@ export default async function getListing(doc_id: string) {
     delete result.ratings;
     delete result.reporters;
 
+    result.id = doc_id;
+
     return result;
 }
