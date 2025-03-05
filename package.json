@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "firebase emulators:start & jest --forceExit"
+    "test": "firebase emulators:exec 'jest --forceExit --detectOpenHandles'"
   },
   "dependencies": {
     "@types/react-router-dom": "^5.3.3",
