@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { User, UpdateUserRequest } from "@/lib/firebase/firestore/types";
+import { UpdateUserRequest } from "@/lib/firebase/firestore/types";
 import { getUser, updateUser, deleteUser } from "@/lib/firebase/firestore/user/userUtil";
+import { logger } from "@/lib/monitoring/config";
 
 /*
  * Get a User by id
@@ -17,6 +18,7 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ user_id: string }> }
 ) {
+  const start = performance.now();
   try {
     // get URL parameter user_id
     const user_id: string = (await params).user_id;
@@ -26,11 +28,15 @@ export async function GET(
 
     return NextResponse.json({ data: user, error: null });
   } catch (e: unknown) {
+    logger.increment('GET_specific_user_API_failure');
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message });
     } else {
       return NextResponse.json({ data: null, error: "unknown error" });
     }
+  } finally {
+    const end = performance.now();
+    logger.log(`GET /api/user/{user_id} in ${end - start} ms`);
   }
 }
 
@@ -52,6 +58,7 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ user_id: string }> }
 ) {
+  const start = performance.now();
   try {
     // get URL parameter user_id
     const user_id: string = (await params).user_id;
@@ -72,11 +79,15 @@ export async function PATCH(
 
     return NextResponse.json({ data: user, error: null });
   } catch (e: unknown) {
+    logger.increment('PATCH_user_API_failure');
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message });
     } else {
       return NextResponse.json({ data: null, error: "unknown error" });
     }
+  } finally {
+    const end = performance.now();
+    logger.log(`PATCH /api/user/{user_id} in ${end - start} ms`);
   }
 }
 
@@ -95,18 +106,24 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ user_id: string }> }
 ) {
+  const start = performance.now();
   try {
     // get URL parameter user_id
     const user_id: string = (await params).user_id;
 
     const id: string = await deleteUser(user_id);
 
+    logger.increment('userDeletion');
     return NextResponse.json({ data: { user_id: id }, error: null });
   } catch (e: unknown) {
+    logger.increment('DELETE_user_API_failure');
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message });
     } else {
       return NextResponse.json({ data: null, error: "unknown error" });
     }
+  } finally {
+    const end = performance.now();
+    logger.log(`DELETE /api/user/{user_id} in ${end - start} ms`)
   }
 }

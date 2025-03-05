@@ -3,6 +3,7 @@ import { db } from "@/lib/firebase/config";
 import { getDoc, doc, updateDoc, arrayUnion, serverTimestamp, Timestamp } from "firebase/firestore";
 import { Listing, User } from "@/lib/firebase/firestore/types";
 import deleteListing from "@/lib/firebase/firestore/listing/deleteListing";
+import { logger } from "@/lib/monitoring/config";
 
 const time_threshold = 60000; // number of milliseconds required since last report attempt
 const removal_threshold = 5; // number of reports required to autodelete listing
@@ -22,6 +23,7 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ listing_id: string }> }
 ) {
+  const start = performance.now();
   try {
     // get URL parameter listing_id
     const listing_id = (await params).listing_id;
@@ -73,16 +75,21 @@ export async function PATCH(
 
     if (reporters.length + 1 >= removal_threshold) {
       await deleteListing(listing_id, owner);
+      logger.increment('deleteReportedListing');
     } else {
       await updateDoc(listingRef, { reporters: arrayUnion(user_id), updated: serverTimestamp() });
     }
 
     return NextResponse.json({ data: { listing_id: listing_id }, error: null });
   } catch (e: unknown) {
+    logger.increment('PATCH_report_listing_API_failure');
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message });
     } else {
       return NextResponse.json({ data: null, error: "unknown error" });
     }
+  } finally {
+    const end = performance.now();
+    logger.log(`PATCH /api/listing/{listing_id}/report in ${end - start} ms`);
   }
 }
