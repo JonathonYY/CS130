@@ -92,9 +92,11 @@ export async function PATCH(
 
     if (data.selected_buyer && data.selected_buyer != '') {
       logger.increment('productMatch');
+    } else if (data.selected_buyer && data.selected_buyer == ''){
+      logger.decrement('productMatch');
     }
 
-    if (data.potential_buyers && data.potential_buyers.length > 1) {
+    if (data.potential_buyers && data.potential_buyers.length >= 1) {
       logger.increment('interestedBuyers');
     }
 
