@@ -13,7 +13,8 @@ import {
     TextField,
     InputAdornment,
     createTheme,
-    ThemeProvider
+    ThemeProvider,
+    Rating
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import EditIcon from '@mui/icons-material/Edit';
@@ -328,9 +329,11 @@ const Account: React.FC = () => {
                                 </Box>
 
                                 <div className="ratings">
-                                    <p><b>Buyer rating: <br /> {userData.buyerRating}/5</b></p>
+                                    <p><b>Buyer rating: </b></p>
+                                    <Rating value={userData.buyerRating} readOnly precision={0.5}/>
 
-                                    <p><b>Seller rating: <br /> {userData.sellerRating}/5</b></p>
+                                    <p><b>Seller rating: </b></p>
+                                    <Rating value={userData.sellerRating} readOnly precision={0.5}/>
                                 </div>
                             </Grid>
 

@@ -2,15 +2,18 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Card, CardContent, Typography, Pagination, CardMedia } from '@mui/material';
+import { Container, Card, CardContent, Typography, Pagination, CardMedia, Avatar, Rating, Box } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 
 // Define TypeScript interface for items
 interface Product {
   id: string;
   title: string;
-  description: string;
+  price: number;
   image: string;
+  rating: number;
+  ownerName: string;
+  ownerPfp: string;
 }
 
 
@@ -36,13 +39,16 @@ const HomeGrid: React.FC<GridProps> = ({ query }) => {
 
     if (error) {
       console.log("Error");
-      console.log(error);
+      // console.log(error);
     } else {
-      const listings: Product[] = data.listings.map((element: { id: any; title: any; description: any; thumbnail: any }) => ({
+      const listings: Product[] = data.listings.map((element: { id: any; title: any; price: any; thumbnail: any; seller_rating: any; owner_name: any; owner_pfp: any }) => ({
         id: element.id,
         title: element.title || 'Title',
-        description: element.description || 'Description',
-        image: element.thumbnail || 'no-image.svg'
+        price: element.price || 0,
+        image: element.thumbnail || 'no-image.svg',
+        rating: element.seller_rating || 0,
+        ownerName: element.owner_name || 'Name',
+        ownerPfp: element.owner_pfp || ''
       }));
 
       // console.log(listings);
@@ -116,9 +122,13 @@ const HomeGrid: React.FC<GridProps> = ({ query }) => {
               />
 
               <CardContent>
+                <Typography variant="h5" noWrap>${item.price}</Typography>
                 <Typography variant="h6" noWrap>{item.title}</Typography>
-                <Typography variant="body2" color="text.secondary" noWrap>{item.description}</Typography>
-                <Typography variant="body2" color="text.secondary" noWrap>View item</Typography>
+                <Grid container alignItems="center" spacing={1} size={{ xs: 12, sm: 12, md: 12 }} wrap="nowrap">
+                  <Avatar src={item.ownerPfp} sx={{ width: 20, height: 20 }} />
+                  <Typography variant="body1" color="text.secondary" noWrap>{item.ownerName}</Typography> 
+                  <Rating size="small" value={item.rating} readOnly precision={0.5}/>
+                </Grid>
               </CardContent>
             </Card>
           </Grid>
