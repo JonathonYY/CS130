@@ -8,14 +8,10 @@ export default async function getListing(doc_id: string) {
     if (!docSnapshot.exists()) {
         throw new Error("No listing exists for given id");
     }
-    let data = docSnapshot.data();
+    const result = docSnapshot.data();
 
-    delete data.ratings;
-    delete data.reporters;
-
-    data['id'] = doc_id;
-
-    const result = data;
+    delete result.ratings;
+    delete result.reporters;
 
     result.id = doc_id;
 
