@@ -27,51 +27,51 @@ interface Interesteduser {
   rating: string; 
 }
 
-const products = [
-    { id: 1, name: "Product A", image: "https://firebasestorage.googleapis.com/v0/b/bmart-5f635.firebasestorage.app/o/images%2FJavascript.png?alt=media&token=fc37ddb5-01ca-41db-8512-930b59202a43" },
-    { id: 2, name: "Product B", image: "https://via.placeholder.com/50" },
-    { id: 3, name: "Product C", image: "https://via.placeholder.com/50" },
-    { id: 4, name: "Product C", image: "https://via.placeholder.com/50" },
-    { id: 5, name: "Product C", image: "https://via.placeholder.com/50" },
-    { id: 6, name: "Product C", image: "https://via.placeholder.com/50" },
-    { id: 7, name: "Product C", image: "https://via.placeholder.com/50" },
-    { id: 8, name: "Product C", image: "https://via.placeholder.com/50" },
-    { id: 9, name: "Product C", image: "https://via.placeholder.com/50" },
-    { id: 10, name: "Product C", image: "https://via.placeholder.com/50" },
-    { id: 11, name: "Product C", image: "https://via.placeholder.com/50" },
-    { id: 12, name: "Product C", image: "https://via.placeholder.com/50" },
-    { id: 13, name: "Product C", image: "https://via.placeholder.com/50" },
-  ];
+// const products = [
+//     { id: 1, name: "Product A", image: "https://firebasestorage.googleapis.com/v0/b/bmart-5f635.firebasestorage.app/o/images%2FJavascript.png?alt=media&token=fc37ddb5-01ca-41db-8512-930b59202a43" },
+//     { id: 2, name: "Product B", image: "https://via.placeholder.com/50" },
+//     { id: 3, name: "Product C", image: "https://via.placeholder.com/50" },
+//     { id: 4, name: "Product C", image: "https://via.placeholder.com/50" },
+//     { id: 5, name: "Product C", image: "https://via.placeholder.com/50" },
+//     { id: 6, name: "Product C", image: "https://via.placeholder.com/50" },
+//     { id: 7, name: "Product C", image: "https://via.placeholder.com/50" },
+//     { id: 8, name: "Product C", image: "https://via.placeholder.com/50" },
+//     { id: 9, name: "Product C", image: "https://via.placeholder.com/50" },
+//     { id: 10, name: "Product C", image: "https://via.placeholder.com/50" },
+//     { id: 11, name: "Product C", image: "https://via.placeholder.com/50" },
+//     { id: 12, name: "Product C", image: "https://via.placeholder.com/50" },
+//     { id: 13, name: "Product C", image: "https://via.placeholder.com/50" },
+//   ];
   
-  const interestedUsers: Record<number, { id: string; name: string; avatar: string; rating: number}[]> = {
-    1: [
-      { id: "u1", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-      { id: "u2", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-      { id: "u3", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-      { id: "u4", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-      { id: "u5", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-      { id: "u6", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-      { id: "u7", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-      { id: "u8", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-      { id: "u9", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-      { id: "u10", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-      { id: "u11", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-      { id: "u12", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-      { id: "u13", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-      { id: "u14", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-      { id: "u15", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-      { id: "u16", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-      { id: "u17", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-      { id: "u18", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-    ],
-    2: [
-      { id: "u3", name: "Charlie", avatar: "https://via.placeholder.com/40", rating: 3 },
-    ],
-    3: [
-      { id: "u4", name: "David", avatar: "https://via.placeholder.com/40", rating: 5 },
-      { id: "u5", name: "Eve", avatar: "https://via.placeholder.com/40", rating: 1 },
-    ],
-  };
+//   const interestedUsers: Record<number, { id: string; name: string; avatar: string; rating: number}[]> = {
+//     1: [
+//       { id: "u1", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+//       { id: "u2", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+//       { id: "u3", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+//       { id: "u4", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+//       { id: "u5", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+//       { id: "u6", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+//       { id: "u7", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+//       { id: "u8", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+//       { id: "u9", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+//       { id: "u10", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+//       { id: "u11", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+//       { id: "u12", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+//       { id: "u13", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+//       { id: "u14", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+//       { id: "u15", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+//       { id: "u16", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+//       { id: "u17", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
+//       { id: "u18", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
+//     ],
+//     2: [
+//       { id: "u3", name: "Charlie", avatar: "https://via.placeholder.com/40", rating: 3 },
+//     ],
+//     3: [
+//       { id: "u4", name: "David", avatar: "https://via.placeholder.com/40", rating: 5 },
+//       { id: "u5", name: "Eve", avatar: "https://via.placeholder.com/40", rating: 1 },
+//     ],
+//   };
 
   const SellersHome: React.FC = () => {
     // require rebase
@@ -82,9 +82,10 @@ const products = [
     // States for informing users data is being fetched
     const [loading, setLoading] = useState(false);
     const [userData, setActiveUser] = useState<User>();
-    const [productIds, setProductIds] = useState<String[]>([]);
+    const [productIds, setProductIds] = useState<string[]>([]);
     const [productListings, setProductListings] = useState<any[]>([]);
-    const [interestedUsers, setInterestedUsers] = useState<User[]>([]);
+    const [interestedUsers, setInterestedUsers] = useState<Record<string, any[]>>({});
+    
     // Fetch active user from the database
     async function fetchUser() {
       setLoading(true);
@@ -97,7 +98,7 @@ const products = [
           console.error("Error fetching user:", error);
         } else {
           setActiveUser(data); // Set user data
-          console.log(data.active_listings)
+          console.log(data.active_listings);
           setProductIds(data.active_listings || []); // Ensure it's an array
           fetchActiveListings(data.active_listings || []); // Fetch listings after setting them
         }
@@ -126,15 +127,54 @@ const products = [
           })
         );
     
-        console.log("All listings fetched:", listingData.filter(Boolean)); // Remove null entries
-        setProductListings(listingData)
+        const validListings = listingData.filter(Boolean);
+        setProductListings(validListings);
+    
+        // Fetch users for potential buyers
+        fetchInterestedUsers(validListings);
       } catch (err) {
         console.error("Error fetching listings:", err);
       }
     }
     
+    // Fetch user info for potential buyers and map to listing ID
+    async function fetchInterestedUsers(listings: any[]) {
+      try {
+        const interestedUsersMap: Record<string, User[]> = {};
+    
+        await Promise.all(
+          listings.map(async (listing) => {
+            if (!listing.potential_buyers || listing.potential_buyers.length === 0) {
+              interestedUsersMap[listing.id] = [];
+              return;
+            }
+    
+            const users = await Promise.all(
+              listing.potential_buyers.map(async (user_id: string) => {
+                const user_response = await fetch(`/api/user/${user_id}`);
+                const { data, error } = await user_response.json();
+    
+                if (error) {
+                  console.error(`Error fetching user ${user_id}:`, error);
+                  return null;
+                }
+                return data;
+              })
+            );
+    
+            interestedUsersMap[listing.id] = users.filter(Boolean);
+          })
+        );
+    
+        setInterestedUsers(interestedUsersMap);
+        console.log("Interested users map:", interestedUsersMap);
+      } catch (err) {
+        console.error("Error fetching interested users:", err);
+      }
+    }
+    
     useEffect(() => {
-      fetchUser(); // No need to pass listings separately
+      fetchUser();
     }, []);
 
     const router = useRouter();
@@ -186,7 +226,7 @@ const products = [
               </List>
             </div>
             <hr className="border-gray-300 my-2" />
-            <div className="p-2 bg-white sticky flex-1" style={{ maxHeight: "150px" }}>
+            <div className="p-2 bg-white sticky flex-1" style={{ maxHeight: "75px" }}>
               <ListItem
                 component="button"
                 onClick={() => router.push("/new-listing")}
@@ -213,16 +253,21 @@ const products = [
                       <ListItem className="hover:bg-gray-200 flex items-center border p-2 rounded-lg relative">
                         <div className="flex items-center w-full">
                           <ListItemAvatar>
-                            <Avatar src={user.avatar} alt={user.name} />
+                            <Avatar src={user.pfp} alt={user.first} />
                           </ListItemAvatar>
-                          <ListItemText primary={user.name} className="flex-1 text-black" />
+                          <ListItemText primary={user.first} className="flex-1 text-black" />
                           <div className="flex items-center justify-center w-full">
-                            {[...Array(user.rating)].map((_, index) => (
+                            {[...Array(Math.round(user.cum_buyer_rating))].map((_, index) => (
                               <StarIcon key={index} className="text-yellow-500" />
                             ))}
                           </div>
                           <div className="absolute right-4 flex">
-                            <IconButton color="success">
+                            <IconButton color="success"
+                            onClick={() => fetch(`/api/listing/${selectedProduct}`, {
+                              method: 'PATCH',
+                              body: JSON.stringify({selected_buyer: user.id})
+                            })}
+                            >
                               <CheckIcon />
                             </IconButton>
                             <IconButton color="error">
