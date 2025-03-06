@@ -30,7 +30,7 @@ export default async function addListing(data: AddListingData) {
     potential_buyers: [], // user_ids of potential buyers
     reporters: [], // user_ids of reporters
     ratings: {}, // strings are user_ids mapped to number ratings
-    image_paths: data.image_paths, // list of paths to imgs
+    image_paths: [...data.image_paths], // list of paths to imgs
   };
 
   const docRef = await addDoc(collection(db, "listings"), listing_data);

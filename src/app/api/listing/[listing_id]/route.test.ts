@@ -283,7 +283,7 @@ describe('Test PATCH listing', () => {
         expect(doc.mock.calls[0][2]).toBe('invalid_id');
         expect(getDoc).toHaveBeenCalled();
         expect(updateDoc).not.toHaveBeenCalled();
-        expect(serverTimestamp).toHaveBeenCalled();
+        expect(serverTimestamp).not.toHaveBeenCalled();
 
         expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).toEqual('No listing exists for given id');
