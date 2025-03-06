@@ -38,7 +38,6 @@ export interface ListingWithID {
   owner_pfp: string,
   owner_name: string, // owner first + last
   seller_rating: number // snapshot from listing creation/update
-
 }
 
 export interface Listing {

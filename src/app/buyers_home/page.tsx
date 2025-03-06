@@ -10,11 +10,12 @@ import { User, Listing, ListingWithID } from "@/lib/firebase/firestore/types";
 // import { useAuth } from "@/lib/authContext"; require rebase
 
 // import SideMenu from "@/components/seller_sidebar";
-import { AppBar,Toolbar,Avatar, Button, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, IconButton,Divider} from "@mui/material";
+import { AppBar,Toolbar,Avatar, Button, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, IconButton, Tooltip, Divider} from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import StarIcon from "@mui/icons-material/Star";
 import AddIcon from "@mui/icons-material/Add";
+import { yellow } from '@mui/material/colors';
 import React, { useState, useEffect } from "react";
 import { time } from "console";
 
@@ -233,6 +234,43 @@ const SellersHome: React.FC = () => {
     setIsClient(true);
   }, []);
 
+  const [rating, setRating] = useState<number>(0); // Current selected rating (number of stars)
+  const [hoveredRating, setHoveredRating] = useState<number>(0); // Rating to highlight on hover
+
+  // Handle hover change
+  const handleMouseEnter = (index: number): void => {
+    setHoveredRating(index + 1); // Highlight stars up to the hovered index
+  };
+
+  // Handle hover leave
+  const handleMouseLeave = (): void => {
+    setHoveredRating(0); // Reset hover state
+  };
+
+  // Handle click to update rating
+  const handleClick = (user_id: string, listing_id: string, index: number): void => {
+    setRating(index + 1); // Set the rating to the clicked star number
+    submitRating(user_id, listing_id, index + 1); // API call to submit rating
+  };
+
+  // Function to simulate the API call
+  const submitRating = async (user_id: string, listing_id: string, newRating: number): Promise<void> => {
+    try {
+      const response = await fetch(`/api/listing/${listing_id}/rate`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: user_id, rating: newRating }),
+      });
+      const data = await response.json();
+      console.log('Rating submitted:', data);
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+    }
+  };
+
+
   if (!isClient) return null;
   console.log(productListings)
 
@@ -297,15 +335,36 @@ const SellersHome: React.FC = () => {
             {productMap[selectedProduct].selected_buyer ?
               productMap[selectedProduct].selected_buyer == 'test-user' ? (
                 <div>
-                <div className="p-4">
-                  rate seller
-                </div>
-                <div className="px-4 pb-4">
-                  email: {listingOwners[selectedProduct].email_address}{
-                    listingOwners[selectedProduct].phone_number ?
-                    ", phone: " + listingOwners[selectedProduct].phone_number : ""
-                  }
-                </div>
+                  <div className="p-4">
+                    rate seller
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    {[...Array(5)].map((_, index) => {
+                      const isFilled = index < (hoveredRating || rating); // If the star is filled (on hover or selected)
+                      return (
+                        <Tooltip key={index} title={`${index + 1} Star`} arrow>
+                          <Button
+                            onClick={() => handleClick("test-user", selectedProduct, index)}
+                            onMouseEnter={() => handleMouseEnter(index)}
+                            onMouseLeave={handleMouseLeave}
+                            style={{
+                              padding: 0,
+                              minWidth: 0,
+                              color: isFilled ? yellow[700] : 'gray', // Yellow if filled, gray if not
+                            }}
+                          >
+                            <StarIcon />
+                          </Button>
+                        </Tooltip>
+                      );
+                    })}
+                  </div>
+                  <div className="px-4 pb-4">
+                    email: {listingOwners[selectedProduct].email_address}{
+                      listingOwners[selectedProduct].phone_number ?
+                        ", phone: " + listingOwners[selectedProduct].phone_number : ""
+                    }
+                  </div>
                 </div>
               ) : (
                 <div className="p-4">
