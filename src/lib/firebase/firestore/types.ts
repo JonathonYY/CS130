@@ -21,6 +21,26 @@ export interface PatchListingData {
   image_paths: string[], // list of paths to imgs
 }
 
+export interface ListingWithID {
+  id: string,
+  updated: Timestamp,
+  title: string,
+  price: number,
+  condition: string,
+  category: string,
+  description: string,
+  owner: string, // owner (seller) user_id
+  selected_buyer: string, // buyer user_id
+  potential_buyers: string[], // user_ids of potential buyers
+  reporters: string[], // user_ids of reporters
+  ratings: { [user_id: string]: number }, // strings are user_ids mapped to number ratings
+  image_paths: string[], // list of paths to imgs
+  owner_pfp: string,
+  owner_name: string, // owner first + last
+  seller_rating: number // snapshot from listing creation/update
+
+}
+
 export interface Listing {
   updated: Timestamp,
   title: string,
