@@ -119,6 +119,7 @@ describe('Test GET listing', () => {
 
         // check for correct output
         expect(jsonResponse.data).toEqual({
+            'id': 'listing1',
             'updated': 'MOCK_TIME0',
             'title': 'Listing1',
             'price': 30,

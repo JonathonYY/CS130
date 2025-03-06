@@ -3,6 +3,7 @@ import { getDocs, collection, query, limit, Timestamp, orderBy, startAt, where, 
 import { QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
 import { Listing } from "../types";
 import { SearchFields, parseInput, hasParams } from "./parseInput";
+import { logger } from "@/lib/monitoring/config";
 
 function transformListing(doc: QueryDocumentSnapshot<DocumentData, DocumentData>) {
   const data = doc.data() as Listing;
@@ -24,6 +25,7 @@ function transformListing(doc: QueryDocumentSnapshot<DocumentData, DocumentData>
 }
 
 export default async function getAllListings(req?: string, req_limit?: number, last_rating?: number, last_timestamp?: number) {
+  const start = performance.now();
   let result;
   const listingsRef = collection(db, 'listings');
 
@@ -35,6 +37,7 @@ export default async function getAllListings(req?: string, req_limit?: number, l
   const parsed_req: SearchFields = parseInput(req);
 
   if (hasParams(parsed_req)) {
+    logger.increment('searchListings');
     const {search_str, category, condition, owner, cmp_op, price} = parsed_req;
 
     const q = query(listingsRef,
@@ -56,7 +59,13 @@ export default async function getAllListings(req?: string, req_limit?: number, l
 
     result = await getDocs(q);
     result = result.docs.map((doc) => (transformListing(doc)));
+    const end = performance.now();
+    if ((end - start)/1000 > 4) {
+      logger.increment('slowSearchListings');
+      logger.warn(`Search took ${end - start} ms`);
+    }
   } else {
+    logger.increment('getAllListings');
     const q = query(listingsRef,
                     orderBy('seller_rating', 'desc'),
                     orderBy('updated', 'desc'),

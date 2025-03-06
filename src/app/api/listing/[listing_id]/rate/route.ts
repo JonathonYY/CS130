@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase/config";
 import { getDoc, doc, updateDoc, increment, serverTimestamp } from "firebase/firestore";
 import { Listing, User } from "@/lib/firebase/firestore/types";
+import { logger } from "@/lib/monitoring/config";
 
 /*
  * Rate Listing by id
@@ -21,6 +22,7 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ listing_id: string }> }
 ) {
+  const start = performance.now();
   try {
     // get URL parameter listing_id
     const listing_id = (await params).listing_id;
@@ -107,10 +109,14 @@ export async function PATCH(
 
     return NextResponse.json({ data: { listing_id: listing_id }, error: null });
   } catch (e: unknown) {
+    logger.increment('PATCH_rate_listing_API_failure');
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message });
     } else {
       return NextResponse.json({ data: null, error: "unknown error" });
     }
+  } finally {
+    const end = performance.now();
+    logger.log(`PATCH /api/listing/{listing_id}/rate in ${end - start} ms`);
   }
 }

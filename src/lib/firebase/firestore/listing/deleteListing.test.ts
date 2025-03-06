@@ -1,10 +1,12 @@
 import deleteListing from "./deleteListing";
 
-const { db } = jest.requireMock("@/lib/firebase/config");
+const { db, storage } = jest.requireMock("@/lib/firebase/config");
 const { getDoc, doc, updateDoc, arrayRemove, deleteDoc } = jest.requireMock("firebase/firestore");
+const { ref, deleteObject } = jest.requireMock("firebase/storage");
 
 jest.mock('@/lib/firebase/config', () => ({
-  db: {}
+  db: {},
+  storage: {}
 }))
 
 jest.mock('firebase/firestore', () => {
@@ -28,6 +30,36 @@ jest.mock('firebase/firestore', () => {
     deleteDoc: jest.fn(jest.fn((ref) => delete db[ref.table][ref.id])),
   };
 });
+
+jest.mock('firebase/storage', () => {
+  return {
+    ...jest.requireActual('firebase/storage'),
+    ref: jest.fn((storge, file_path: string) => {
+      // we expect to only receive strings of the format
+      // /images/file_name
+      const parts = file_path.split('/');
+      if (parts.length == 3) {
+        return {
+          dir: parts[1],
+          file_name: parts[2]
+        }
+      } else {
+        return {
+          dir: 'images',
+          file_name: 'missing_file'
+        }
+      }
+    }),
+    deleteObject: jest.fn((ref) => {
+      if (!storage[ref.dir][ref.file_name]) {
+        return new Promise(() => { throw new Error(); });
+      } else {
+        delete storage[ref.dir][ref.file_name];
+        return new Promise(() => {});
+      }
+    })
+  }
+})
 
 const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
 
@@ -53,21 +85,34 @@ describe('Test deleteListing function', () => {
           table: 'users', // back references for consistency with listings
           interested_listings: ['listing1']
         }
-      }
+      };
     db.listings = {
         listing1: {
           id: 'listing1', // back reference to mock deleteDoc
           table: 'listings', // back reference to mock deleteDoc
           owner: 'user1',
-          potential_buyers: ['user2', 'user3']
+          potential_buyers: ['user2', 'user3'],
+          image_paths: [
+            'https://firebasestorage.googleapis.com/v0/b/bucket.firebasestorage.app/o/images%2Fimage1?alt=media&token=token',
+            'https://firebasestorage.googleapis.com/v0/b/bucket.firebasestorage.app/o/images%2Fimage2?alt=media&token=token'
+          ]
         },
         listing2: {
           id: 'listing2', // back reference to mock deleteDoc
           table: 'listings', // back reference to mock deleteDoc
           owner: 'missing_owner',
-          potential_buyers: ['missing_buyer1', 'missing_buyer2', 'user1', 'user2']
+          potential_buyers: ['missing_buyer1', 'missing_buyer2', 'user1', 'user2'],
+          image_paths: [
+            'https://firebasestorage.googleapis.com/v0/b/bucket.firebasestorage.app/o/images%2Fimage1?alt=media&token=token',
+            'https://firebasestorage.googleapis.com/v0/b/bucket.firebasestorage.app/o/images%2Fbad_image?alt=media&token=token'
+          ]
         }
-      }
+      };
+    // set mock images
+    storage.images = {
+      image1: 'img1',
+      image2: 'img2'
+    };
   });
 
   it('Invalid listing', async () => {
@@ -79,9 +124,9 @@ describe('Test deleteListing function', () => {
     // confirm getDoc, doc have been called once, and other Firestore mocks are not called
     expect(getDoc).toHaveBeenCalledTimes(1);
     expect(doc).toHaveBeenCalledTimes(1);
-    expect(updateDoc).toHaveBeenCalledTimes(0);
-    expect(arrayRemove).toHaveBeenCalledTimes(0);
-    expect(deleteDoc).toHaveBeenCalledTimes(0);
+    expect(updateDoc).not.toHaveBeenCalled();
+    expect(arrayRemove).not.toHaveBeenCalled();
+    expect(deleteDoc).not.toHaveBeenCalled();
   });
 
   it('Unauthorized user', async () => {
@@ -93,9 +138,10 @@ describe('Test deleteListing function', () => {
     // confirm getDoc, doc have been called once, and other Firestore mocks are not called
     expect(getDoc).toHaveBeenCalledTimes(1);
     expect(doc).toHaveBeenCalledTimes(1);
-    expect(updateDoc).toHaveBeenCalledTimes(0);
-    expect(arrayRemove).toHaveBeenCalledTimes(0);
-    expect(deleteDoc).toHaveBeenCalledTimes(0);
+    expect(updateDoc).not.toHaveBeenCalled();
+    expect(arrayRemove).not.toHaveBeenCalled();
+    expect(deleteDoc).not.toHaveBeenCalled();
+    expect(deleteObject).not.toHaveBeenCalled();
   });
 
   it('Listing deleted; invalid owner/potential_buyers', async () => {
@@ -104,20 +150,29 @@ describe('Test deleteListing function', () => {
       id: 'listing2',
       table: 'listings',
       owner: 'missing_owner',
-      potential_buyers: ['missing_buyer1', 'missing_buyer2', 'user1', 'user2']
+      potential_buyers: ['missing_buyer1', 'missing_buyer2', 'user1', 'user2'],
+      image_paths: [
+        'https://firebasestorage.googleapis.com/v0/b/bucket.firebasestorage.app/o/images%2Fimage1?alt=media&token=token',
+        'https://firebasestorage.googleapis.com/v0/b/bucket.firebasestorage.app/o/images%2Fbad_image?alt=media&token=token'
+      ]
     });
+    // confirm images exist before delete
+    expect(storage["images"]).toEqual({ image1: 'img1', image2: 'img2' });
 
     const ret_id = await deleteListing("listing2", "missing_owner");
     expect(ret_id).toBe("listing2");
 
     // confirm listing is removed
     expect(db["listings"]["listing2"]).toBe(undefined);
+    // confirm only image1 is removed
+    expect(storage["images"]).toEqual({ image2: 'img2' });
 
     // confirm warning is given for missing_owner, missing_buyer1, missing_buyer2
-    expect(warn).toHaveBeenCalledTimes(3);
+    expect(warn).toHaveBeenCalledTimes(4);
     expect(warn.mock.calls[0][0]).toBe("owner missing_owner not found");
     expect(warn.mock.calls[1][0]).toBe("potential buyer missing_buyer1 not found");
     expect(warn.mock.calls[2][0]).toBe("potential buyer missing_buyer2 not found");
+    expect(warn.mock.calls[3][0]).toBe("Error deleting /images/bad_image");
 
     // confirm listing is removed from valid buyers
     expect(arrayRemove).toHaveBeenCalledTimes(2);
@@ -129,6 +184,11 @@ describe('Test deleteListing function', () => {
     expect(updateDoc.mock.calls[0][1]).toEqual({interested_listings: ['listing2']});
     expect(updateDoc.mock.calls[1][0].id).toBe('user2');
     expect(updateDoc.mock.calls[1][1]).toEqual({interested_listings: ['listing2']});
+
+    expect(ref).toHaveBeenCalledTimes(2);
+    expect(deleteObject).toHaveBeenCalledTimes(2);
+    expect(deleteObject.mock.calls[0][0]).toEqual({dir: "images", file_name: "image1"});
+    expect(deleteObject.mock.calls[1][0]).toEqual({dir: "images", file_name: "bad_image"});
   });
 
   it('Listing deleted; clean up listing from owner, potential_buyers', async () => {
@@ -137,7 +197,16 @@ describe('Test deleteListing function', () => {
       id: 'listing1',
       table: 'listings',
       owner: 'user1',
-      potential_buyers: ['user2', 'user3']
+      potential_buyers: ['user2', 'user3'],
+      image_paths: [
+        'https://firebasestorage.googleapis.com/v0/b/bucket.firebasestorage.app/o/images%2Fimage1?alt=media&token=token',
+        'https://firebasestorage.googleapis.com/v0/b/bucket.firebasestorage.app/o/images%2Fimage2?alt=media&token=token'
+      ]
+    });
+    // confirm images exist before delete
+    expect(storage["images"]).toEqual({
+      image1: 'img1',
+      image2: 'img2'
     });
 
     const ret_id = await deleteListing("listing1", "user1");
@@ -146,8 +215,11 @@ describe('Test deleteListing function', () => {
     // confirm listing is removed
     expect(db["listings"]["listing1"]).toBe(undefined);
 
+    // confirm images removed
+    expect(storage["images"]).toEqual({});
+
     // confirm no warnings
-    expect(warn).toHaveBeenCalledTimes(0);
+    expect(warn).not.toHaveBeenCalled();
 
     // confirm listing is removed from owner active_listings, buyer interested_listings
     expect(arrayRemove).toHaveBeenCalledTimes(3);
@@ -162,5 +234,10 @@ describe('Test deleteListing function', () => {
     expect(updateDoc.mock.calls[1][1]).toEqual({interested_listings: ['listing1']});
     expect(updateDoc.mock.calls[2][0].id).toBe('user3');
     expect(updateDoc.mock.calls[2][1]).toEqual({interested_listings: ['listing1']});
+
+    expect(ref).toHaveBeenCalledTimes(2);
+    expect(deleteObject).toHaveBeenCalledTimes(2);
+    expect(deleteObject.mock.calls[0][0]).toEqual({dir: "images", file_name: "image1"});
+    expect(deleteObject.mock.calls[1][0]).toEqual({dir: "images", file_name: "image2"});
   });
 });

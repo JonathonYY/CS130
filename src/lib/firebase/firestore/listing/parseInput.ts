@@ -1,3 +1,5 @@
+import { logger } from "@/lib/monitoring/config";
+
 export interface SearchFields {
   search_str: string,
   category: string,
@@ -20,6 +22,8 @@ export function parseInput(req?: string): SearchFields {
   if (req === undefined) {
     return result;
   }
+
+  logger.log(`parseInput: ${req}`);
 
   const sellerPattern = /seller:(([\p{Letter}\p{Mark}]+)|("([\p{Letter}\p{Mark}]+ ?)+"))/u;
   const categoryPattern = /category:(\w+)/;
