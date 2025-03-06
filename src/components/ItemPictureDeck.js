@@ -1,16 +1,55 @@
 import React, { useState } from "react";
-import { Box, IconButton, Typography, Avatar } from "@mui/material";
-import { ArrowBackIos, ArrowForwardIos, Edit } from "@mui/icons-material";
+import { Box, IconButton, Typography, Avatar, Rating } from "@mui/material";
+import { ArrowBackIos, ArrowForwardIos, Edit, Chat } from "@mui/icons-material";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
+import {useAuth} from "@/lib/authContext";
 
-const Slideshow = ({ images, category, condition, rating, description, name, timestamp, owner_pfp}) => {
+const Slideshow = ({ images, timestamp, listingObj}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const prevImage = () => {
     setCurrentIndex((prev) => (prev === 0 ? 0 : prev - 1));
   };
 
   const nextImage = () => {
     setCurrentIndex((prev) => (prev === images.length - 1 ? images.length - 1 : prev + 1));
+  };
+  const {user} = useAuth();
+  const expressInterest = async () => {
+    let newPotentialBuyers = listingObj.potential_buyers;
+    newPotentialBuyers.push(user.uid);
+    const uniquePotentialBuyers = [...new Set(newPotentialBuyers)];
+    //console.log(newPotentialBuyers);
+    try {
+      const response = await fetch(`/api/listing/${listingObj.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+            title: listingObj.title,
+            price: listingObj.price,
+            condition: listingObj.condition,
+            category: listingObj.category,
+            description: listingObj.description,
+            selected_buyer: listingObj.selected_buyer,
+            potential_buyers: uniquePotentialBuyers,
+            image_paths: listingObj.image_paths
+        }),
+      });
+
+      setSnackbarMessage("Message sent!");
+      setSnackbarOpen(true);
+    } catch (error) {
+      setSnackbarMessage("Error sending message!");
+      setSnackbarOpen(true);
+    }
+  };
+
+  const handleClose = () => {
+    setSnackbarOpen(false);
   };
 
   return (
@@ -89,7 +128,7 @@ const Slideshow = ({ images, category, condition, rating, description, name, tim
                 fontWeight: "bold",
             }}
             >
-                {category}
+                {listingObj.category}
             </Box>
 
             {/*Product Condition*/}
@@ -103,21 +142,21 @@ const Slideshow = ({ images, category, condition, rating, description, name, tim
                 fontWeight: "bold",
             }}
             >
-                {condition}
+                {listingObj.condition}
             </Box>
 
             {/*Seller Rating*/}
             <Box
             sx={{
-                padding: "8px 16px",
+                padding: "7px 10px",
                 backgroundColor: "#6a4c93",
                 color: "white",
                 borderRadius: "20px",
-                fontSize: "0.9rem",
+                fontSize: "0.0rem",
                 fontWeight: "bold",
             }}
             >
-                {rating} / 5
+                <Rating value={listingObj.seller_rating} precision={0.5} readOnly></Rating>
             </Box>
             
         </Box>
@@ -125,19 +164,28 @@ const Slideshow = ({ images, category, condition, rating, description, name, tim
         {/*Product Description*/}
         <Box sx={{ marginTop: "10px", padding: "15px", backgroundColor: "#f9f9f9", borderRadius: "5px" }}>
                 <Typography variant="body1" sx={{ color: "#333", lineHeight: "1.6" }}>
-                    {description}
+                    {listingObj.description}
                 </Typography>
         </Box>
         
         {/* Seller Information and Last Edited Container */}
         <Box>
-
+            
             {/* Seller Name and Profile Picture */}
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Avatar alt="Seller Name" src={owner_pfp} sx={{ width: 40, height: 40, marginRight: '10px' }} />
+                <Avatar alt="Seller Name" src={listingObj.owner_pfp} sx={{ width: 40, height: 40, marginRight: '10px' }} />
                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                    {name}
+                    {listingObj.owner_name}
                 </Typography>
+                <IconButton color="primary" onClick={expressInterest}>
+                    <Chat/>
+                </IconButton>
+
+                <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleClose} anchorOrigin={{ vertical: "bottom", horizontal: "right" }} >
+                    <MuiAlert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
+                    {snackbarMessage}
+                    </MuiAlert>
+                </Snackbar>
             </Box>
 
             {/* Last Edited Timestamp */}

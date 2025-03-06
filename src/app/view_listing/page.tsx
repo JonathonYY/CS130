@@ -21,7 +21,7 @@ const Listing: React.FC = () => {
   const router = useRouter();
   const [listing, setListing] = useState<any | null>(null);;
   const [loading, setLoading] = useState<boolean>(true);
-
+  
   useEffect(() => {
     async function fetchListingById(listingId : string | null) {
       const response = await fetch(`/api/listing/${listingId}`);
@@ -63,10 +63,10 @@ const Listing: React.FC = () => {
         <div className="viewListingsTitle">
           <PriceTag price={listing.price}></PriceTag>
           {listing.title}
-          <ReportButton/>
+          <ReportButton listingId={id}/>
         </div>
         
-        <Slideshow images={displayImages} category={listing.category} condition={listing.condition} rating={listing.seller_rating} description={listing.description} name={listing.owner_name} timestamp={dateString} owner_pfp={listing.owner_pfp}></Slideshow>
+        <Slideshow images={displayImages} timestamp={dateString} listingObj={listing}></Slideshow>
         
       </div>
     </div>
