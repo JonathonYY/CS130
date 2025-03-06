@@ -3,6 +3,7 @@ import deleteListing from "@/lib/firebase/firestore/listing/deleteListing";
 import { PatchListingData } from "@/lib/firebase/firestore/types";
 import getListing from "@/lib/firebase/firestore/listing/getListing";
 import patchListing from "@/lib/firebase/firestore/listing/patchListing"
+import { logger } from "@/lib/monitoring/config";
 
 /*
  * Get a Listing by id
@@ -19,6 +20,7 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ listing_id: string }> }
 ) {
+  const start = performance.now();
   try {
     // get URL parameter listing_id
     const listing_id: string = (await params).listing_id;
@@ -26,11 +28,15 @@ export async function GET(
     const result = await getListing(listing_id);
     return NextResponse.json({ data: result, error: null});
   } catch (e: unknown) {
+    logger.increment('GET_specific_listing_API_failure');
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message });
     } else {
       return NextResponse.json({ data: null, error: "unknown error" });
     }
+  } finally {
+    const end = performance.now();
+    logger.log(`GET /api/listing/{listing_id} in ${end - start} ms`);
   }
 }
 
@@ -56,6 +62,7 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ listing_id: string }> }
 ) {
+  const start = performance.now();
   try {
     // get URL parameter listing_id
     const listing_id = (await params).listing_id;
@@ -83,14 +90,28 @@ export async function PATCH(
       throw new Error('price must be nonnegative');
     }
 
+    if (data.selected_buyer && data.selected_buyer != '') {
+      logger.increment('productMatch');
+    } else if (data.selected_buyer && data.selected_buyer == ''){
+      logger.decrement('productMatch');
+    }
+
+    if (data.potential_buyers && data.potential_buyers.length >= 1) {
+      logger.increment('interestedBuyers');
+    }
+
     const result = await patchListing(listing_id, data);
     return NextResponse.json({ data: result, error: null});
   } catch (e: unknown) {
+    logger.increment('PATCH_listing_API_failure');
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message });
     } else {
       return NextResponse.json({ data: null, error: "unknown error"});
     }
+  } finally {
+    const end = performance.now();
+    logger.log(`PATCH /api/listing/{listing_id} in ${end - start} ms`);
   }
 }
 
@@ -109,6 +130,7 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ listing_id: string }> }
 ) {
+  const start = performance.now();
   try {
     // get URL parameter listing_id
     const listing_id = (await params).listing_id;
@@ -124,10 +146,14 @@ export async function DELETE(
 
     return NextResponse.json({ data: { listing_id: ret_id }, error: null });
   } catch (e: unknown) {
+    logger.increment('DELETE_listing_API_failure');
     if (e instanceof Error) {
       return NextResponse.json({ data: null, error: e.message });
     } else {
       return NextResponse.json({ data: null, error: "unknown error" });
     }
+  } finally {
+    const end = performance.now();
+    logger.log(`DELETE /api/listing/{listing_id} in ${end - start} ms`);
   }
 }

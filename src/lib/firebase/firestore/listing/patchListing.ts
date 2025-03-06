@@ -5,7 +5,7 @@ import { PatchListingData } from "../types";
 export default async function patchListing(doc_id: string, data: Partial<PatchListingData>) {
     const docRef = doc(db, "listings", doc_id);
     // add timestamp to data
-    let update_data = data as { [key: string] : any };
+    const update_data = data as { [key: string] : any };
     update_data['updated'] = serverTimestamp();
 
     // make query-able fields lowercase
