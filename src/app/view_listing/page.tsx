@@ -7,6 +7,7 @@ import ReportButton from "@/components/ReportButton"
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
+
 function getDateFromTimestamp(secs: number, nanos: number): string {
   const ms = secs * 1000 + nanos / 1e6;
   const date = new Date(ms);
@@ -63,7 +64,7 @@ const Listing: React.FC = () => {
         <div className="viewListingsTitle">
           <PriceTag price={listing.price}></PriceTag>
           {listing.title}
-          <ReportButton listingId={id}/>
+          <ReportButton idObj={id}/>
         </div>
         
         <Slideshow images={displayImages} timestamp={dateString} listingObj={listing}></Slideshow>

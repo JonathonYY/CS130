@@ -5,14 +5,14 @@ import {useAuth} from "@/lib/authContext";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 
-const ReportButton = (listingId) => {
+const ReportButton = (idObj) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const {user} = useAuth();
 
   const reportUser = async () => {
     try {
-      const response = await fetch(`/api/listing/${listingId}/report/`, {
+      const response = await fetch(`/api/listing/${idObj.idObj}/report/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -21,12 +21,19 @@ const ReportButton = (listingId) => {
             user_id: user.uid
         }),
       });
+      const data = await response.json();
+
+      if (data.error) {
+        setSnackbarMessage(data.error);
+        setSnackbarOpen(true);
+        return;
+      }
       //console.log(response.ok);
 
       setSnackbarMessage("Listing has been reported!");
       setSnackbarOpen(true);
     } catch (error) {
-      //console.log(error);
+      console.log(error);
       setSnackbarMessage("Error reporting!");
       setSnackbarOpen(true);
     }

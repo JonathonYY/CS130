@@ -39,10 +39,18 @@ const Slideshow = ({ images, timestamp, listingObj}) => {
             image_paths: listingObj.image_paths
         }),
       });
+      const data = await response.json();
+
+      if (data.error) {
+        console.log(error);
+        setSnackbarMessage("Error sending message!");
+        setSnackbarOpen(true);
+      }
 
       setSnackbarMessage("Message sent!");
       setSnackbarOpen(true);
     } catch (error) {
+      console.log(error);
       setSnackbarMessage("Error sending message!");
       setSnackbarOpen(true);
     }
