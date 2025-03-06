@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { TextField, Button, Select, MenuItem, InputLabel, FormControl, Typography, Box, IconButton } from "@mui/material";
+import { TextField, Button, Select, MenuItem, InputLabel, FormControl, Typography, Box, IconButton, Link } from "@mui/material";
 import { styled } from "@mui/system";
 import DeleteIcon from "@mui/icons-material/Delete";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
 import {useAuth} from "@/lib/authContext";
 const ImageUpload = styled("input")({
   display: "none",
@@ -15,6 +17,8 @@ const CreateListingForm = () => {
   const [condition, setCondition] = useState("");
   const [images, setImages] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const {user} = useAuth();
 
   const handleImageUpload = (event) => {
@@ -28,6 +32,9 @@ const CreateListingForm = () => {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index));
   };
 
+  const handleClose = () => {
+    setSnackbarOpen(false);
+  };
 
   const handleUpload = async (file) => {
     if (!file) return;
@@ -83,9 +90,21 @@ const CreateListingForm = () => {
             image_paths: imageUrls
         }),
       });
-      console.log(await response.json());
+      const createResult = await response.json();
+      console.log(createResult.data.listing_id);
+      setSnackbarMessage(
+        <>
+          Listing created{" "}
+          <Link href={`view_listing?id=${createResult.data.listing_id}`}>
+            here
+          </Link>!
+        </>
+      );
+      setSnackbarOpen(true);
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      setSnackbarMessage("Error publishing message!");
+      setSnackbarOpen(true);
     }
     setUploading(false);
     console.log("created listing:", { title, price, description, category, condition, imageUrls });
@@ -179,6 +198,12 @@ const CreateListingForm = () => {
       <Button variant="contained" color="primary" fullWidth sx={{ mt: 3 }} onClick={handleSubmitListing} disabled={isFormIncomplete || uploading}>
         {uploading ? "Publishing..." : "Create Listing"}
       </Button>
+
+      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleClose} anchorOrigin={{ vertical: "bottom", horizontal: "right" }} >
+          <MuiAlert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
+          {snackbarMessage}
+          </MuiAlert>
+      </Snackbar>
     </Box>
   );
 };
