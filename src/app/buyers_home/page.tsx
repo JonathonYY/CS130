@@ -1,5 +1,8 @@
 'use client'
 
+import Slideshow from "@/components/ItemPictureDeck";
+import PriceTag from "@/components/PriceTag"
+import ReportButton from "@/components/ReportButton"
 
 import "../globals.css";
 import { useRouter } from "next/navigation";
@@ -13,6 +16,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import StarIcon from "@mui/icons-material/Star";
 import AddIcon from "@mui/icons-material/Add";
 import React, { useState, useEffect } from "react";
+import { time } from "console";
 
 interface Product {
   id: string;
@@ -25,6 +29,14 @@ interface Interesteduser {
   name: string;
   avatar: string;
   rating: string; 
+}
+
+function getDateFromTimestamp(secs: number, nanos: number): string {
+  const ms = secs * 1000 + nanos / 1e6;
+  const date = new Date(ms);
+  const formatTime = date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const formatDate = date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  return `${formatDate} at ${formatTime}`
 }
 
 // const products = [
@@ -86,6 +98,8 @@ const SellersHome: React.FC = () => {
   const [productListings, setProductListings] = useState<ListingWithID[]>([]);
   const [productMap, setProductMap] = useState<Record<string, ListingWithID>>({});
   const [listingOwners, setListingOwners] = useState<Record<string, User>>({});
+  const [listingImages, setListingImages] = useState<Record<string, string[]>>({});
+  const [listingTimestamp, setListingTimestamp] = useState<Record<string, string>>({});
 
   // Fetch active user from the database
   async function fetchUser() {
@@ -132,6 +146,8 @@ const SellersHome: React.FC = () => {
       setProductListings(listingData);
       setProductMap(listingMap);
       fetchListingOwners(listingData);
+      fetchImages(listingData);
+      fetchTimestamps(listingData);
     } catch (err) {
       console.error("Error fetching listings:", err);
     }
@@ -160,7 +176,48 @@ const SellersHome: React.FC = () => {
       setListingOwners(listingOwnersMap);
       console.log("Listing owners map:", listingOwnersMap);
     } catch (err) {
-      console.error("Error fetching interested users:", err);
+      console.error("Error fetching listing owners", err);
+    }
+  }
+
+  // Fetch user info for potential buyers and map to listing ID
+  async function fetchImages(listings: ListingWithID[]) {
+    try {
+      const listingImagesMap: Record<string, string[]> = {};
+
+      await Promise.all(
+        listings.map((listing) => {
+          listingImagesMap[listing.id] = listing.image_paths.length === 0
+                                          ? ["noimage.png"]
+                                          : listing.image_paths;
+        })
+      );
+
+      setListingImages(listingImagesMap);
+      console.log("Listing images map:", listingImagesMap);
+    } catch (err) {
+      console.error("Error fetching listing images", err);
+    }
+  }
+
+  async function fetchTimestamps(listings: ListingWithID[]) {
+    try {
+      const timestampsMap: Record<string, string> = {};
+
+      await Promise.all(
+        listings.map((listing) => {
+          const timestampSec = listing.updated.seconds;
+          const timestampNano = listing.updated.nanoseconds;
+          const dateString = getDateFromTimestamp(timestampSec, timestampNano);
+
+          timestampsMap[listing.id] = dateString;
+        })
+      );
+
+      setListingTimestamp(timestampsMap);
+      console.log("Timestamps map:", timestampsMap);
+    } catch (err) {
+      console.error("Error fetching listing images", err);
     }
   }
 
@@ -221,12 +278,19 @@ const SellersHome: React.FC = () => {
         {/* Right Panel: Interested Users TODO: fix format of listing & description, figure out how to handle sales that are closed to other buyers,  */}
         {selectedProduct ? (
           <div className="w-2/3 bg-white shadow-lg rounded-lg ml-4 overflow-hidden flex flex-col relative">
-            <div className="overflow-y-scroll overflow-x-hidden flex-1" style={{ maxHeight: "calc(100vh - 150px)" }}>
-              <h2 className="text-lg font-semibold p-4 border-b text-black">
-                {productMap[selectedProduct].title}
-              </h2>
-              <div className="p-4">
-                {productMap[selectedProduct].description}
+            <div className="overflow-y-scroll overflow-x-hidden flex-1 mt-4" style={{ maxHeight: "calc(100vh - 150px)" }}>
+              <div className="viewListingsContainer" style={{ clear: "right" }}>
+                <div className="viewListingsTitle">
+                  <PriceTag price={productMap[selectedProduct].price}></PriceTag>
+                  {productMap[selectedProduct].title}
+                  <ReportButton listingId={selectedProduct} />
+                </div>
+
+                <Slideshow
+                  images={listingImages[selectedProduct]}
+                  timestamp={listingTimestamp[selectedProduct]}
+                  listingObj={productMap[selectedProduct]}>
+                </Slideshow>
               </div>
             </div>
             <hr className="border-gray-300" />
