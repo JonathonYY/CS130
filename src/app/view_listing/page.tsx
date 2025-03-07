@@ -7,6 +7,27 @@ import ReportButton from "@/components/ReportButton"
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
+interface ListingObject {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  condition: string;
+  price: number;
+  image_paths: string[];
+  owner: string;
+  owner_name: string;
+  owner_pfp: string;
+  potential_buyers: string[]; 
+  selected_buyer: string;
+  seller_rating: number;
+  updated: Timestamp;
+}
+
+interface Timestamp {
+  seconds: number;
+  nanoseconds: number;
+}
 
 function getDateFromTimestamp(secs: number, nanos: number): string {
   const ms = secs * 1000 + nanos / 1e6;
@@ -20,7 +41,7 @@ const Listing: React.FC = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id"); // use this id to call backend function to get full item details
   const router = useRouter();
-  const [listing, setListing] = useState<any | null>(null);;
+  const [listing, setListing] = useState<ListingObject | null>(null);;
   const [loading, setLoading] = useState<boolean>(true);
   
   useEffect(() => {

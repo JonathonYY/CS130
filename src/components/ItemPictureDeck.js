@@ -59,7 +59,6 @@ const Slideshow = ({ images, timestamp, listingObj}) => {
   const handleClose = () => {
     setSnackbarOpen(false);
   };
-  console.log("picturesa:", images);
   return (
     <Box
       sx={{
