@@ -89,6 +89,7 @@ const Account: React.FC = () => {
     })
 
     // For authentication purposes
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { user, token, signInWithGoogle, signOutUser } = useAuth();
     const accountURL = "/api/user/" + user?.uid;
 
@@ -176,7 +177,7 @@ const Account: React.FC = () => {
     const handleCloseUpdate = () => setUpdateModal(false);
 
     // Handles message displayed by update modal
-    const [updateModalMessage, setUpdateModalMessage] = useState<String>("");
+    const [updateModalMessage, setUpdateModalMessage] = useState<string>("");
 
     // Allows the profile picture to be changed upon clicking avatar
     const profileEditClick = () => {

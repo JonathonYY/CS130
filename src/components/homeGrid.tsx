@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Card, CardContent, Typography, Pagination, CardMedia, Avatar, Rating, Box } from '@mui/material';
+import { Container, Card, CardContent, Typography, Pagination, CardMedia, Avatar, Rating } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 
 // Define TypeScript interface for items
@@ -35,13 +35,15 @@ const HomeGrid: React.FC<GridProps> = ({ query }) => {
     });
 
     const { data, error } = await response.json();
-    console.log(data)
+    // console.log(data)
 
     if (error) {
       console.log("Error");
       // console.log(error);
     } else {
-      const listings: Product[] = data.listings.map((element: { id: any; title: any; price: any; thumbnail: any; seller_rating: any; owner_name: any; owner_pfp: any }) => ({
+      const listings: Product[] = data.listings.map((element: {
+        id: string; title: string; price: number; thumbnail: string; seller_rating: number; owner_name: string; owner_pfp: string
+      }) => ({
         id: element.id,
         title: element.title || 'Title',
         price: element.price || 0,
@@ -53,6 +55,7 @@ const HomeGrid: React.FC<GridProps> = ({ query }) => {
 
       // console.log(listings);
 
+      setCurrentPage(1);
       setProductListings(listings);
       setLoading(false);
     }
@@ -126,8 +129,8 @@ const HomeGrid: React.FC<GridProps> = ({ query }) => {
                 <Typography variant="h6" noWrap>{item.title}</Typography>
                 <Grid container alignItems="center" spacing={1} size={{ xs: 12, sm: 12, md: 12 }} wrap="nowrap">
                   <Avatar src={item.ownerPfp} sx={{ width: 20, height: 20 }} />
-                  <Typography variant="body1" color="text.secondary" noWrap>{item.ownerName}</Typography> 
-                  <Rating size="small" value={item.rating} readOnly precision={0.5}/>
+                  <Typography variant="body1" color="text.secondary" noWrap>{item.ownerName}</Typography>
+                  <Rating size="small" value={item.rating} readOnly precision={0.5} />
                 </Grid>
               </CardContent>
             </Card>

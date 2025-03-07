@@ -16,16 +16,16 @@ const Home: React.FC = () => {
     const router = useRouter();
 
     // For authentication purposes
-    const { user, token, signInWithGoogle, signOutUser } = useAuth();
+    useAuth();
     // console.log(user);
 
 
     // For handling the search query
-    const [searchInput, setSearchInput] = useState<string>("/api/listing");
-    const [searchQuery, setSearchQuery] = useState<string>("/api/listing");
+    const [searchInput, setSearchInput] = useState<string>("/api/listing?limit=10000");
+    const [searchQuery, setSearchQuery] = useState<string>("/api/listing?limit=10000");
 
     const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newQuery = "/api/listing?query=" + event.target.value;
+        const newQuery = "/api/listing?query=" + event.target.value + "&limit=10000";
         setSearchInput(newQuery);
     }
     const handleQuerySubmit = () => setSearchQuery(searchInput);
@@ -108,7 +108,7 @@ const Home: React.FC = () => {
 
                     <p><b>Seller parameter formats (include quotations for second option): </b></p>
                     <p className="searchOptionExample">seller:[first_name]</p>
-                    <p className="searchOptionExample">seller:["first_name last_name"]</p>
+                    <p className="searchOptionExample">seller:[&quot;first_name last_name&quot;]</p>
 
                     <br />
                     <p><b>Price comparison options: </b></p>
@@ -118,8 +118,8 @@ const Home: React.FC = () => {
                     <p><b>Example queries: </b></p>
                     <p className="searchOptionExample">cards</p>
                     <p className="searchOptionExample">cards price&#60;=:200</p>
-                    <p className="searchOptionExample">cards seller:"Eric Liu" price&#60;=:200</p>
-                    <p className="searchOptionExample">cards seller:"Eric Liu" condition:new price&#60;=:200</p>
+                    <p className="searchOptionExample">cards seller:&quot;Eric Liu&quot; price&#60;=:200</p>
+                    <p className="searchOptionExample">cards seller:&quot;Eric Liu&quot; condition:new price&#60;=:200</p>
                 </Box>
             </Modal>
         </div>
