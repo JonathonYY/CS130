@@ -11,6 +11,8 @@ import { useAuth } from "@/lib/authContext";
 
 // import SideMenu from "@/components/seller_sidebar";
 import { AppBar, Avatar, Box, Button, CircularProgress, List, ListItem, ListItemAvatar, ListItemText, Rating, Toolbar } from "@mui/material";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
 import React, { useState, useEffect } from "react";
 
 function getDateFromTimestamp(secs: number, nanos: number): string {
@@ -33,6 +35,8 @@ const SellersHome: React.FC = () => {
   const [listingOwners, setListingOwners] = useState<Record<string, User>>({});
   const [listingImages, setListingImages] = useState<Record<string, string[]>>({});
   const [listingTimestamp, setListingTimestamp] = useState<Record<string, string>>({});
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   // Fetch active user from the database
   async function fetchUser() {
@@ -224,10 +228,17 @@ const SellersHome: React.FC = () => {
       });
 
       const data = await response.json();
+
+      setSnackbarMessage(`You have given a rating of ${newRating}`);
+      setSnackbarOpen(true);
       console.log('Listing updated:', data);
     } catch (error) {
       console.error('Error submitting rating:', error);
     }
+  };
+
+  const handleClose = () => {
+    setSnackbarOpen(false);
   };
 
   if (loading) {
@@ -373,6 +384,11 @@ const SellersHome: React.FC = () => {
           </div>
         }
       </div>
+      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleClose} anchorOrigin={{ vertical: "top", horizontal: "center" }} >
+          <MuiAlert onClose={handleClose} severity={"success"} sx={{ width: "100%" }}>
+          {snackbarMessage}
+          </MuiAlert>
+      </Snackbar>
     </div>
   );
 };
