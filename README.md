@@ -33,9 +33,9 @@ Any changes you make and save will automatically update the webpage through a fe
 
 API route testing can be done with [Postman](https://www.postman.com)
 
-## .env.local
+## .env
 
-Make sure you have a .env.local file within the root directory
+Make sure you have a .env file within the root directory
 It contains private configuration variables that can't be pushed onto GitHub,
 so you'll have to create it in order to run the project locally.
 It should be on the Notion in "The Backend" section.
@@ -46,3 +46,5 @@ We utilize [jest](https://jestjs.io/docs/getting-started) for mocking and [ts-je
 Test files are named in the format of <src>.test.ts, and are co-located with the file they are testing. This means that, for example, each API route, route.ts, should have a route.test.ts file in the same directory.
 
 All `jest` tests are collected and run together with `npm test`.
+
+Additionally, integration tests are executed with the help of Firebase Emulator, which supports operations to a production-like Firebase database. The setup is done automatically with the `npm test` script. Alternatively, to run manual integration tests, run `firebase emulators:start` first to spin up the service.

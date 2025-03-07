@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import getListing from "./getListing";
 
 const { db } = jest.requireMock("@/lib/firebase/config");

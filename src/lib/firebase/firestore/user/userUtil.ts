@@ -30,13 +30,14 @@ export async function getUser(user_id: string): Promise<User> {
   return user;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function updateUser(user_id: string, data: { [key: string]: any }): Promise<User> {
   // get user to check if it exists
   await getUser(user_id);
 
   // set updated User in db
   const ref = doc(db, "users", user_id);
-  await updateDoc(ref, data);
+  await updateDoc(ref, Object.assign({}, data));
 
   // get updated User for return
   const result = await getDoc(ref);

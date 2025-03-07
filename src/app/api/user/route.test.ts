@@ -68,7 +68,7 @@ describe("User API", () => {
     });
 
     const response: NextResponse = await POST(mockReq);
-    const { data, error } = await response.json();
+    const { error } = await response.json();
 
     expect(error).toBe("missing required fields");
   });
