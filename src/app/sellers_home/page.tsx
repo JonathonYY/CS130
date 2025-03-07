@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { User, Listing } from "@/lib/firebase/firestore/types";
 import { useAuth } from "@/lib/authContext"; 
 
-import { AppBar,Toolbar,Avatar, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, IconButton,Divider,Rating} from "@mui/material";
+import { AppBar,Toolbar,Avatar, Box, CircularProgress, List, ListItem, ListItemAvatar, ListItemText, IconButton,Rating} from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import StarIcon from "@mui/icons-material/Star";
@@ -15,20 +15,6 @@ import EditIcon from '@mui/icons-material/Edit';
 
 import React, { useState, useEffect } from "react";
 
-interface Product {
-  id: string;
-  name: string;
-  image: string;
-}
-
-interface Interesteduser {
-  id: string;
-  name: string;
-  avatar: string;
-  rating: string; 
-}
-
-
 
   const SellersHome: React.FC = () => {
     const { user } = useAuth();
@@ -36,8 +22,8 @@ interface Interesteduser {
 
     // States for informing users data is being fetched
     const [loading, setLoading] = useState(false);
-    const [userData, setActiveUser] = useState<User>();
-    const [productIds, setProductIds] = useState<string[]>([]);
+    //const [userData, setActiveUser] = useState<User>();
+    //const [productIds, setProductIds] = useState<string[]>([]);
     const [productListings, setProductListings] = useState<any[]>([]);
     const [interestedUsers, setInterestedUsers] = useState<Record<string, any[]>>({});
     const [selectedBuyers, setSelectedBuyers] = useState<Record<string, User | null>>({});
@@ -53,8 +39,8 @@ interface Interesteduser {
         if (error) {
           console.error("Error fetching user:", error);
         } else {
-          setActiveUser(data); // Set user data
-          setProductIds(data.active_listings || []); // Ensure it's an array
+          //setActiveUser(data); // Set user data
+          //setProductIds(data.active_listings || []); // Ensure it's an array
           fetchActiveListings(data.active_listings || []); // Fetch listings after setting them
         }
       } catch (err) {
@@ -195,7 +181,6 @@ interface Interesteduser {
     }
   };
 
-  // Simulate an API request to submit the rating
   const submitRating = async (listing_id: string, newRating: number): Promise<void> => {
     try {
       const response = await fetch(`/api/listing/${listing_id}/rate`, {
@@ -212,7 +197,14 @@ interface Interesteduser {
     }
   };
     if (!isClient) return null;
-    
+    if (loading){
+      return (
+        <Box sx={{ display: 'flex' }}>
+          <CircularProgress />
+        </Box>
+      );
+    }
+    else{
     return (
       <div className="h-screen flex flex-col overflow-hidden">
         {/* Navbar */}
@@ -399,7 +391,7 @@ interface Interesteduser {
           </div> 
         </div>
       </div>
-    );
+    );}
   };
   
   export default SellersHome;
