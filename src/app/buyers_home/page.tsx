@@ -194,13 +194,15 @@ const SellersHome: React.FC = () => {
       }
       console.log('asdf2', potential_buyers)
 
+      const selected_buyer = productMap[listing_id].selected_buyer == user_id ? "" : productMap[listing_id].selected_buyer;
+
       console.log('id', listing_id)
       await fetch(`/api/listing/${listing_id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ potential_buyers: potential_buyers }),
+        body: JSON.stringify({ potential_buyers: potential_buyers, selected_buyer: selected_buyer }),
       });
 
       const interested_listings = userData?.interested_listings
@@ -340,27 +342,36 @@ const SellersHome: React.FC = () => {
             <hr className="border-gray-300" />
             {productMap[selectedProduct].selected_buyer ?
               productMap[selectedProduct].selected_buyer == userId ? (
-                <div>
-                  <div className="flex justify-center items-center p-1 pt-4 font-bold">
-                    Listing owner has agreed to complete the sale with you!
+                <div className="p-4 font-bold flex justify-between items-center">
+                  <div>
+                    <div className="flex items-center p-1 font-bold">
+                      Listing owner has agreed to complete the sale with you!
+                    </div>
+                    <div className="flex items-center p-1">
+                      Contact info: {listingOwners[selectedProduct].email_address}{
+                        listingOwners[selectedProduct].phone_number ?
+                          ", phone: " + listingOwners[selectedProduct].phone_number : ""
+                      }
+                    </div>
+                    <div className="flex items-center p-1">
+                      Rate seller:
+                      <Rating
+                        name="simple-controlled"
+                        value={rating}
+                        onChange={(event, newValue) => {
+                          handleRatingChange(selectedProduct, newValue);
+                        }}
+                        precision={0.5} // half star precision
+                      />
+                    </div>
                   </div>
-                  <div className="flex justify-center items-center p-1">
-                    Contact info: {listingOwners[selectedProduct].email_address}{
-                      listingOwners[selectedProduct].phone_number ?
-                        ", phone: " + listingOwners[selectedProduct].phone_number : ""
-                    }
-                  </div>
-                  <div className="flex justify-center items-center p-1 pb-4">
-                    Rate seller:
-                    <Rating
-                      name="simple-controlled"
-                      value={rating}
-                      onChange={(event, newValue) => {
-                        handleRatingChange(selectedProduct, newValue);
-                      }}
-                      precision={0.5} // half star precision
-                    />
-                  </div>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => removeInterest(selectedProduct)}
+                  >
+                    I'm no longer interested.
+                  </Button>
                 </div>
               ) : (
                 <div className="p-4 font-bold flex justify-between items-center">
