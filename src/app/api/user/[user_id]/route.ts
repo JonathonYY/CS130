@@ -75,7 +75,7 @@ export async function PATCH(
 
     // validate input for only valid fields
     Object.keys(data).forEach((key) => {
-      if (!['first', 'last', 'phone_number', 'pfp', 'interested_listings'].includes(key)) {
+      if (!['first', 'last', 'phone_number', 'pfp'].includes(key)) {
         throw new Error('invalid user field');
       }
     })
