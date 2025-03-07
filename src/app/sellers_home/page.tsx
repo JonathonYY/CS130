@@ -29,51 +29,7 @@ interface Interesteduser {
   rating: string; 
 }
 
-// const products = [
-//     { id: 1, name: "Product A", image: "https://firebasestorage.googleapis.com/v0/b/bmart-5f635.firebasestorage.app/o/images%2FJavascript.png?alt=media&token=fc37ddb5-01ca-41db-8512-930b59202a43" },
-//     { id: 2, name: "Product B", image: "https://via.placeholder.com/50" },
-//     { id: 3, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 4, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 5, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 6, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 7, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 8, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 9, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 10, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 11, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 12, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 13, name: "Product C", image: "https://via.placeholder.com/50" },
-//   ];
-  
-//   const interestedUsers: Record<number, { id: string; name: string; avatar: string; rating: number}[]> = {
-//     1: [
-//       { id: "u1", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u2", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u3", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u4", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u5", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u6", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u7", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u8", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u9", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u10", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u11", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u12", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u13", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u14", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u15", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u16", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u17", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u18", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//     ],
-//     2: [
-//       { id: "u3", name: "Charlie", avatar: "https://via.placeholder.com/40", rating: 3 },
-//     ],
-//     3: [
-//       { id: "u4", name: "David", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u5", name: "Eve", avatar: "https://via.placeholder.com/40", rating: 1 },
-//     ],
-//   };
+
 
   const SellersHome: React.FC = () => {
     const { user } = useAuth();
@@ -330,28 +286,30 @@ interface Interesteduser {
           {selectedProduct && selectedBuyers[selectedProduct] ? (
     // Show selected buyer details
     <>
-      <h2 className="text-lg font-semibold p-4 border-b text-black">Selected Buyer</h2>
-      <div className="p-4">
-        <div className="flex items-center space-x-4">
-          <Avatar src={selectedBuyers[selectedProduct].pfp} alt={selectedBuyers[selectedProduct].first} />
-          <div>
-            <p className="text-lg font-semibold">{selectedBuyers[selectedProduct].first} {selectedBuyers[selectedProduct].last}</p>
-            <p className="text-gray-600">📧 {selectedBuyers[selectedProduct].email_address}</p>
-            <p className="text-gray-600">📞 {selectedBuyers[selectedProduct].phone_number}</p>
-          </div>
-        </div>
-        <div className="flex justify-center items-center p-1 pb-4">
-                    Rate Buyer:
-                    <Rating
-                      name="simple-controlled"
-                      value={rating}
-                      onChange={(event, newValue) => {
-                        handleRatingChange(selectedProduct, newValue);
-                      }}
-                      precision={0.5} // half star precision
-                    />
-                  </div>
-      </div>
+<h2 className="text-lg font-semibold p-4 border-b text-black">Selected Buyer</h2>
+<div className="p-4">
+  <div className="flex items-center space-x-4">
+    <Avatar src={selectedBuyers[selectedProduct].pfp} alt={selectedBuyers[selectedProduct].first} />
+    <div>
+      <p className="text-lg font-semibold text-black">
+        {selectedBuyers[selectedProduct].first} {selectedBuyers[selectedProduct].last}
+      </p>
+      <p className="text-gray-600">📧 {selectedBuyers[selectedProduct].email_address}</p>
+      <p className="text-gray-600">📞 {selectedBuyers[selectedProduct].phone_number}</p>
+    </div>
+  </div>
+  <div className="flex justify-left items-center p-1 pb-4">
+    <p className="text-black font-semibold">Rate Buyer:</p>
+    <Rating
+      name="simple-controlled"
+      value={rating}
+      onChange={(event, newValue) => {
+        handleRatingChange(selectedProduct, newValue);
+      }}
+      precision={0.5} // half star precision
+    />
+  </div>
+</div>
     </>
   ) : ( <>
             <h2 className="text-lg font-semibold p-4 border-b text-black">Interested Users</h2>
