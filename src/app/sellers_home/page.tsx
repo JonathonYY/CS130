@@ -197,14 +197,23 @@ import React, { useState, useEffect } from "react";
     }
   };
     if (!isClient) return null;
-    if (loading){
+    
+    if (loading) {
       return (
-        <Box sx={{ display: 'flex' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+            width: '100vw',
+          }}
+        >
           <CircularProgress />
         </Box>
       );
     }
-    else{
+    
     return (
       <div className="h-screen flex flex-col overflow-hidden">
         {/* Navbar */}
@@ -391,7 +400,7 @@ import React, { useState, useEffect } from "react";
           </div> 
         </div>
       </div>
-    );}
+    );
   };
   
   export default SellersHome;
