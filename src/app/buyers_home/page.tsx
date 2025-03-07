@@ -181,6 +181,56 @@ const SellersHome: React.FC = () => {
     }
   }
 
+  async function removeInterest(listing_id: string) {
+    try {
+      if (!user_id) {
+        return;
+      }
+      console.log('asdf', productMap[listing_id])
+      const potential_buyers = productMap[listing_id].potential_buyers;
+      const index = potential_buyers.indexOf(user_id);
+      if (index > -1) { // only splice potential_buyers when item is found
+        potential_buyers.splice(index, 1); // 2nd parameter means remove one item only
+      }
+      console.log('asdf2', potential_buyers)
+
+      console.log('id', listing_id)
+      await fetch(`/api/listing/${listing_id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ potential_buyers: potential_buyers }),
+      });
+
+      const interested_listings = userData?.interested_listings
+      if (!interested_listings) {
+        return;
+      }
+      console.log('qwer', interested_listings);
+
+      const index2 = interested_listings.indexOf(listing_id);
+      if (index2 > -1) { // only splice potential_buyers when item is found
+        interested_listings.splice(index2, 1); // 2nd parameter means remove one item only
+      }
+
+      console.log('qwert', interested_listings);
+      await fetch(`/api/user/${user_id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ interested_listings : interested_listings }),
+      });
+
+      if (typeof window != 'undefined') {
+        window.location.reload()
+      }
+    } catch (err) {
+      console.error("Error removing interest", err);
+    }
+  }
+
   useEffect(() => {
     if (!user_id) {
       return;
@@ -253,7 +303,10 @@ const SellersHome: React.FC = () => {
                 <ListItem
                   key={product.id}
                   component="button"
-                  onClick={() => setSelectedProduct(product.id)}
+                  onClick={() => {
+                    setSelectedProduct(product.id)
+                    setRating(0);
+                  }}
                   className={`hover:bg-gray-200 ${selectedProduct === product.id ? "bg-gray-300" : ""} mx-2`}
                 >
                   <ListItemAvatar>
@@ -314,8 +367,15 @@ const SellersHome: React.FC = () => {
                   Listing owner has completed the sale with another buyer instead.
                 </div>
               ) : (
-                <div className="p-4 font-bold">
+                <div className="p-4 font-bold flex justify-between items-center">
                   Listing owner is still choosing a buyer.
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => removeInterest(selectedProduct)}
+                  >
+                    I'm no longer interested.
+                  </Button>
                 </div>
               )}
           </div>
