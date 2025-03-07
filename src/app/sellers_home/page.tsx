@@ -7,7 +7,7 @@ import { User, Listing } from "@/lib/firebase/firestore/types";
 // import { useAuth } from "@/lib/authContext"; require rebase
 
 // import SideMenu from "@/components/seller_sidebar";
-import { AppBar,Toolbar,Avatar, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, IconButton,Divider} from "@mui/material";
+import { AppBar,Toolbar,Avatar, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, IconButton,Divider,Rating} from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import StarIcon from "@mui/icons-material/Star";
@@ -178,28 +178,48 @@ interface Interesteduser {
     }
     async function fetchSelectedBuyers(listings: any[]) {
       const selectedBuyersMap: Record<string, any | null> = {};
-      try {
-        console.log(listings)
-      await Promise.all(
-        listings.map(async (productId) => {
-          const response = await fetch(`/api/listing/${productId.id}`);
-          const { data, error } = await response.json();
-  
-          if (error) {
-            console.error(`Error fetching selected buyer for ${productId}:`, error);
-            selectedBuyersMap[productId.id] = null; // Default to null on error
-          } else {
-            selectedBuyersMap[productId.id] = data.selected_buyer || null;
-          }
-        })
-      );
     
-        setSelectedBuyers(selectedBuyersMap);
-        console.log("selected buyers map:", selectedBuyersMap);
+      try {
+        await Promise.all(
+          listings.map(async (product) => {
+            try {
+              // Fetch listing data
+              const listingResponse = await fetch(`/api/listing/${product.id}`);
+              const { data: listingData, error: listingError } = await listingResponse.json();
+              if (listingError) {
+                console.error('Error fetching listing', listingError);
+              }
+              if (!listingData.selected_buyer) {
+                selectedBuyersMap[product.id] = null;
+                return;
+              }
+    
+              // Fetch selected buyer's user data
+              const userResponse = await fetch(`/api/user/${listingData.selected_buyer}`);
+              const { data: userData, error: userError } = await userResponse.json();
+    
+              if (userError) {
+                console.error(`Error fetching user data for buyer ${listingData.selected_buyer}:`, userError);
+                selectedBuyersMap[product.id] = null;
+              } else {
+                selectedBuyersMap[product.id] = userData;
+              }
+              setSelectedBuyers(selectedBuyersMap)
+              //console.log(selectedBuyersMap)
+            } catch (err) {
+              console.error(`Unexpected error fetching data for ${product.id}:`, err);
+              selectedBuyersMap[product.id] = null;
+            }
+          })
+        );
+    
+        return selectedBuyersMap; // Return the final mapping of product_id -> User
       } catch (err) {
-        console.error("Error fetching selected buyers:", err);
+        console.error("Error in fetchSelectedBuyers:", err);
+        return {}; // Return empty object on failure
       }
-    }    
+    }
+       
     useEffect(() => {
       fetchUser();
     }, []);
@@ -271,6 +291,33 @@ interface Interesteduser {
   
           {/* Right Panel: Interested Users */}
           <div className="w-2/3 bg-white shadow-lg rounded-lg ml-4 overflow-hidden flex flex-col relative">
+          {selectedProduct && selectedBuyers[selectedProduct] ? (
+    // Show selected buyer details
+    <>
+      <h2 className="text-lg font-semibold p-4 border-b text-black">Selected Buyer</h2>
+      <div className="p-4">
+        <div className="flex items-center space-x-4">
+          <Avatar src={selectedBuyers[selectedProduct].pfp} alt={selectedBuyers[selectedProduct].first} />
+          <div>
+            <p className="text-lg font-semibold">{selectedBuyers[selectedProduct].first} {selectedBuyers[selectedProduct].last}</p>
+            <p className="text-gray-600">📧 {selectedBuyers[selectedProduct].email_address}</p>
+            <p className="text-gray-600">📞 {selectedBuyers[selectedProduct].phone_number}</p>
+          </div>
+        </div>
+        <div className="flex justify-left items-center p-1 pb-4">
+                    Rate seller:
+                    <Rating
+                      name="simple-controlled"
+                      value={5}
+                      // onChange={(event, newValue) => {
+                      //   handleRatingChange(selectedProduct, newValue);
+                      // }}
+                      precision={0.5} // half star precision
+                    />
+                  </div>
+      </div>
+    </>
+  ) : ( <>
             <h2 className="text-lg font-semibold p-4 border-b text-black">Interested Users</h2>
             <div className="overflow-y-scroll overflow-x-hidden flex-1" style={{ maxHeight: "calc(100vh - 150px)" }}>
               {selectedProduct && interestedUsers[selectedProduct].length != 0 ? (
@@ -351,7 +398,7 @@ interface Interesteduser {
                 <p className="p-4 text-gray-500">Select a product to see interested users.</p>
               }
             </div>
-            
+            </>)}
             {/* <hr className="border-gray-300 my-2" /> */}
             <div className="p-2 bg-white sticky flex-1" style={{ maxHeight: "75px" }}>
             {selectedProduct ? (
@@ -368,7 +415,7 @@ interface Interesteduser {
                 <ListItemText primaryTypographyProps={{style: {color: 'black'}}}   primary="Modify Listing" />
               </ListItem>) : (<div/>)}
             </div>         
-          </div>
+          </div> 
         </div>
       </div>
     );
