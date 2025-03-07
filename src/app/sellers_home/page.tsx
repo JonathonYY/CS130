@@ -268,7 +268,7 @@ interface Interesteduser {
             <div className="p-2 bg-white sticky flex-1" style={{ maxHeight: "75px" }}>
               <ListItem
                 component="button"
-                onClick={() => router.push("/new-listing")}
+                onClick={() => router.push("/create_listing")}
                 className="hover:bg-gray-200 mx-2 flex items-center"
               >
                 <ListItemAvatar>
