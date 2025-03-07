@@ -426,13 +426,13 @@ const Account: React.FC = () => {
                             <Grid container spacing={20} sx={{ marginTop: 10, marginLeft: 4, marginRight: -6.75 }}>
                                 <Grid size={{ xs: 2.4, sm: 2.4, md: 2.4 }}>
                                     <Button variant="contained" color="buttonBlue">
-                                        <Link href="/sellers_home">View my listings</Link>
+                                        <Link href="/sellers_home">My listings</Link>
                                     </Button>
                                 </Grid>
 
                                 <Grid size={{ xs: 2.4, sm: 2.4, md: 2.4 }}>
                                     <Button variant="contained" color="buttonBlue">
-                                        <Link href="/buyers_home">View my interests</Link>
+                                        <Link href="/buyers_home">My interests</Link>
                                     </Button>
                                 </Grid>
 
