@@ -100,8 +100,8 @@ describe('Test getAllListings function', () => {
     // search request: check where calls with default values
     expect(where).toHaveBeenCalledTimes(10);
     expect(where.mock.calls[0]).toEqual(['selected_buyer', '==', '']);
-    expect(where.mock.calls[1]).toEqual(['title', '>=', 'listing_title']);
-    expect(where.mock.calls[2]).toEqual(['title', '<=', 'listing_title\uf8ff']);
+    expect(where.mock.calls[1]).toEqual(['title', '>=', 'LISTING_TITLE']);
+    expect(where.mock.calls[2]).toEqual(['title', '<=', 'LISTING_TITLE\uf8ff']);
     expect(where.mock.calls[3]).toEqual(['category', '>=', '']);
     expect(where.mock.calls[4]).toEqual(['category', '<=', '\uf8ff']);
     expect(where.mock.calls[5]).toEqual(['condition', '>=', '']);
@@ -117,14 +117,14 @@ describe('Test getAllListings function', () => {
     // search request: check where calls with default values
     expect(where).toHaveBeenCalledTimes(10);
     expect(where.mock.calls[0]).toEqual(['selected_buyer', '==', '']);
-    expect(where.mock.calls[1]).toEqual(['title', '>=', 'listing_title']);
-    expect(where.mock.calls[2]).toEqual(['title', '<=', 'listing_title\uf8ff']);
-    expect(where.mock.calls[3]).toEqual(['category', '>=', 'food']);
-    expect(where.mock.calls[4]).toEqual(['category', '<=', 'food\uf8ff']);
-    expect(where.mock.calls[5]).toEqual(['condition', '>=', 'new']);
-    expect(where.mock.calls[6]).toEqual(['condition', '<=', 'new\uf8ff']);
-    expect(where.mock.calls[7]).toEqual(['owner_name', '>=', 'firstname']);
-    expect(where.mock.calls[8]).toEqual(['owner_name', '<=', 'firstname\uf8ff']);
+    expect(where.mock.calls[1]).toEqual(['title', '>=', 'LISTING_TITLE']);
+    expect(where.mock.calls[2]).toEqual(['title', '<=', 'LISTING_TITLE\uf8ff']);
+    expect(where.mock.calls[3]).toEqual(['category', '>=', 'FOOD']);
+    expect(where.mock.calls[4]).toEqual(['category', '<=', 'FOOD\uf8ff']);
+    expect(where.mock.calls[5]).toEqual(['condition', '>=', 'NEW']);
+    expect(where.mock.calls[6]).toEqual(['condition', '<=', 'NEW\uf8ff']);
+    expect(where.mock.calls[7]).toEqual(['owner_name', '>=', 'FIRSTNAME']);
+    expect(where.mock.calls[8]).toEqual(['owner_name', '<=', 'FIRSTNAME\uf8ff']);
     expect(where.mock.calls[9]).toEqual(['price', '<', 100]);
   });
 
@@ -134,14 +134,14 @@ describe('Test getAllListings function', () => {
     // search request: check where calls with default values
     expect(where).toHaveBeenCalledTimes(10);
     expect(where.mock.calls[0]).toEqual(['selected_buyer', '==', '']);
-    expect(where.mock.calls[1]).toEqual(['title', '>=', 'multi word listing title']);
-    expect(where.mock.calls[2]).toEqual(['title', '<=', 'multi word listing title\uf8ff']);
-    expect(where.mock.calls[3]).toEqual(['category', '>=', 'food']);
-    expect(where.mock.calls[4]).toEqual(['category', '<=', 'food\uf8ff']);
-    expect(where.mock.calls[5]).toEqual(['condition', '>=', 'new']);
-    expect(where.mock.calls[6]).toEqual(['condition', '<=', 'new\uf8ff']);
-    expect(where.mock.calls[7]).toEqual(['owner_name', '>=', 'firstname middlename lastname']);
-    expect(where.mock.calls[8]).toEqual(['owner_name', '<=', 'firstname middlename lastname\uf8ff']);
+    expect(where.mock.calls[1]).toEqual(['title', '>=', 'MULTI WORD LISTING TITLE']);
+    expect(where.mock.calls[2]).toEqual(['title', '<=', 'MULTI WORD LISTING TITLE\uf8ff']);
+    expect(where.mock.calls[3]).toEqual(['category', '>=', 'FOOD']);
+    expect(where.mock.calls[4]).toEqual(['category', '<=', 'FOOD\uf8ff']);
+    expect(where.mock.calls[5]).toEqual(['condition', '>=', 'NEW']);
+    expect(where.mock.calls[6]).toEqual(['condition', '<=', 'NEW\uf8ff']);
+    expect(where.mock.calls[7]).toEqual(['owner_name', '>=', 'FIRSTNAME MIDDLENAME LASTNAME']);
+    expect(where.mock.calls[8]).toEqual(['owner_name', '<=', 'FIRSTNAME MIDDLENAME LASTNAME\uf8ff']);
     expect(where.mock.calls[9]).toEqual(['price', '<=', 135]);
   });
 });

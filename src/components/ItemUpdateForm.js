@@ -178,10 +178,17 @@ const UpdateListingForm = (listingObj) => {
           setCategory(e.target.value);
           setIsChanged(true);
         }}>
-          <MenuItem value="electronics">electronics</MenuItem>
-          <MenuItem value="clothing">clothing</MenuItem>
-          <MenuItem value="furniture">furniture</MenuItem>
-          <MenuItem value="toys">toys</MenuItem>
+          <MenuItem value="ELECTRONICS">Electronics</MenuItem>
+          <MenuItem value="CLOTHING">Clothing</MenuItem>
+          <MenuItem value="FURNITURE">Furniture</MenuItem>
+          <MenuItem value="DORMWARE">Dormware</MenuItem>
+          <MenuItem value="TOYS">Toys</MenuItem>
+          <MenuItem value="SCHOOL">School</MenuItem>
+          <MenuItem value="SERVICES">Services</MenuItem>
+          <MenuItem value="HEALTH">Health</MenuItem>
+          <MenuItem value="BEAUTY">Beauty</MenuItem>
+          <MenuItem value="TICKETS">Tickets</MenuItem>
+          <MenuItem value="MISC">Miscellaneous</MenuItem>
         </Select>
       </FormControl>
 
@@ -191,11 +198,12 @@ const UpdateListingForm = (listingObj) => {
           setCondition(e.target.value);
           setIsChanged(true);
         }}>
-          <MenuItem value="new">new</MenuItem>
-          <MenuItem value="great">great</MenuItem>
-          <MenuItem value="good">good</MenuItem>
-          <MenuItem value="used">used</MenuItem>
-          <MenuItem value="poor">poor</MenuItem>
+          <MenuItem value="NEW">New</MenuItem>
+          <MenuItem value="GREAT">Great</MenuItem>
+          <MenuItem value="GOOD">Good</MenuItem>
+          <MenuItem value="USED">Used</MenuItem>
+          <MenuItem value="POOR">Poor</MenuItem>
+          <MenuItem value="DAMAGED">Damaged</MenuItem>
         </Select>
       </FormControl>
 

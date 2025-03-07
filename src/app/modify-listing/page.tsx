@@ -72,17 +72,7 @@ const ModifyListing: React.FC = () => {
       <hr />
       
       <UpdateListingForm listingId={id} listingObj={listing}/>
-      <div className="buttonContainer">
-        <Link href="/sellers_home" style={{ marginLeft: 25 }}>
-          Publish Listing
-        </Link>
-
-        <Link href="/sellers_home">Update Listing</Link>
-
-        <Link href="/sellers_home" style={{ marginRight: 25 }}>
-          Remove Listing
-        </Link>
-      </div>
+  
     </div>
   );
 };

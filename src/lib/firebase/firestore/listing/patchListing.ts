@@ -15,15 +15,19 @@ export default async function patchListing(doc_id: string, data: Partial<PatchLi
     const update_data = Object.assign({}, data as { [key: string] : any });
     update_data['updated'] = serverTimestamp();
 
-    // make query-able fields lowercase
+    // make query-able fields uppercase
     ['title', 'condition', 'category', 'owner_name'].forEach((elem) => {
         if (elem in update_data) {
-            update_data[elem] = update_data[elem].toLowerCase();
+            update_data[elem] = update_data[elem].toUpperCase();
         }
     });
     // force native array type
     if ('image_paths' in update_data) {
         update_data['image_paths'] = [...update_data['image_paths']];
+    }
+    // force price to number
+    if ('price' in update_data) {
+        update_data['price'] = isNaN(Number(data.price)) ? 0 : Number(data.price);
     }
 
     if ('potential_buyers' in update_data) {

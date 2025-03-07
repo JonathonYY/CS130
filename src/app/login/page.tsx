@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import "../globals.css";
 import { useAuth } from "@/lib/authContext";
 import Image from "next/image";

@@ -17,6 +17,7 @@ const CreateListingForm = () => {
   const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
   const [images, setImages] = useState([]);
+
   const [uploading, setUploading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -61,6 +62,14 @@ const CreateListingForm = () => {
       console.error("error uploading file", error);
     }
     return Promise.reject("Image Upload Failed!");
+  };
+  const clearForm = () => {
+    setTitle("");
+    setPrice("");
+    setDescription("");
+    setCategory("");
+    setCondition("");
+    setImages([]);
   };
 
   const handleSubmitListing = async () => {
@@ -111,6 +120,7 @@ const CreateListingForm = () => {
       setSnackbarOpen(true);
     }
     setUploading(false);
+    clearForm();
     console.log("created listing:", { title, price, description, category, condition, imageUrls });
   };
 
@@ -155,21 +165,30 @@ const CreateListingForm = () => {
       <FormControl fullWidth margin="normal">
         <InputLabel>Category</InputLabel>
         <Select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <MenuItem value="electronics">electronics</MenuItem>
-          <MenuItem value="clothing">clothing</MenuItem>
-          <MenuItem value="furniture">furniture</MenuItem>
-          <MenuItem value="toys">toys</MenuItem>
+          <MenuItem value="ELECTRONICS">Electronics</MenuItem>
+          <MenuItem value="CLOTHING">Clothing</MenuItem>
+          <MenuItem value="FURNITURE">Furniture</MenuItem>
+          <MenuItem value="DORMWARE">Dormware</MenuItem>
+          <MenuItem value="TOYS">Toys</MenuItem>
+          <MenuItem value="SCHOOL">School</MenuItem>
+          <MenuItem value="SERVICES">Services</MenuItem>
+          <MenuItem value="HEALTH">Health</MenuItem>
+          <MenuItem value="BEAUTY">Beauty</MenuItem>
+          <MenuItem value="TICKETS">Tickets</MenuItem>
+          <MenuItem value="MISC">Miscellaneous</MenuItem>
+
         </Select>
       </FormControl>
 
       <FormControl fullWidth margin="normal">
         <InputLabel>Condition</InputLabel>
         <Select value={condition} onChange={(e) => setCondition(e.target.value)}>
-          <MenuItem value="new">new</MenuItem>
-          <MenuItem value="great">great</MenuItem>
-          <MenuItem value="good">good</MenuItem>
-          <MenuItem value="used">used</MenuItem>
-          <MenuItem value="poor">poor</MenuItem>
+          <MenuItem value="NEW">New</MenuItem>
+          <MenuItem value="GREAT">Great</MenuItem>
+          <MenuItem value="GOOD">Good</MenuItem>
+          <MenuItem value="USED">Used</MenuItem>
+          <MenuItem value="POOR">Poor</MenuItem>
+          <MenuItem value="DAMAGED">Damaged</MenuItem>
         </Select>
       </FormControl>
 

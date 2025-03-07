@@ -246,7 +246,7 @@ describe('Test PATCH listing', () => {
 
         expect(jsonResponse.data).toEqual({
             'updated': 'MOCK_TIME',
-            'title': 'new_title',
+            'title': 'NEW_TITLE',
             'price': 60,
             'condition': 'used',
             'category': 'object',

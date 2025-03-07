@@ -94,7 +94,7 @@ describe('Test patchListing', () => {
         // check for correct output
         expect(result).toEqual({
             'updated': 'MOCK_TIME',
-            'title': 'asdf',
+            'title': 'ASDF',
             'price': 30,
             'condition': 'good',
             'category': 'food',
