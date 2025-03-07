@@ -11,6 +11,7 @@ export default async function patchListing(doc_id: string, data: Partial<PatchLi
     }
 
     // add timestamp to data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const update_data = Object.assign({}, data as { [key: string] : any });
     update_data['updated'] = serverTimestamp();
 

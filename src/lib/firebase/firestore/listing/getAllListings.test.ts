@@ -1,11 +1,6 @@
 import getAllListings from "./getAllListings";
 
-const { db } = jest.requireMock("@/lib/firebase/config");
-const { getDocs, collection, query, orderBy, where, limit, startAt, Timestamp } = jest.requireMock("firebase/firestore");
-
-jest.mock('@/lib/firebase/config', () => ({
-  db: {}
-}));
+const { collection, orderBy, where, limit, startAt, Timestamp } = jest.requireMock("firebase/firestore");
 
 jest.mock('firebase/firestore', () => {
   const originalModule = jest.requireActual('firebase/firestore')

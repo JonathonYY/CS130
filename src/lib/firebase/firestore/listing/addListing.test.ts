@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import addListing from "./addListing";
 
 const { db } = jest.requireMock("@/lib/firebase/config");
@@ -141,7 +140,7 @@ describe('Test addListing', () => {
 
     it('addListing with seller having nonzero prior sells', async () => {
         expect(db['listings']['new_id']).toBe(undefined);
-        const result = await addListing({
+        await addListing({
             'user_id': 'user2',
             'title': 'newlist',
             'price': 100,

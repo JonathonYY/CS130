@@ -22,6 +22,7 @@ export async function GET(
   try {
     // get URL parameter user_id
     const user_id: string = (await params).user_id;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: { [key: string]: any } = await getUser(user_id);
     user.id = user_id;
     user.buyer_rating = user.completed_purchases ? user.cum_buyer_rating / user.completed_purchases : 3.5;
@@ -79,6 +80,7 @@ export async function PATCH(
       }
     })
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: { [key: string]: any } = await updateUser(user_id, data);
     user.id = user_id;
     user.buyer_rating = user.completed_purchases ? user.cum_buyer_rating / user.completed_purchases : 3.5;

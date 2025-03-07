@@ -3,9 +3,10 @@ import { NextResponse } from "next/server";
 import * as deleteListing from "@/lib/firebase/firestore/listing/deleteListing";
 
 const { db } = jest.requireMock("@/lib/firebase/config");
-const { getDoc, doc, updateDoc, arrayUnion, serverTimestamp, Timestamp } = jest.requireMock("firebase/firestore");
+const { doc, updateDoc, arrayUnion, Timestamp } = jest.requireMock("firebase/firestore");
 
 const deleteListingMock = jest.spyOn(deleteListing, "default").mockImplementation((
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (listing_id: string, user_id: string) => { return Promise.resolve(listing_id); }
 ));
 

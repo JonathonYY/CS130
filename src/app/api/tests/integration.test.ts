@@ -231,7 +231,6 @@ describe("Integration tests", () => {
 
     var { data, error } = await createUser(8);
     const user_id_6 = data.user_id;
-    const user_param_6 = Promise.resolve({ user_id: user_id_6 });
 
     // create two listings for user 1 and one for user 2
     var { data, error } = await createListing(1, user_id_1);
