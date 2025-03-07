@@ -205,26 +205,6 @@ const SellersHome: React.FC = () => {
         body: JSON.stringify({ potential_buyers: potential_buyers, selected_buyer: selected_buyer }),
       });
 
-      const interested_listings = userData?.interested_listings
-      if (!interested_listings) {
-        return;
-      }
-      console.log('qwer', interested_listings);
-
-      const index2 = interested_listings.indexOf(listing_id);
-      if (index2 > -1) { // only splice potential_buyers when item is found
-        interested_listings.splice(index2, 1); // 2nd parameter means remove one item only
-      }
-
-      console.log('qwert', interested_listings);
-      await fetch(`/api/user/${user_id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ interested_listings : interested_listings }),
-      });
-
       if (typeof window != 'undefined') {
         window.location.reload()
       }
