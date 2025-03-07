@@ -10,7 +10,6 @@ const ImageUpload = styled("input")({
 });
 
 const UpdateListingForm = (listingObj) => {
-  //console.log(listingObj.listingObj);
   const [title, setTitle] = useState(listingObj.listingObj.title);
   const [price, setPrice] = useState(listingObj.listingObj.price);
   const [description, setDescription] = useState(listingObj.listingObj.description);
@@ -74,14 +73,12 @@ const UpdateListingForm = (listingObj) => {
           returnedUrl = imgPair[0];
         }
         imageUrls.push(returnedUrl);
-        //console.log("PUSHED:",returnedUrl);
       }
       catch (error) {
         console.log("Image Upload Failed:", error);
       }
       
     }
-    //console.log("img urls:", imageUrls);
     try {
       const response = await fetch(`/api/listing/${listingObj.listingId}`, {
         method: "PATCH",

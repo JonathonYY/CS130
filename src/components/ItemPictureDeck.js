@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Box, IconButton, Typography, Avatar, Rating } from "@mui/material";
-import { ArrowBackIos, ArrowForwardIos, Edit, Chat } from "@mui/icons-material";
+import { ArrowBackIos, ArrowForwardIos, Edit } from "@mui/icons-material";
+import FavoriteIcon from '@mui/icons-material/Favorite';
+
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import {useAuth} from "@/lib/authContext";
@@ -21,7 +23,6 @@ const Slideshow = ({ images, timestamp, listingObj}) => {
     let newPotentialBuyers = listingObj.potential_buyers;
     newPotentialBuyers.push(user.uid);
     const uniquePotentialBuyers = [...new Set(newPotentialBuyers)];
-    //console.log(newPotentialBuyers);
     try {
       const response = await fetch(`/api/listing/${listingObj.id}`, {
         method: "PATCH",
@@ -47,7 +48,7 @@ const Slideshow = ({ images, timestamp, listingObj}) => {
         setSnackbarOpen(true);
       }
 
-      setSnackbarMessage("Message sent!");
+      setSnackbarMessage("Expressed interest to seller!");
       setSnackbarOpen(true);
     } catch (error) {
       console.log(error);
@@ -184,9 +185,25 @@ const Slideshow = ({ images, timestamp, listingObj}) => {
                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                     {listingObj.owner_name}
                 </Typography>
-                <IconButton color="primary" onClick={expressInterest}>
-                    <Chat/>
-                </IconButton>
+                <div>
+                  <style>
+                    {`
+                      @keyframes breathing {
+                        0% { transform: scale(1); }
+                        50% { transform: scale(1.2); }
+                        100% { transform: scale(1); }
+                      }
+                    `}
+                  </style>
+
+                  <IconButton color="primary" onClick={expressInterest}>
+                    <FavoriteIcon sx={{ 
+                      fontSize: 25, 
+                      animation: 'breathing 1.5s ease-in-out 5',
+                      color: '#F44336'
+                    }} />
+                  </IconButton>
+                </div>
 
                 <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleClose} anchorOrigin={{ vertical: "bottom", horizontal: "right" }} >
                     <MuiAlert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
@@ -209,3 +226,4 @@ const Slideshow = ({ images, timestamp, listingObj}) => {
 };
 
 export default Slideshow;
+ 

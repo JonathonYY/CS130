@@ -28,7 +28,6 @@ const ReportButton = (idObj) => {
         setSnackbarOpen(true);
         return;
       }
-      //console.log(response.ok);
 
       setSnackbarMessage("Listing has been reported!");
       setSnackbarOpen(true);
