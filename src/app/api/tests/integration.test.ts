@@ -88,10 +88,8 @@ describe("Integration tests", () => {
       phone_number: '',
       active_listings: [],
       interested_listings: [],
-      completed_sales: 0,
-      completed_purchases: 0,
-      cum_buyer_rating: 0,
-      cum_seller_rating: 0,
+      buyer_rating: 3.5,
+      seller_rating: 3.5,
       pfp: '',
       id: user_id_1,
     });
@@ -116,10 +114,8 @@ describe("Integration tests", () => {
       phone_number: '123-456-7890',
       active_listings: [],
       interested_listings: [],
-      completed_sales: 0,
-      completed_purchases: 0,
-      cum_buyer_rating: 0,
-      cum_seller_rating: 0,
+      buyer_rating: 3.5,
+      seller_rating: 3.5,
       pfp: 'pfp_patched',
       id: user_id_1,
     });
@@ -138,10 +134,8 @@ describe("Integration tests", () => {
       phone_number: '123-456-7890',
       active_listings: [],
       interested_listings: [],
-      completed_sales: 0,
-      completed_purchases: 0,
-      cum_buyer_rating: 0,
-      cum_seller_rating: 0,
+      buyer_rating: 3.5,
+      seller_rating: 3.5,
       pfp: 'pfp_patched',
       id: user_id_1,
     });
@@ -421,8 +415,7 @@ describe("Integration tests", () => {
     var { data, error } = await res13.json();
     expect(error).toBe(null);
     expect(data).toMatchObject({
-      cum_seller_rating: 4.5,
-      completed_sales: 1,
+      seller_rating: 4.5,
     })
 
     const req14 = new Request("http://localhost", {
@@ -443,8 +436,7 @@ describe("Integration tests", () => {
     var { data, error } = await res15.json();
     expect(error).toBe(null);
     expect(data).toMatchObject({
-      cum_buyer_rating: 3.5,
-      completed_purchases: 1,
+      buyer_rating: 3.5,
     })
 
     // report listing 2 until delete (5 times)
