@@ -40,61 +40,16 @@ function getDateFromTimestamp(secs: number, nanos: number): string {
   return `${formatDate} at ${formatTime}`
 }
 
-// const products = [
-//     { id: 1, name: "Product A", image: "https://firebasestorage.googleapis.com/v0/b/bmart-5f635.firebasestorage.app/o/images%2FJavascript.png?alt=media&token=fc37ddb5-01ca-41db-8512-930b59202a43" },
-//     { id: 2, name: "Product B", image: "https://via.placeholder.com/50" },
-//     { id: 3, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 4, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 5, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 6, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 7, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 8, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 9, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 10, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 11, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 12, name: "Product C", image: "https://via.placeholder.com/50" },
-//     { id: 13, name: "Product C", image: "https://via.placeholder.com/50" },
-//   ];
-  
-//   const interestedUsers: Record<number, { id: string; name: string; avatar: string; rating: number}[]> = {
-//     1: [
-//       { id: "u1", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u2", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u3", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u4", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u5", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u6", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u7", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u8", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u9", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u10", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u11", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u12", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u13", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u14", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u15", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u16", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u17", name: "Alice", avatar: "https://via.placeholder.com/40", rating: 4 },
-//       { id: "u18", name: "Bob", avatar: "https://via.placeholder.com/40", rating: 5 },
-//     ],
-//     2: [
-//       { id: "u3", name: "Charlie", avatar: "https://via.placeholder.com/40", rating: 3 },
-//     ],
-//     3: [
-//       { id: "u4", name: "David", avatar: "https://via.placeholder.com/40", rating: 5 },
-//       { id: "u5", name: "Eve", avatar: "https://via.placeholder.com/40", rating: 1 },
-//     ],
-//   };
-
 const SellersHome: React.FC = () => {
-  // require rebase
   const { user } = useAuth();
-  if (!user) {
-    if (typeof window !== 'undefined') {
-      // window.location.href = "/login";
-    }
-  }
   const user_id = user?.uid;
+
+  // if (!user) {
+  //   if (typeof window !== 'undefined') {
+  //     // window.location.href = "/login";
+  //   }
+  // }
+
   // States for informing users data is being fetched
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string | undefined>("");
@@ -108,9 +63,6 @@ const SellersHome: React.FC = () => {
 
   // Fetch active user from the database
   async function fetchUser() {
-    if (!user_id) {
-      return
-    }
     setUserId(user_id)
     setLoading(true);
     try {
@@ -230,6 +182,9 @@ const SellersHome: React.FC = () => {
   }
 
   useEffect(() => {
+    if (!user_id) {
+      return;
+    }
     fetchUser();
   }, [user_id]);
 
