@@ -23,6 +23,7 @@ export class Logger {
   }
 
   // Currently, Logger.error just uses console.error
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error(message?: string, ...optionalParams: any[]): void {
     console.error(message, optionalParams);
   }

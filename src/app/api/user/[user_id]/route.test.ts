@@ -111,7 +111,7 @@ describe("User API", () => {
     const mockParams = Promise.resolve({ user_id: user_id });
 
     const response: NextResponse = await GET(mockReq, { params: mockParams });
-    const { data, error } = await response.json();
+    const { error } = await response.json();
 
     expect(error).toEqual("user does not exist");
   });
@@ -149,7 +149,7 @@ describe("User API", () => {
     const mockParams = Promise.resolve({ user_id: user_id });
 
     const response: NextResponse = await PATCH(mockReq, { params: mockParams });
-    const { data, error } = await response.json();
+    const { error } = await response.json();
 
     expect(error).toBe("invalid user field");
   });
@@ -164,7 +164,7 @@ describe("User API", () => {
     const mockParams = Promise.resolve({ user_id: user_id });
 
     const response: NextResponse = await PATCH(mockReq, { params: mockParams });
-    const { data, error } = await response.json();
+    const { error } = await response.json();
 
     expect(error).toBe("user does not exist");
   });
@@ -200,7 +200,7 @@ describe("User API", () => {
     const mockParams = Promise.resolve({ user_id: user_id });
 
     const response: NextResponse = await DELETE(mockReq, { params: mockParams });
-    const { data, error } = await response.json();
+    const { error } = await response.json();
 
     expect(error).toBe("user does not exist");
   });

@@ -1,11 +1,11 @@
 // api/image/route.ts
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase/config";
 import { v4 as uuidv4 } from "uuid";
 import { logger } from "@/lib/monitoring/config";
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   const start = performance.now();
   try {
     const formData = await request.formData();

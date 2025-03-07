@@ -22,8 +22,15 @@ export async function GET(
   try {
     // get URL parameter user_id
     const user_id: string = (await params).user_id;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: { [key: string]: any } = await getUser(user_id);
     user.id = user_id;
+    user.buyer_rating = user.completed_purchases ? user.cum_buyer_rating / user.completed_purchases : 3.5;
+    user.seller_rating = user.completed_sales ? user.cum_seller_rating / user.completed_sales : 3.5;
+    delete user.cum_buyer_rating;
+    delete user.cum_seller_rating;
+    delete user.completed_purchases;
+    delete user.completed_sales;
     delete user.last_reported;
 
     return NextResponse.json({ data: user, error: null });
@@ -73,8 +80,15 @@ export async function PATCH(
       }
     })
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: { [key: string]: any } = await updateUser(user_id, data);
     user.id = user_id;
+    user.buyer_rating = user.completed_purchases ? user.cum_buyer_rating / user.completed_purchases : 3.5;
+    user.seller_rating = user.completed_sales ? user.cum_seller_rating / user.completed_sales : 3.5;
+    delete user.cum_buyer_rating;
+    delete user.cum_seller_rating;
+    delete user.completed_purchases;
+    delete user.completed_sales;
     delete user.last_reported;
 
     return NextResponse.json({ data: user, error: null });

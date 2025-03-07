@@ -57,6 +57,7 @@ describe('Test GET all listings API endpoint', () => {
   });
 
   it('request with query params', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const searchParams: Record<string, any> = new URLSearchParams();
     searchParams.append("query", "this is a query string");
     searchParams.append("limit", 150);
@@ -278,7 +279,7 @@ describe('Test POST listing', () => {
         expect(addDoc).not.toHaveBeenCalled();
 
         // check for correct output
-        expect(jsonResponse.data).toBeNull;
+        expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).toEqual('missing listing field');
     });
 
@@ -309,7 +310,7 @@ describe('Test POST listing', () => {
         expect(addDoc).not.toHaveBeenCalled();
 
         // check for correct output
-        expect(jsonResponse.data).toBeNull;
+        expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).toEqual('invalid listing field');
     });
 
@@ -339,7 +340,7 @@ describe('Test POST listing', () => {
         expect(addDoc).not.toHaveBeenCalled();
 
         // check for correct output
-        expect(jsonResponse.data).toBeNull;
+        expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).toEqual('price must be nonnegative');
     });
 });

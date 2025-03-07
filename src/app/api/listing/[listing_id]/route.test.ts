@@ -228,7 +228,7 @@ describe('Test PATCH listing', () => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ title: 'new_title' }),
+            body: JSON.stringify({ title: 'new_title', potential_buyers: ['user1'] }),
         });
         // Mock params as a promise
         const mockParams = Promise.resolve({ listing_id: 'listing2' });
@@ -256,10 +256,14 @@ describe('Test PATCH listing', () => {
             'owner_pfp': '',
             'seller_rating': 3.5,
             'selected_buyer': '',
-            'potential_buyers': [],
+            'potential_buyers': ["user1"],
             'image_paths': [], 
         });
         expect(jsonResponse.error).toBeNull();
+
+        expect(db['users']['user1']).toMatchObject({
+            interested_listings: ["listing2"],
+        })
     });
 
     it('Try to update listing an invalid id', async () => {
@@ -283,7 +287,7 @@ describe('Test PATCH listing', () => {
         expect(doc.mock.calls[0][2]).toBe('invalid_id');
         expect(getDoc).toHaveBeenCalled();
         expect(updateDoc).not.toHaveBeenCalled();
-        expect(serverTimestamp).toHaveBeenCalled();
+        expect(serverTimestamp).not.toHaveBeenCalled();
 
         expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).toEqual('No listing exists for given id');
