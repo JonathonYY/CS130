@@ -50,6 +50,8 @@ const Listing: React.FC = () => {
       const { data, error } = await response.json();
       if (error) {
         console.log(error);
+        setLoading(false);
+        setListing(null);
       } else {
         console.log("received listing:", data);
         setListing(data);
