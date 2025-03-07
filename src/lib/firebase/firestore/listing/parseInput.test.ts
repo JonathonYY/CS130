@@ -21,12 +21,12 @@ describe("Extract search params from input", () => {
     const i1 = "search string here price>:100 condition:new category:furniture seller:David";
     const res1 = parseInput(i1);
     const exp_res1: SearchFields = {
-      condition: 'new',
-      category: 'furniture',
-      owner: 'david',
+      condition: 'NEW',
+      category: 'FURNITURE',
+      owner: 'DAVID',
       price: 100,
       cmp_op: '>',
-      search_str: 'search string here'
+      search_str: 'SEARCH STRING HERE'
     }
     expect(res1).toEqual(exp_res1);
     expect(hasParams(res1)).toBe(true);
@@ -35,12 +35,12 @@ describe("Extract search params from input", () => {
     const res2 = parseInput(i2);
     const exp_res2: SearchFields = {
       condition: '',
-      category: 'food',
-      owner: 'alice jones',
+      category: 'FOOD',
+      owner: 'ALICE JONES',
       price: 80.17,
       cmp_op: '<',
       // note splitting search is possible, but will likely not give desired results
-      search_str: 'search_with&^characters    split'
+      search_str: 'SEARCH_WITH&^CHARACTERS    SPLIT'
     }
     expect(res2).toEqual(exp_res2);
     expect(hasParams(res2)).toBe(true);
@@ -48,9 +48,9 @@ describe("Extract search params from input", () => {
     const i3 = " price>=:190 condition:UseD seller:José ";
     const res3 = parseInput(i3);
     const exp_res3: SearchFields = {
-      condition: 'used',
+      condition: 'USED',
       category: '',
-      owner: 'josé',
+      owner: 'JOSÉ',
       price: 190,
       cmp_op: '>=',
       search_str: ''
@@ -61,12 +61,12 @@ describe("Extract search params from input", () => {
     const i4 = "condition:DAMAGED price<=:007 SEARCH in middle category:furniture";
     const res4 = parseInput(i4);
     const exp_res4: SearchFields = {
-      condition: 'damaged',
-      category: 'furniture',
+      condition: 'DAMAGED',
+      category: 'FURNITURE',
       owner: '',
       price: 7,
       cmp_op: '<=',
-      search_str: 'search in middle'
+      search_str: 'SEARCH IN MIDDLE'
     }
     expect(res4).toEqual(exp_res4);
     expect(hasParams(res4)).toBe(true);
@@ -74,12 +74,12 @@ describe("Extract search params from input", () => {
     const i5 = "price>>=:100 condition:new category:furniture seller:David";
     const res5 = parseInput(i5);
     const exp_res5: SearchFields = {
-      condition: 'new',
-      category: 'furniture',
-      owner: 'david',
+      condition: 'NEW',
+      category: 'FURNITURE',
+      owner: 'DAVID',
       price: 0,
       cmp_op: '>=',
-      search_str: 'price>>=:100'
+      search_str: 'PRICE>>=:100'
     }
     expect(res5).toEqual(exp_res5);
     expect(hasParams(res5)).toBe(true);
@@ -87,12 +87,12 @@ describe("Extract search params from input", () => {
     const i6 = "TEST SEARCH STR seller:David condition:new category:furniture";
     const res6 = parseInput(i6);
     const exp_res6: SearchFields = {
-      condition: 'new',
-      category: 'furniture',
-      owner: 'david',
+      condition: 'NEW',
+      category: 'FURNITURE',
+      owner: 'DAVID',
       price: 0,
       cmp_op: '>=',
-      search_str: 'test search str'
+      search_str: 'TEST SEARCH STR'
     }
     expect(res6).toEqual(exp_res6);
     expect(hasParams(res6)).toBe(true);
@@ -101,12 +101,12 @@ describe("Extract search params from input", () => {
     const i7 = "TEST SEARCH STR seller:David Johnson condition:new category:furniture";
     const res7 = parseInput(i7);
     const exp_res7: SearchFields = {
-      condition: 'new',
-      category: 'furniture',
-      owner: 'david',
+      condition: 'NEW',
+      category: 'FURNITURE',
+      owner: 'DAVID',
       price: 0,
       cmp_op: '>=',
-      search_str: 'test search str  johnson'
+      search_str: 'TEST SEARCH STR  JOHNSON'
     }
     expect(res7).toEqual(exp_res7);
     expect(hasParams(res7)).toBe(true);
@@ -114,9 +114,9 @@ describe("Extract search params from input", () => {
     const i8 = 'seller:"FIRST MIDDLE LAST " condition:new category:furniture';
     const res8 = parseInput(i8);
     const exp_res8: SearchFields = {
-      condition: 'new',
-      category: 'furniture',
-      owner: 'first middle last',
+      condition: 'NEW',
+      category: 'FURNITURE',
+      owner: 'FIRST MIDDLE LAST',
       price: 0,
       cmp_op: '>=',
       search_str: ''

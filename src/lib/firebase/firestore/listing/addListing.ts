@@ -15,13 +15,13 @@ export default async function addListing(data: AddListingData) {
   // create listing
   const listing_data: Listing = {
     updated: serverTimestamp() as Timestamp,
-    title: data.title.toLowerCase(),
-    price: data.price,
-    condition: data.condition.toLowerCase(),
-    category: data.category.toLowerCase(),
+    title: data.title.toUpperCase(),
+    price: isNaN(Number(data.price)) ? 0 : Number(data.price),
+    condition: data.condition.toUpperCase(),
+    category: data.category.toUpperCase(),
     description: data.description,
     owner: data.user_id, // owner (seller) user_id
-    owner_name: `${user_data.first} ${user_data.last}`.toLowerCase(),
+    owner_name: `${user_data.first} ${user_data.last}`.toUpperCase(),
     owner_pfp: user_data.pfp,
     seller_rating: user_data.completed_sales
                     ? user_data.cum_seller_rating / user_data.completed_sales

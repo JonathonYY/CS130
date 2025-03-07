@@ -256,13 +256,13 @@ describe("Integration tests", () => {
     const { data: data1, error: error1 } = await res1.json();
     expect(error1).toBe(null);
     expect(data1).toMatchObject({
-      'title': 'test_listing_1',
+      'title': 'TEST_LISTING_1',
       'price': 100,
-      'condition': 'test_cond',
-      'category': 'test_cat',
+      'condition': 'TEST_COND',
+      'category': 'TEST_CAT',
       'description': 'test_desc',
       'owner': user_id_1,
-      'owner_name': 'test_first_3 test_last_3',
+      'owner_name': 'TEST_FIRST_3 TEST_LAST_3',
       'owner_pfp': '',
       'seller_rating': 3.5,
       'selected_buyer': '',
@@ -278,13 +278,13 @@ describe("Integration tests", () => {
     const { data: data2, error: error2 } = await res2.json();
     expect(error2).toBe(null);
     expect(data2).toMatchObject({
-      'title': 'test_listing_2',
+      'title': 'TEST_LISTING_2',
       'price': 200,
-      'condition': 'test_cond',
-      'category': 'test_cat',
+      'condition': 'TEST_COND',
+      'category': 'TEST_CAT',
       'description': 'test_desc',
       'owner': user_id_1,
-      'owner_name': 'test_first_3 test_last_3',
+      'owner_name': 'TEST_FIRST_3 TEST_LAST_3',
       'owner_pfp': '',
       'seller_rating': 3.5,
       'selected_buyer': '',
@@ -300,13 +300,13 @@ describe("Integration tests", () => {
     const { data: data3, error: error3 } = await res3.json();
     expect(error3).toBe(null);
     expect(data3).toMatchObject({
-      'title': 'test_listing_3',
+      'title': 'TEST_LISTING_3',
       'price': 300,
-      'condition': 'test_cond',
-      'category': 'test_cat',
+      'condition': 'TEST_COND',
+      'category': 'TEST_CAT',
       'description': 'test_desc',
       'owner': user_id_2,
-      'owner_name': 'test_first_4 test_last_4',
+      'owner_name': 'TEST_FIRST_4 TEST_LAST_4',
       'owner_pfp': '',
       'seller_rating': 3.5,
       'selected_buyer': '',

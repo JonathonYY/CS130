@@ -35,32 +35,32 @@ export function parseInput(req?: string): SearchFields {
   const priceMatch = req.match(pricePattern);
 
   if (conditionMatch) {
-    result['condition'] = conditionMatch[1].toLowerCase();
+    result['condition'] = conditionMatch[1].toUpperCase();
     req = req.replace(conditionMatch[0], '');
   }
 
   if (categoryMatch) {
-    result['category'] = categoryMatch[1].toLowerCase();
+    result['category'] = categoryMatch[1].toUpperCase();
     req = req.replace(categoryMatch[0], '');
   }
 
   const sellerMatch = req.match(sellerPattern);
   if (sellerMatch) {
     if (sellerMatch[1].includes('"')) {
-      result['owner'] = sellerMatch[1].slice(1, -1).trim().toLowerCase();
+      result['owner'] = sellerMatch[1].slice(1, -1).trim().toUpperCase();
     } else {
-      result['owner'] = sellerMatch[1].trim().toLowerCase();
+      result['owner'] = sellerMatch[1].trim().toUpperCase();
     }
     req = req.replace(sellerMatch[0], '');
   }
 
   if (priceMatch) {
-    result['cmp_op'] = priceMatch[1].toLowerCase();
+    result['cmp_op'] = priceMatch[1].toUpperCase();
     result['price'] = parseFloat(priceMatch[2]);
     req = req.replace(priceMatch[0], '');
   }
 
-  result['search_str'] = req.trim().toLowerCase();
+  result['search_str'] = req.trim().toUpperCase();
 
   return result;
 }
