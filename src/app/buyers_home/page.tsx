@@ -279,7 +279,7 @@ const SellersHome: React.FC = () => {
       {/* Navbar */}
       <AppBar position="sticky" className="bg-white shadow-md">
         <Toolbar className="flex justify-between bg-white text-black dark:text-black">
-          <p className="text-lg font-semibold text-black">My Listings</p>
+          <p className="text-lg font-semibold text-black">Interested Listings</p>
           <img
             src="logo1.png"
             alt="logo"
@@ -293,7 +293,7 @@ const SellersHome: React.FC = () => {
       <div className="flex flex-1 p-4 bg-gray-100">
         {/* Left Panel: Products */}
         <div className="w-1/3 bg-white shadow-lg rounded-lg flex flex-col relative">
-          <h2 className="text-lg font-semibold p-4 border-b text-black">Interested Products</h2>
+          <h2 className="text-lg font-semibold p-4 border-b text-black">Listings</h2>
           <div className="overflow-y-scroll overflow-x-hidden flex-1" style={{ maxHeight: "calc(100vh - 150px)" }}>
             <List>
               {productListings.map((product) => (
@@ -316,7 +316,7 @@ const SellersHome: React.FC = () => {
         {/* Right Panel: Interested Users TODO: fix format of listing & description, figure out how to handle sales that are closed to other buyers,  */}
         {selectedProduct ? (
           <div className="w-2/3 bg-white shadow-lg rounded-lg ml-4 overflow-hidden flex flex-col relative">
-            <div className="overflow-y-scroll overflow-x-hidden flex-1 mt-4" style={{ maxHeight: "calc(100vh - 150px)" }}>
+            <div className="overflow-y-scroll overflow-x-hidden flex-1 mt-4 mb-4" style={{ maxHeight: "calc(100vh - 150px)" }}>
               <div className="viewListingsContainer" style={{ clear: "right" }}>
                 <div className="viewListingsTitle">
                   <PriceTag price={productMap[selectedProduct].price}></PriceTag>
@@ -335,10 +335,17 @@ const SellersHome: React.FC = () => {
             {productMap[selectedProduct].selected_buyer ?
               productMap[selectedProduct].selected_buyer == 'test-user' ? (
                 <div>
-                  <div className="p-4">
-                    rate seller
+                  <div className="flex justify-center items-center p-1 pt-4 font-bold">
+                    Listing owner has agreed to complete the sale with you!
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <div className="flex justify-center items-center p-1">
+                    Contact info: {listingOwners[selectedProduct].email_address}{
+                      listingOwners[selectedProduct].phone_number ?
+                        ", phone: " + listingOwners[selectedProduct].phone_number : ""
+                    }
+                  </div>
+                  <div className="flex justify-center items-center p-1 pb-4">
+                    Rate seller:
                     {[...Array(5)].map((_, index) => {
                       const isFilled = index < (hoveredRating || rating); // If the star is filled (on hover or selected)
                       return (
@@ -359,20 +366,14 @@ const SellersHome: React.FC = () => {
                       );
                     })}
                   </div>
-                  <div className="px-4 pb-4">
-                    email: {listingOwners[selectedProduct].email_address}{
-                      listingOwners[selectedProduct].phone_number ?
-                        ", phone: " + listingOwners[selectedProduct].phone_number : ""
-                    }
-                  </div>
                 </div>
               ) : (
-                <div className="p-4">
-                  sale closed to other buyer
+                <div className="p-4 font-bold">
+                  Listing owner has completed the sale with another buyer instead.
                 </div>
               ) : (
-                <div className="p-4">
-                  sale pending
+                <div className="p-4 font-bold">
+                  Listing owner is still choosing a buyer.
                 </div>
               )}
           </div>
