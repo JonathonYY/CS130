@@ -181,7 +181,6 @@ interface Interesteduser {
     }
        
     useEffect(() => {
-      console.log("bru",user_id);
       if (!user_id){
         return
       }
@@ -208,7 +207,6 @@ interface Interesteduser {
   // Simulate an API request to submit the rating
   const submitRating = async (listing_id: string, newRating: number): Promise<void> => {
     try {
-      console.log("asdf",user_id)
       const response = await fetch(`/api/listing/${listing_id}/rate`, {
         method: 'PATCH',
         headers: {
@@ -224,7 +222,6 @@ interface Interesteduser {
     }
   };
     if (!isClient) return null;
-    console.log(productListings)
     
     return (
       <div className="h-screen flex flex-col overflow-hidden">
