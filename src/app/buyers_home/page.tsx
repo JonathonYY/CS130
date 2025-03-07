@@ -6,31 +6,12 @@ import ReportButton from "@/components/ReportButton"
 
 import "../globals.css";
 import { useRouter } from "next/navigation";
-import { User, Listing, ListingWithID } from "@/lib/firebase/firestore/types";
+import { User, ListingWithID } from "@/lib/firebase/firestore/types";
 import { useAuth } from "@/lib/authContext";
 
 // import SideMenu from "@/components/seller_sidebar";
-import { AppBar,Toolbar,Avatar, Button, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, IconButton, Rating, Divider} from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
-import CloseIcon from "@mui/icons-material/Close";
-import StarIcon from "@mui/icons-material/Star";
-import AddIcon from "@mui/icons-material/Add";
-import { yellow } from '@mui/material/colors';
+import { AppBar, Avatar, Box, Button, CircularProgress, List, ListItem, ListItemAvatar, ListItemText, Rating, Toolbar } from "@mui/material";
 import React, { useState, useEffect } from "react";
-import { time } from "console";
-
-interface Product {
-  id: string;
-  name: string;
-  image: string;
-}
-
-interface Interesteduser {
-  id: string;
-  name: string;
-  avatar: string;
-  rating: string; 
-}
 
 function getDateFromTimestamp(secs: number, nanos: number): string {
   const ms = secs * 1000 + nanos / 1e6;
@@ -44,17 +25,9 @@ const SellersHome: React.FC = () => {
   const { user } = useAuth();
   const user_id = user?.uid;
 
-  // if (!user) {
-  //   if (typeof window !== 'undefined') {
-  //     // window.location.href = "/login";
-  //   }
-  // }
-
   // States for informing users data is being fetched
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string | undefined>("");
-  const [userData, setActiveUser] = useState<User>();
-  const [productIds, setProductIds] = useState<string[]>([]);
   const [productListings, setProductListings] = useState<ListingWithID[]>([]);
   const [productMap, setProductMap] = useState<Record<string, ListingWithID>>({});
   const [listingOwners, setListingOwners] = useState<Record<string, User>>({});
@@ -72,8 +45,6 @@ const SellersHome: React.FC = () => {
       if (error) {
         console.error("Error fetching user:", error);
       } else {
-        setActiveUser(data); // Set user data
-        setProductIds(data.interested_listings || []); // Ensure it's an array
         fetchInterestedListings(data.interested_listings || []); // Fetch listings after setting them
       }
     } catch (err) {
@@ -214,11 +185,14 @@ const SellersHome: React.FC = () => {
   }
 
   useEffect(() => {
-    if (!user_id) {
+    if (user === undefined) return; // Wait until user is determined
+    if (user === null) {
+      router.push("/login");
       return;
     }
     fetchUser();
-  }, [user_id]);
+    fetchUser();
+  }, [user, user_id]);
 
   const router = useRouter();
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
@@ -255,6 +229,22 @@ const SellersHome: React.FC = () => {
       console.error('Error submitting rating:', error);
     }
   };
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          width: '100vw',
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   if (!isClient) return null;
   console.log(productListings)
@@ -350,7 +340,7 @@ const SellersHome: React.FC = () => {
                     color="error"
                     onClick={() => removeInterest(selectedProduct)}
                   >
-                    I'm no longer interested.
+                    I&apos;m no longer interested.
                   </Button>
                 </div>
               ) : (
@@ -361,7 +351,7 @@ const SellersHome: React.FC = () => {
                     color="error"
                     onClick={() => removeInterest(selectedProduct)}
                   >
-                    I'm no longer interested.
+                    I&apos;m no longer interested.
                   </Button>
                 </div>
               ) : (
@@ -372,7 +362,7 @@ const SellersHome: React.FC = () => {
                     color="error"
                     onClick={() => removeInterest(selectedProduct)}
                   >
-                    I'm no longer interested.
+                    I&apos;m no longer interested.
                   </Button>
                 </div>
               )}
