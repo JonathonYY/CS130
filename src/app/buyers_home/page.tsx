@@ -7,7 +7,7 @@ import ReportButton from "@/components/ReportButton"
 import "../globals.css";
 import { useRouter } from "next/navigation";
 import { User, Listing, ListingWithID } from "@/lib/firebase/firestore/types";
-// import { useAuth } from "@/lib/authContext"; require rebase
+import { useAuth } from "@/lib/authContext";
 
 // import SideMenu from "@/components/seller_sidebar";
 import { AppBar,Toolbar,Avatar, Button, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, IconButton, Rating, Divider} from "@mui/material";
@@ -88,12 +88,16 @@ function getDateFromTimestamp(secs: number, nanos: number): string {
 
 const SellersHome: React.FC = () => {
   // require rebase
-  // const { user, token, signInWithGoogle, signOutUser } = useAuth();
-  // if (!user) {
-  //   window.location.href = "/login";
-  // }
+  const { user } = useAuth();
+  if (!user) {
+    // window.location.href = "/login";
+  }
+  const user_id = user?.uid;
+  console.log('asdf', user_id);
+  console.log('asdf', user);
   // States for informing users data is being fetched
   const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState<string>("");
   const [userData, setActiveUser] = useState<User>();
   const [productIds, setProductIds] = useState<string[]>([]);
   const [productListings, setProductListings] = useState<ListingWithID[]>([]);
@@ -102,11 +106,13 @@ const SellersHome: React.FC = () => {
   const [listingImages, setListingImages] = useState<Record<string, string[]>>({});
   const [listingTimestamp, setListingTimestamp] = useState<Record<string, string>>({});
 
+  // setUserId('test-user')
+
   // Fetch active user from the database
-  async function fetchUser() {
+  async function fetchUser(user_id: string) {
+    setUserId(user_id)
     setLoading(true);
     try {
-      const user_id = "test-user"; // Replace with actual user.uid later
       const response = await fetch(`/api/user/${user_id}`);
       const { data, error } = await response.json();
 
@@ -223,7 +229,9 @@ const SellersHome: React.FC = () => {
   }
 
   useEffect(() => {
-    fetchUser();
+    console.log('a', user_id);
+    if (user_id)
+      fetchUser(user_id);
   }, []);
 
   const router = useRouter();
@@ -347,7 +355,7 @@ const SellersHome: React.FC = () => {
             </div>
             <hr className="border-gray-300" />
             {productMap[selectedProduct].selected_buyer ?
-              productMap[selectedProduct].selected_buyer == 'test-user' ? (
+              productMap[selectedProduct].selected_buyer == userId ? (
                 <div>
                   <div className="flex justify-center items-center p-1 pt-4 font-bold">
                     Listing owner has agreed to complete the sale with you!
@@ -364,7 +372,7 @@ const SellersHome: React.FC = () => {
                       name="simple-controlled"
                       value={rating}
                       onChange={(event, newValue) => {
-                        handleRatingChange('test-user', selectedProduct, newValue);
+                        handleRatingChange(userId, selectedProduct, newValue);
                       }}
                       precision={0.5} // half star precision
                     />
