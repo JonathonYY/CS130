@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { User, Listing } from "@/lib/firebase/firestore/types";
 import { useAuth } from "@/lib/authContext"; 
 
-// import SideMenu from "@/components/seller_sidebar";
 import { AppBar,Toolbar,Avatar, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, IconButton,Divider,Rating} from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
@@ -34,12 +33,7 @@ interface Interesteduser {
   const SellersHome: React.FC = () => {
     const { user } = useAuth();
     const user_id = user?.uid;
-    //const user_id = 'test-user'
-    // require rebase
-    // const { user, token, signInWithGoogle, signOutUser } = useAuth();
-    // if (!user) {
-    //   window.location.href = "/login";
-    // }
+
     // States for informing users data is being fetched
     const [loading, setLoading] = useState(false);
     const [userData, setActiveUser] = useState<User>();
@@ -53,7 +47,6 @@ interface Interesteduser {
 
       setLoading(true);
       try {
-       // const user_id = "test-user"; // Replace with actual user.uid later
         const response = await fetch(`/api/user/${user_id}`);
         const { data, error } = await response.json();
     
@@ -61,7 +54,6 @@ interface Interesteduser {
           console.error("Error fetching user:", error);
         } else {
           setActiveUser(data); // Set user data
-          console.log(data.active_listings);
           setProductIds(data.active_listings || []); // Ensure it's an array
           fetchActiveListings(data.active_listings || []); // Fetch listings after setting them
         }
@@ -84,7 +76,6 @@ interface Interesteduser {
               console.error(`Error fetching listing ${listing_id}:`, error);
               return null;
             } else {
-              console.log(`Fetched listing data for ${listing_id}:`, data);
               return data;
             }
           })
@@ -131,7 +122,6 @@ interface Interesteduser {
         );
     
         setInterestedUsers(interestedUsersMap);
-        console.log("Interested users map:", interestedUsersMap);
       } catch (err) {
         console.error("Error fetching interested users:", err);
       }
@@ -165,7 +155,6 @@ interface Interesteduser {
                 selectedBuyersMap[product.id] = userData;
               }
               setSelectedBuyers(selectedBuyersMap)
-              //console.log(selectedBuyersMap)
             } catch (err) {
               console.error(`Unexpected error fetching data for ${product.id}:`, err);
               selectedBuyersMap[product.id] = null;
@@ -181,11 +170,13 @@ interface Interesteduser {
     }
        
     useEffect(() => {
-      if (!user_id){
-        return
+      if (user === undefined) return; // Wait until user is determined
+      if (user === null) {
+        router.push("/login");
+        return;
       }
       fetchUser();
-    }, [user_id]);
+    }, [user]); // Ensure it reacts to user state, not just user_id
 
     const router = useRouter();
     const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
@@ -216,7 +207,6 @@ interface Interesteduser {
       });
 
       const data = await response.json();
-      console.log('Listing updated:', data);
     } catch (error) {
       console.error('Error submitting rating:', error);
     }
