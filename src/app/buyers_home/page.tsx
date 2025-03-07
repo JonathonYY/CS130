@@ -97,7 +97,7 @@ const SellersHome: React.FC = () => {
   console.log('asdf', user);
   // States for informing users data is being fetched
   const [loading, setLoading] = useState(false);
-  const [userId, setUserId] = useState<string>("");
+  const [userId, setUserId] = useState<string | undefined>("");
   const [userData, setActiveUser] = useState<User>();
   const [productIds, setProductIds] = useState<string[]>([]);
   const [productListings, setProductListings] = useState<ListingWithID[]>([]);
@@ -106,10 +106,8 @@ const SellersHome: React.FC = () => {
   const [listingImages, setListingImages] = useState<Record<string, string[]>>({});
   const [listingTimestamp, setListingTimestamp] = useState<Record<string, string>>({});
 
-  // setUserId('test-user')
-
   // Fetch active user from the database
-  async function fetchUser(user_id: string) {
+  async function fetchUser() {
     setUserId(user_id)
     setLoading(true);
     try {
@@ -167,12 +165,12 @@ const SellersHome: React.FC = () => {
 
       await Promise.all(
         listings.map(async (listing) => {
-          const user_id = listing.owner;
-          const user_response = await fetch(`/api/user/${user_id}`);
+          const owner_id = listing.owner;
+          const user_response = await fetch(`/api/user/${owner_id}`);
           const { data, error } = await user_response.json();
 
           if (error) {
-            console.error(`Error fetching user ${user_id}:`, error);
+            console.error(`Error fetching user ${owner_id}:`, error);
           }
           else {
             listingOwnersMap[listing.id] = data;
@@ -229,9 +227,7 @@ const SellersHome: React.FC = () => {
   }
 
   useEffect(() => {
-    console.log('a', user_id);
-    if (user_id)
-      fetchUser(user_id);
+    fetchUser();
   }, []);
 
   const router = useRouter();
@@ -242,41 +238,18 @@ const SellersHome: React.FC = () => {
     setIsClient(true);
   }, []);
 
-  // Handle click to update rating
-  // const setValue = (user_id: string, listing_id: string, index: number): void => {
-  //   setRating(index + 1); // Set the rating to the clicked star number
-  //   submitRating(user_id, listing_id, index + 1); // API call to submit rating
-  // };
-
-  // // Function to simulate the API call
-  // const submitRating = async (user_id: string, listing_id: string, newRating: number): Promise<void> => {
-  //   try {
-  //     const response = await fetch(`/api/listing/${listing_id}/rate`, {
-  //       method: 'PATCH',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ user_id: user_id, rating: newRating }),
-      // });
-  //     const data = await response.json();
-  //     console.log('Rating submitted:', data);
-  //   } catch (error) {
-  //     console.error('Error submitting rating:', error);
-  //   }
-  // };
-
   const [rating, setRating] = useState<number>(0);
 
   // Handle rating change
-  const handleRatingChange = (user_id: string, listing_id: string, newRating: number | null): void => {
+  const handleRatingChange = (listing_id: string, newRating: number | null): void => {
     if (newRating !== null) {
       setRating(newRating); // Update the rating
-      submitRating(user_id, listing_id, newRating); // Call API to submit the rating
+      submitRating(listing_id, newRating); // Call API to submit the rating
     }
   };
 
   // Simulate an API request to submit the rating
-  const submitRating = async (user_id: string, listing_id: string, newRating: number): Promise<void> => {
+  const submitRating = async (listing_id: string, newRating: number): Promise<void> => {
     try {
       const response = await fetch(`/api/listing/${listing_id}/rate`, {
         method: 'PATCH',
@@ -372,7 +345,7 @@ const SellersHome: React.FC = () => {
                       name="simple-controlled"
                       value={rating}
                       onChange={(event, newValue) => {
-                        handleRatingChange(userId, selectedProduct, newValue);
+                        handleRatingChange(selectedProduct, newValue);
                       }}
                       precision={0.5} // half star precision
                     />
