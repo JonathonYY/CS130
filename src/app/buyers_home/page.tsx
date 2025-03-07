@@ -363,8 +363,15 @@ const SellersHome: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="p-4 font-bold">
-                  Listing owner has completed the sale with another buyer instead.
+                <div className="p-4 font-bold flex justify-between items-center">
+                  Listing owner has chosen another buyer.
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => removeInterest(selectedProduct)}
+                  >
+                    I'm no longer interested.
+                  </Button>
                 </div>
               ) : (
                 <div className="p-4 font-bold flex justify-between items-center">
