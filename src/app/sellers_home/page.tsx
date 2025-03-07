@@ -4,7 +4,7 @@
 import "../globals.css";
 import { useRouter } from "next/navigation";
 import { User, Listing } from "@/lib/firebase/firestore/types";
-// import { useAuth } from "@/lib/authContext"; require rebase
+import { useAuth } from "@/lib/authContext"; 
 
 // import SideMenu from "@/components/seller_sidebar";
 import { AppBar,Toolbar,Avatar, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, IconButton,Divider,Rating} from "@mui/material";
@@ -76,6 +76,9 @@ interface Interesteduser {
 //   };
 
   const SellersHome: React.FC = () => {
+    const { user } = useAuth();
+    const user_id = user?.uid;
+    //const user_id = 'test-user'
     // require rebase
     // const { user, token, signInWithGoogle, signOutUser } = useAuth();
     // if (!user) {
@@ -91,9 +94,10 @@ interface Interesteduser {
 
     // Fetch active user from the database
     async function fetchUser() {
+
       setLoading(true);
       try {
-        const user_id = "test-user"; // Replace with actual user.uid later
+       // const user_id = "test-user"; // Replace with actual user.uid later
         const response = await fetch(`/api/user/${user_id}`);
         const { data, error } = await response.json();
     
@@ -221,8 +225,12 @@ interface Interesteduser {
     }
        
     useEffect(() => {
+      console.log("bru",user_id);
+      if (!user_id){
+        return
+      }
       fetchUser();
-    }, []);
+    }, [user_id]);
 
     const router = useRouter();
     const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
@@ -231,7 +239,34 @@ interface Interesteduser {
     useEffect(() => {
       setIsClient(true);
     }, []);
-  
+    const [rating, setRating] = useState<number>(0);
+
+  // Handle rating change
+  const handleRatingChange = (listing_id: string, newRating: number | null): void => {
+    if (newRating !== null) {
+      setRating(newRating); // Update the rating
+      submitRating(listing_id, newRating); // Call API to submit the rating
+    }
+  };
+
+  // Simulate an API request to submit the rating
+  const submitRating = async (listing_id: string, newRating: number): Promise<void> => {
+    try {
+      console.log("asdf",user_id)
+      const response = await fetch(`/api/listing/${listing_id}/rate`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: user_id, rating: newRating }),
+      });
+
+      const data = await response.json();
+      console.log('Listing updated:', data);
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+    }
+  };
     if (!isClient) return null;
     console.log(productListings)
     
@@ -261,7 +296,8 @@ interface Interesteduser {
                   <ListItem
                     key={product.id}
                     component="button"
-                    onClick={() => setSelectedProduct(product.id)}
+                    onClick={() => {setSelectedProduct(product.id)}
+                    }
                     className={`hover:bg-gray-200 ${selectedProduct === product.id ? "bg-gray-300" : ""} mx-2`}
                   >
                     <ListItemAvatar>
@@ -304,14 +340,14 @@ interface Interesteduser {
             <p className="text-gray-600">📞 {selectedBuyers[selectedProduct].phone_number}</p>
           </div>
         </div>
-        <div className="flex justify-left items-center p-1 pb-4">
-                    Rate seller:
+        <div className="flex justify-center items-center p-1 pb-4">
+                    Rate Buyer:
                     <Rating
                       name="simple-controlled"
-                      value={5}
-                      // onChange={(event, newValue) => {
-                      //   handleRatingChange(selectedProduct, newValue);
-                      // }}
+                      value={rating}
+                      onChange={(event, newValue) => {
+                        handleRatingChange(selectedProduct, newValue);
+                      }}
                       precision={0.5} // half star precision
                     />
                   </div>
