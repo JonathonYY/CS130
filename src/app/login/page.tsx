@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/authContext";
 import Image from "next/image";
 
 const Login: React.FC = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { user, token, signInWithGoogle, signOutUser } = useAuth();
   if (user) {
     window.location.href = "/account";

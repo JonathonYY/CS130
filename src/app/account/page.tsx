@@ -75,6 +75,8 @@ const Account: React.FC = () => {
         buyerRating: 0,
         sellerRating: 0,
     });
+    const [userPfp, setUserPfp] = useState<string>("");
+    const [userPfpFile, setUserPfpFile] = useState<File>();
 
     // Create button color theme
     const theme = createTheme({
@@ -128,6 +130,7 @@ const Account: React.FC = () => {
                 buyerRating: data.buyer_rating,
                 sellerRating: data.seller_rating
             });
+            setUserPfp(userData.pfp);
             setLoading(false);
         }
     }
@@ -191,27 +194,12 @@ const Account: React.FC = () => {
         const file = event.target.files?.[0];
         // console.log(file);
         if (file && ["image/png", "image/jpeg", "image/svg+xml"].includes(file.type)) {
-            const formData = new FormData();
-            formData.append("image", file);
-
-            const response = await fetch("/api/image", {
-                method: "POST",
-                body: formData,
-            });
-
-            const { data, error } = await response.json();
-            if (error) {
-                setUpdateModalMessage("Error Uploading Image!");
-                handleOpenUpdate();
-                console.log(error);
-                return;
+            setUserPfpFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setUserPfp(reader.result as string);
             }
-
-            setUserData({
-                ...userData,
-                pfp: data
-            });
-            // console.log(userData.pfp);
+            reader.readAsDataURL(file);
         } else {
             setUpdateModalMessage("Invalid image!");
             handleOpenUpdate();
@@ -235,6 +223,27 @@ const Account: React.FC = () => {
             handleOpenUpdate();
             return;
         }
+
+        const formData = new FormData();
+        formData.append("image", userPfpFile as Blob);
+
+        const imgResponse = await fetch("/api/image", {
+            method: "POST",
+            body: formData,
+        });
+
+        const { imgData, imgError } = await imgResponse.json();
+        if (imgError) {
+            setUpdateModalMessage("Error Uploading Image!");
+            handleOpenUpdate();
+            console.log(imgError);
+            return;
+        }
+
+        setUserData({
+            ...userData,
+            pfp: imgData
+        });
 
         const response = await fetch(accountURL, {
             body: JSON.stringify({
@@ -317,7 +326,7 @@ const Account: React.FC = () => {
                         <Grid container sx={{ marginLeft: 4, marginRight: -2 }} spacing={20} alignItems="flex-start">
                             <Grid display="flex" flexDirection="column" alignItems="center">
                                 <Box position="relative" display="inline-block">
-                                    <Avatar src={userData.pfp} sx={{ width: 125, height: 125 }} />
+                                    <Avatar src={userPfp} sx={{ width: 125, height: 125 }} />
                                     <IconButton
                                         sx={{
                                             position: "absolute",
@@ -334,10 +343,10 @@ const Account: React.FC = () => {
 
                                 <div className="ratings">
                                     <p><b>Buyer rating: </b></p>
-                                    <Rating value={userData.buyerRating} readOnly precision={0.5}/>
+                                    <Rating value={userData.buyerRating} readOnly precision={0.5} />
 
                                     <p><b>Seller rating: </b></p>
-                                    <Rating value={userData.sellerRating} readOnly precision={0.5}/>
+                                    <Rating value={userData.sellerRating} readOnly precision={0.5} />
                                 </div>
                             </Grid>
 
