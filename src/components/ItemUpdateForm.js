@@ -4,33 +4,36 @@ import { styled } from "@mui/system";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
-import {useAuth} from "@/lib/authContext";
 
 const ImageUpload = styled("input")({
   display: "none",
 });
 
-const CreateListingForm = () => {
-  const [title, setTitle] = useState("");
-  const [price, setPrice] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
-  const [condition, setCondition] = useState("");
-  const [images, setImages] = useState([]);
+const UpdateListingForm = (listingObj) => {
+  //console.log(listingObj.listingObj);
+  const [title, setTitle] = useState(listingObj.listingObj.title);
+  const [price, setPrice] = useState(listingObj.listingObj.price);
+  const [description, setDescription] = useState(listingObj.listingObj.description);
+  const [category, setCategory] = useState(listingObj.listingObj.category);
+  const [condition, setCondition] = useState(listingObj.listingObj.condition);
+  const [images, setImages] = useState(listingObj.listingObj.image_paths.length > 0 ? listingObj.listingObj.image_paths.map((img_path) => [img_path, null]) : []);
+  
+  const [isChanged, setIsChanged] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const {user} = useAuth();
-
+  
   const handleImageUpload = (event) => {
     const files = Array.from(event.target.files);
     const newImages = files.map((file) => [URL.createObjectURL(file), file]);
+    
     setImages((prevImages) => [...prevImages, ...newImages]);
-
+    setIsChanged(true);
   };
 
   const handleRemoveImage = (index) => {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+    setIsChanged(true);
   };
 
   const handleClose = () => {
@@ -38,12 +41,10 @@ const CreateListingForm = () => {
   };
 
   const handleUpload = async (file) => {
-    if (!file) return;
-
-    setUploading(true);
+    if (!file) return Promise.resolve(null);
+    
     const formData = new FormData();
     formData.append("image", file); // 'image' is the field name on the backend
-
     try {
       const response = await fetch("/api/image", {
         method: "POST",
@@ -63,40 +64,55 @@ const CreateListingForm = () => {
   };
 
   const handleSubmitListing = async () => {
+    setUploading(true);
     let imageUrls = [];
     for (let imgPair of images) {
       try {
-        const returnedUrl = await handleUpload(imgPair[1]);
+        
+        let returnedUrl = await handleUpload(imgPair[1]);
+        if (!returnedUrl) {
+          returnedUrl = imgPair[0];
+        }
         imageUrls.push(returnedUrl);
+        //console.log("PUSHED:",returnedUrl);
       }
       catch (error) {
         console.log("Image Upload Failed:", error);
       }
       
     }
-    console.log("img urls:", imageUrls);
+    //console.log("img urls:", imageUrls);
     try {
-      const response = await fetch(`/api/listing/`, {
-        method: "POST",
+      const response = await fetch(`/api/listing/${listingObj.listingId}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ 
-            user_id : user.uid,
-            title: title,
-            price: price,
-            condition: condition,
-            category: category,
-            description: description,
-            image_paths: imageUrls
+          title: title,
+          price: price,
+          condition: condition,
+          category: category,
+          description: description,
+          selected_buyer: listingObj.listingObj.selected_buyer,
+          potential_buyers: listingObj.listingObj.potential_buyers,
+          image_paths: imageUrls
         }),
       });
-      const createResult = await response.json();
-      console.log(createResult.data.listing_id);
+      const updateResult = await response.json();
+
+      if (updateResult.error) {
+        setSnackbarMessage(updateResult.error);
+        setSnackbarOpen(true);
+        setUploading(false);
+        setIsChanged(false);
+        return;
+      }
+
       setSnackbarMessage(
         <>
-          Listing created{" "}
-          <Link href={`view_listing?id=${createResult.data.listing_id}`}>
+          View changes{" "}
+          <Link href={`view_listing?id=${listingObj.listingId}`}>
             here
           </Link>!
         </>
@@ -108,15 +124,15 @@ const CreateListingForm = () => {
       setSnackbarOpen(true);
     }
     setUploading(false);
-    console.log("created listing:", { title, price, description, category, condition, imageUrls });
+    setIsChanged(false);
   };
 
-  const isFormIncomplete = !title || !price || !description || !category || !condition || images.length === 0;
+  const isFormIncomplete = !isChanged || !title || !description || !category || !condition || images.length === 0;
 
   return (
     <Box sx={{ maxWidth: 500, margin: "auto", p: 3, boxShadow: 3, borderRadius: 2 }}>
       <Typography variant="h5" gutterBottom>
-        Create a Listing
+        Change a Listing
       </Typography>
 
       <TextField
@@ -125,7 +141,10 @@ const CreateListingForm = () => {
         variant="outlined"
         margin="normal"
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        onChange={(e) => {
+          setTitle(e.target.value);
+          setIsChanged(true);
+        }}
       />
 
       <TextField
@@ -135,7 +154,10 @@ const CreateListingForm = () => {
         variant="outlined"
         margin="normal"
         value={price}
-        onChange={(e) => setPrice(e.target.value)}
+        onChange={(e) => {
+          setPrice(e.target.value);
+          setIsChanged(true);
+        }}
       />
 
       <TextField
@@ -146,12 +168,18 @@ const CreateListingForm = () => {
         variant="outlined"
         margin="normal"
         value={description}
-        onChange={(e) => setDescription(e.target.value)}
+        onChange={(e) => {
+          setDescription(e.target.value);
+          setIsChanged(true);
+        }}
       />
 
       <FormControl fullWidth margin="normal">
         <InputLabel>Category</InputLabel>
-        <Select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <Select value={category} onChange={(e) => {
+          setCategory(e.target.value);
+          setIsChanged(true);
+        }}>
           <MenuItem value="electronics">electronics</MenuItem>
           <MenuItem value="clothing">clothing</MenuItem>
           <MenuItem value="furniture">furniture</MenuItem>
@@ -161,7 +189,10 @@ const CreateListingForm = () => {
 
       <FormControl fullWidth margin="normal">
         <InputLabel>Condition</InputLabel>
-        <Select value={condition} onChange={(e) => setCondition(e.target.value)}>
+        <Select value={condition} onChange={(e) => {
+          setCondition(e.target.value);
+          setIsChanged(true);
+        }}>
           <MenuItem value="new">new</MenuItem>
           <MenuItem value="great">great</MenuItem>
           <MenuItem value="good">good</MenuItem>
@@ -178,7 +209,7 @@ const CreateListingForm = () => {
           </Button>
         </label>
       </Box>
-
+      
       {images.length > 0 && (
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 2 }}>
           {images.map((img, index) => (
@@ -197,7 +228,7 @@ const CreateListingForm = () => {
       )}
 
       <Button variant="contained" color="primary" fullWidth sx={{ mt: 3 }} onClick={handleSubmitListing} disabled={isFormIncomplete || uploading}>
-        {uploading ? "Publishing..." : "Create Listing"}
+        {uploading ? "Updating..." : "Change Listing"}
       </Button>
 
       <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleClose} anchorOrigin={{ vertical: "bottom", horizontal: "right" }} >
@@ -209,4 +240,4 @@ const CreateListingForm = () => {
   );
 };
 
-export default CreateListingForm;
+export default UpdateListingForm;
