@@ -6,8 +6,10 @@ import { GET as GET_listing, PATCH as PATCH_listing, DELETE as DELETE_listing } 
 import { POST as POST_img } from "../image/route";
 import { PATCH as PATCH_report } from "../listing/[listing_id]/report/route";
 import { PATCH as PATCH_rate } from "../listing/[listing_id]/rate/route";
-
+import { ref, getDownloadURL } from "firebase/storage";
 import fs from "node:fs";
+
+const { storage } = jest.requireMock("@/lib/firebase/config");
 
 jest.mock("@/lib/firebase/config", () => ({
   ...jest.requireActual("@/lib/firebase/config.mock")
@@ -54,16 +56,13 @@ async function createListing(i: number, user_id: string) {
     }),
   });
   const res: NextResponse = await POST_listing(req);
-  var { data, error } = await res.json();
+  const { data, error } = await res.json();
   return { data, error };
 }
 
 describe("Integration tests", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    clearFirestore();
-  });
-  afterEach(async () => {
     clearFirestore();
   });
   it("should correctly handle User workflow", async () => {
@@ -159,9 +158,11 @@ describe("Integration tests", () => {
   });
   it("should correctly handle invalid User workflows", async () => {
     // create user
-    var { data, error } = await createUser(1);
+    var { data, error } = await createUser(2);
     expect(error).toBe(null);
-    expect(data.user_id).toEqual("test_user_id_1");
+    expect(data.user_id).toEqual("test_user_id_2");
+    const user_id_1 = data.user_id;
+    const user_param_1 = Promise.resolve({ user_id: user_id_1 });
 
     // get invalid user
     const fake_user_param = Promise.resolve({ user_id: "fake_user_id" });
@@ -186,41 +187,53 @@ describe("Integration tests", () => {
     var { data, error } = await res2.json();
     expect(error).toBe("user does not exist");
 
-    // delete invalid user
+    // patch invalid user
     const req3 = new Request("http://localhost", {
+      method: "PATCH",
+      body: JSON.stringify({
+        'first': 'test_first_patched',
+        'bad_field': 'bad_field_value',
+      }),
+    });
+    const res3: NextResponse = await PATCH_user(req3, { params: user_param_1 });
+    var { data, error } = await res3.json();
+    expect(error).toBe("invalid user field");
+
+    // delete invalid user
+    const req4 = new Request("http://localhost", {
       method: "DELETE",
     });
-    const res3: NextResponse = await DELETE_user(req3, { params: fake_user_param });
-    var { data, error } = await res3.json();
+    const res4: NextResponse = await DELETE_user(req4, { params: fake_user_param });
+    var { data, error } = await res4.json();
     expect(error).toBe("user does not exist");
   });
   it("should correctly handle Listing workflow", async () => {
     // create 6 users so that we can delete a listing via report later
-    var { data, error } = await createUser(1);
+    var { data, error } = await createUser(3);
     const user_id_1 = data.user_id;
     const user_param_1 = Promise.resolve({ user_id: user_id_1 });
 
-    var { data, error } = await createUser(2);
+    var { data, error } = await createUser(4);
     const user_id_2 = data.user_id;
     const user_param_2 = Promise.resolve({ user_id: user_id_2 });
 
-    var { data, error } = await createUser(3);
+    var { data, error } = await createUser(5);
     const user_id_3 = data.user_id;
     const user_param_3 = Promise.resolve({ user_id: user_id_3 });
 
-    var { data, error } = await createUser(4);
+    var { data, error } = await createUser(6);
     const user_id_4 = data.user_id;
     const user_param_4 = Promise.resolve({ user_id: user_id_4 });
 
-    var { data, error } = await createUser(5);
+    var { data, error } = await createUser(7);
     const user_id_5 = data.user_id;
     const user_param_5 = Promise.resolve({ user_id: user_id_5 });
 
-    var { data, error } = await createUser(6);
+    var { data, error } = await createUser(8);
     const user_id_6 = data.user_id;
     const user_param_6 = Promise.resolve({ user_id: user_id_6 });
 
-    // create 1 listing in 2 users
+    // create two listings for user 1 and one for user 2
     var { data, error } = await createListing(1, user_id_1);
     expect(error).toBe(null);
     const listing_id_1 = data.listing_id;
@@ -250,7 +263,7 @@ describe("Integration tests", () => {
       'category': 'test_cat',
       'description': 'test_desc',
       'owner': user_id_1,
-      'owner_name': 'test_first_1 test_last_1',
+      'owner_name': 'test_first_3 test_last_3',
       'owner_pfp': '',
       'seller_rating': 3.5,
       'selected_buyer': '',
@@ -272,7 +285,7 @@ describe("Integration tests", () => {
       'category': 'test_cat',
       'description': 'test_desc',
       'owner': user_id_1,
-      'owner_name': 'test_first_1 test_last_1',
+      'owner_name': 'test_first_3 test_last_3',
       'owner_pfp': '',
       'seller_rating': 3.5,
       'selected_buyer': '',
@@ -294,7 +307,7 @@ describe("Integration tests", () => {
       'category': 'test_cat',
       'description': 'test_desc',
       'owner': user_id_2,
-      'owner_name': 'test_first_2 test_last_2',
+      'owner_name': 'test_first_4 test_last_4',
       'owner_pfp': '',
       'seller_rating': 3.5,
       'selected_buyer': '',
@@ -362,7 +375,6 @@ describe("Integration tests", () => {
       method: "PATCH",
       body: JSON.stringify({
         'potential_buyers': [user_id_2, user_id_4, user_id_5], // must pass in entire updated list
-        'selected_buyer': user_id_2,
       }),
     });
     const res8: NextResponse = await PATCH_listing(req8, { params: listing_param_1 });
@@ -377,8 +389,14 @@ describe("Integration tests", () => {
     const get_req = new Request("http://localhost", {
       method: "GET",
     });
-    const res9: NextResponse = await GET_user(get_req, { params: user_param_3 });
+    const res9: NextResponse = await GET_user(get_req, { params: user_param_2 });
     var { data, error } = await res9.json();
+    expect(error).toBe(null);
+    expect(data).toMatchObject({
+      'interested_listings': [listing_id_1],
+    });
+    const res9a: NextResponse = await GET_user(get_req, { params: user_param_3 });
+    var { data, error } = await res9a.json();
     expect(error).toBe(null);
     expect(data).toMatchObject({
       'interested_listings': [],
@@ -437,6 +455,27 @@ describe("Integration tests", () => {
     expect(error).toBe(null);
     expect(data).toMatchObject({
       buyer_rating: 3.5,
+    })
+
+    const req14a = new Request("http://localhost", {
+      method: "PATCH",
+      body: JSON.stringify({
+        "user_id": user_id_1,
+        "rating": 1,
+      })
+    });
+    const res14a: NextResponse = await PATCH_rate(req14a, { params: listing_param_1 });
+    var { data, error } = await res14a.json();
+    expect(error).toBe(null);
+
+    const req15a = new Request("http://localhost", {
+      method: "GET",
+    });
+    const res15a: NextResponse = await GET_user(req15a, { params: user_param_2 });
+    var { data, error } = await res15a.json();
+    expect(error).toBe(null);
+    expect(data).toMatchObject({
+      buyer_rating: 1,
     })
 
     // report listing 2 until delete (5 times)
@@ -541,6 +580,11 @@ describe("Integration tests", () => {
     var { data, error } = await res26.json();
     expect(error).toBe("No listing exists for given id");
 
+    // check image deleted from storage
+    const imgRef = ref(storage, img_path);
+    await expect(getDownloadURL(imgRef)).rejects.toThrow('storage/object-not-found');
+
+    // check listing deleted from active_listings and interested_listings
     const res27: NextResponse = await GET_user(get_req, { params: user_param_1 });
     var { data, error } = await res27.json();
     expect(error).toBe(null);

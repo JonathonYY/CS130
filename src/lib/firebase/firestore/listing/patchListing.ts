@@ -29,12 +29,10 @@ export default async function patchListing(doc_id: string, data: Partial<PatchLi
         update_data['potential_buyers'] = [...update_data['potential_buyers']];
         const old_potential_buyers = docSnapshot.data().potential_buyers;
         const added_buyers = update_data['potential_buyers'].filter((user_id: string) => !old_potential_buyers.includes(user_id));
-        console.log("ADDING NEW: ", added_buyers);
         await Promise.all(added_buyers.map(async (user_id: string) => {
             await updateUser(user_id, { interested_listings: arrayUnion(doc_id) });
         }));
         const removed_buyers = old_potential_buyers.filter((user_id: string) => !update_data['potential_buyers'].includes(user_id));
-        console.log("DELETING OLD: ", removed_buyers);
         await Promise.all(removed_buyers.map(async (user_id: string) => {
             await updateUser(user_id, { interested_listings: arrayRemove(doc_id) });
         }));
