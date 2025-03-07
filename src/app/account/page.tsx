@@ -124,8 +124,8 @@ const Account: React.FC = () => {
                 last: data.last,
                 pfp: data.pfp,
                 phone: data.phone_number,
-                buyerRating: data.cum_buyer_rating,
-                sellerRating: data.cum_seller_rating
+                buyerRating: data.buyer_rating,
+                sellerRating: data.seller_rating
             });
             setLoading(false);
         }
@@ -296,7 +296,7 @@ const Account: React.FC = () => {
                 />
             </div>
 
-            <hr style={{ marginTop: -10 }} />
+            <hr />
 
             {/* Hidden input for changing profile pic */}
             <input
