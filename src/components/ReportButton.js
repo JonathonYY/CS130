@@ -9,7 +9,7 @@ const ReportButton = (idObj) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const {user} = useAuth();
-
+  const [severity, setSeverity] = useState("info");
   const reportUser = async () => {
     try {
       const response = await fetch(`/api/listing/${idObj.idObj}/report/`, {
@@ -24,15 +24,17 @@ const ReportButton = (idObj) => {
       const data = await response.json();
 
       if (data.error) {
+        setSeverity("error");
         setSnackbarMessage(data.error);
         setSnackbarOpen(true);
         return;
       }
-
+      setSeverity("info");
       setSnackbarMessage("Listing has been reported!");
       setSnackbarOpen(true);
     } catch (error) {
       console.log(error);
+      setSeverity("error");
       setSnackbarMessage("Error reporting!");
       setSnackbarOpen(true);
     }
@@ -48,7 +50,7 @@ const ReportButton = (idObj) => {
       </Button>
 
       <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleClose} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
-          <MuiAlert onClose={handleClose} severity="info" sx={{ width: "100%" }}>
+          <MuiAlert onClose={handleClose} severity={severity} sx={{ width: "100%" }}>
           {snackbarMessage}
           </MuiAlert>
       </Snackbar>

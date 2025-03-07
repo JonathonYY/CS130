@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import "../globals.css";
-import CreateListingForm from "../../components/ItemCreateForm"
+import CreateListingForm from "@/components/ItemCreateForm"
 
 
 const CreateListing: React.FC = () => {
@@ -22,7 +22,7 @@ const CreateListing: React.FC = () => {
       <hr />
 
       <CreateListingForm/>
-      
+
     </div>
   );
 };

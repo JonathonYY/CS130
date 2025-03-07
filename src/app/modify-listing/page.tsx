@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import "../globals.css";
-import UpdateListingForm from "../../components/ItemUpdateForm"
+import UpdateListingForm from "@/components/ItemUpdateForm"
 
 interface Listing {
   id: string;

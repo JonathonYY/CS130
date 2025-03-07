@@ -20,6 +20,7 @@ const CreateListingForm = () => {
   const [uploading, setUploading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [severity, setSeverity] = useState("success");
   const {user} = useAuth();
 
   const handleImageUpload = (event) => {
@@ -93,6 +94,7 @@ const CreateListingForm = () => {
       });
       const createResult = await response.json();
       console.log(createResult.data.listing_id);
+      setSeverity("success");
       setSnackbarMessage(
         <>
           Listing created{" "}
@@ -104,6 +106,7 @@ const CreateListingForm = () => {
       setSnackbarOpen(true);
     } catch (error) {
       console.log(error);
+      setSeverity("error");
       setSnackbarMessage("Error publishing message!");
       setSnackbarOpen(true);
     }
@@ -201,7 +204,7 @@ const CreateListingForm = () => {
       </Button>
 
       <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleClose} anchorOrigin={{ vertical: "bottom", horizontal: "right" }} >
-          <MuiAlert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
+          <MuiAlert onClose={handleClose} severity={severity} sx={{ width: "100%" }}>
           {snackbarMessage}
           </MuiAlert>
       </Snackbar>

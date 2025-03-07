@@ -21,6 +21,7 @@ const UpdateListingForm = (listingObj) => {
   const [uploading, setUploading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [severity, setSeverity] = useState("success");
   
   const handleImageUpload = (event) => {
     const files = Array.from(event.target.files);
@@ -98,12 +99,13 @@ const UpdateListingForm = (listingObj) => {
 
       if (updateResult.error) {
         setSnackbarMessage(updateResult.error);
+        setSeverity("error");
         setSnackbarOpen(true);
         setUploading(false);
         setIsChanged(false);
         return;
       }
-
+      setSeverity("success");
       setSnackbarMessage(
         <>
           View changes{" "}
@@ -115,6 +117,7 @@ const UpdateListingForm = (listingObj) => {
       setSnackbarOpen(true);
     } catch (error) {
       console.log(error);
+      setSeverity("error");
       setSnackbarMessage("Error publishing message!");
       setSnackbarOpen(true);
     }
@@ -227,7 +230,7 @@ const UpdateListingForm = (listingObj) => {
       </Button>
 
       <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleClose} anchorOrigin={{ vertical: "bottom", horizontal: "right" }} >
-          <MuiAlert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
+          <MuiAlert onClose={handleClose} severity={severity} sx={{ width: "100%" }}>
           {snackbarMessage}
           </MuiAlert>
       </Snackbar>

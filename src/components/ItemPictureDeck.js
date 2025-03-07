@@ -11,6 +11,7 @@ const Slideshow = ({ images, timestamp, listingObj}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [severity, setSeverity] = useState("success");
   const prevImage = () => {
     setCurrentIndex((prev) => (prev === 0 ? 0 : prev - 1));
   };
@@ -37,14 +38,16 @@ const Slideshow = ({ images, timestamp, listingObj}) => {
 
       if (data.error) {
         console.log(error);
+        setSeverity("error");
         setSnackbarMessage("Error sending message!");
         setSnackbarOpen(true);
       }
-
+      setSeverity("success");
       setSnackbarMessage("Expressed interest to seller!");
       setSnackbarOpen(true);
     } catch (error) {
       console.log(error);
+      setSeverity("error");
       setSnackbarMessage("Error sending message!");
       setSnackbarOpen(true);
     }
@@ -199,7 +202,7 @@ const Slideshow = ({ images, timestamp, listingObj}) => {
                 </div>
 
                 <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleClose} anchorOrigin={{ vertical: "bottom", horizontal: "right" }} >
-                    <MuiAlert onClose={handleClose} severity="success" sx={{ width: "100%" }}>
+                    <MuiAlert onClose={handleClose} severity={severity} sx={{ width: "100%" }}>
                     {snackbarMessage}
                     </MuiAlert>
                 </Snackbar>
