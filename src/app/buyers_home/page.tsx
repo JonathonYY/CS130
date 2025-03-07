@@ -90,11 +90,11 @@ const SellersHome: React.FC = () => {
   // require rebase
   const { user } = useAuth();
   if (!user) {
-    // window.location.href = "/login";
+    if (typeof window !== 'undefined') {
+      // window.location.href = "/login";
+    }
   }
   const user_id = user?.uid;
-  console.log('asdf', user_id);
-  console.log('asdf', user);
   // States for informing users data is being fetched
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string | undefined>("");
@@ -108,6 +108,9 @@ const SellersHome: React.FC = () => {
 
   // Fetch active user from the database
   async function fetchUser() {
+    if (!user_id) {
+      return
+    }
     setUserId(user_id)
     setLoading(true);
     try {
@@ -228,7 +231,7 @@ const SellersHome: React.FC = () => {
 
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [user_id]);
 
   const router = useRouter();
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
