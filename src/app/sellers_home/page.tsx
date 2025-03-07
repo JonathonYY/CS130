@@ -12,6 +12,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import StarIcon from "@mui/icons-material/Star";
 import AddIcon from "@mui/icons-material/Add";
+import EditIcon from '@mui/icons-material/Edit';
+
 import React, { useState, useEffect } from "react";
 
 interface Product {
@@ -85,7 +87,8 @@ interface Interesteduser {
     const [productIds, setProductIds] = useState<string[]>([]);
     const [productListings, setProductListings] = useState<any[]>([]);
     const [interestedUsers, setInterestedUsers] = useState<Record<string, any[]>>({});
-    
+    const [selectedBuyers, setSelectedBuyers] = useState<Record<string, User | null>>({});
+
     // Fetch active user from the database
     async function fetchUser() {
       setLoading(true);
@@ -132,6 +135,7 @@ interface Interesteduser {
     
         // Fetch users for potential buyers
         fetchInterestedUsers(validListings);
+        fetchSelectedBuyers(validListings);
       } catch (err) {
         console.error("Error fetching listings:", err);
       }
@@ -172,7 +176,30 @@ interface Interesteduser {
         console.error("Error fetching interested users:", err);
       }
     }
+    async function fetchSelectedBuyers(listings: any[]) {
+      const selectedBuyersMap: Record<string, any | null> = {};
+      try {
+        console.log(listings)
+      await Promise.all(
+        listings.map(async (productId) => {
+          const response = await fetch(`/api/listing/${productId.id}`);
+          const { data, error } = await response.json();
+  
+          if (error) {
+            console.error(`Error fetching selected buyer for ${productId}:`, error);
+            selectedBuyersMap[productId.id] = null; // Default to null on error
+          } else {
+            selectedBuyersMap[productId.id] = data.selected_buyer || null;
+          }
+        })
+      );
     
+        setSelectedBuyers(selectedBuyersMap);
+        console.log("selected buyers map:", selectedBuyersMap);
+      } catch (err) {
+        console.error("Error fetching selected buyers:", err);
+      }
+    }    
     useEffect(() => {
       fetchUser();
     }, []);
@@ -246,7 +273,7 @@ interface Interesteduser {
           <div className="w-2/3 bg-white shadow-lg rounded-lg ml-4 overflow-hidden flex flex-col relative">
             <h2 className="text-lg font-semibold p-4 border-b text-black">Interested Users</h2>
             <div className="overflow-y-scroll overflow-x-hidden flex-1" style={{ maxHeight: "calc(100vh - 150px)" }}>
-              {selectedProduct && interestedUsers[selectedProduct] ? (
+              {selectedProduct && interestedUsers[selectedProduct].length != 0 ? (
                 <List>
                   {interestedUsers[selectedProduct].map((user) => (
                     <div key={user.id} className="mb-2 mx-2">
@@ -262,15 +289,56 @@ interface Interesteduser {
                             ))}
                           </div>
                           <div className="absolute right-4 flex">
-                            <IconButton color="success"
-                            onClick={() => fetch(`/api/listing/${selectedProduct}`, {
-                              method: 'PATCH',
-                              body: JSON.stringify({selected_buyer: user.id})
-                            })}
+                          <IconButton
+                            color="success"
+                            onClick={async () => {
+                              try {
+                                await fetch(`/api/listing/${selectedProduct}`, {
+                                  method: 'PATCH',
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ selected_buyer: user.id }),
+                                });
+
+                                // Update selectedBuyers state for this product
+                                setSelectedBuyers((prev) => ({
+                                  ...prev,
+                                  [selectedProduct]: user, // Store selected buyer for the product
+                                }));
+                              } catch (error) {
+                                console.error("Error selecting buyer:", error);
+                              }
+                            }}
+                          >
+                            <CheckIcon />
+                          </IconButton>
+                            <IconButton
+                              color="error"
+                              onClick={async () => {
+                                try {
+                                  // Get the current potential buyers for the selected product
+                                  const updatedBuyers = interestedUsers[selectedProduct].filter(
+                                    (buyer) => buyer.id !== user.id
+                                  ).map((buyer) => buyer.id); // Extract just the user IDs
+
+                                  // Send the PATCH request with the updated list
+                                  await fetch(`/api/listing/${selectedProduct}`, {
+                                    method: 'PATCH',
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ potential_buyers: updatedBuyers }),
+                                  });
+
+                                  // Update state after successful request
+                                  setInterestedUsers((prev) => ({
+                                    ...prev,
+                                    [selectedProduct]: prev[selectedProduct].filter(
+                                      (buyer) => buyer.id !== user.id
+                                    ),
+                                  }));
+                                } catch (error) {
+                                  console.error("Error updating potential buyers:", error);
+                                }
+                              }}
                             >
-                              <CheckIcon />
-                            </IconButton>
-                            <IconButton color="error">
                               <CloseIcon />
                             </IconButton>
                           </div>
@@ -283,6 +351,23 @@ interface Interesteduser {
                 <p className="p-4 text-gray-500">Select a product to see interested users.</p>
               }
             </div>
+            
+            {/* <hr className="border-gray-300 my-2" /> */}
+            <div className="p-2 bg-white sticky flex-1" style={{ maxHeight: "75px" }}>
+            {selectedProduct ? (
+              <ListItem
+                component="button"
+                onClick={() => router.push(`/modify-listing?id=${selectedProduct}`)}
+                className="hover:bg-gray-200 mx-2 flex items-center"
+              >
+                <ListItemAvatar>
+                  <Avatar>
+                    <EditIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primaryTypographyProps={{style: {color: 'black'}}}   primary="Modify Listing" />
+              </ListItem>) : (<div/>)}
+            </div>         
           </div>
         </div>
       </div>
