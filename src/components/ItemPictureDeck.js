@@ -30,14 +30,7 @@ const Slideshow = ({ images, timestamp, listingObj}) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ 
-            title: listingObj.title,
-            price: listingObj.price,
-            condition: listingObj.condition,
-            category: listingObj.category,
-            description: listingObj.description,
-            selected_buyer: listingObj.selected_buyer,
-            potential_buyers: uniquePotentialBuyers,
-            image_paths: listingObj.image_paths
+            potential_buyers: uniquePotentialBuyers
         }),
       });
       const data = await response.json();

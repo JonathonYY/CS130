@@ -91,8 +91,6 @@ const UpdateListingForm = (listingObj) => {
           condition: condition,
           category: category,
           description: description,
-          selected_buyer: listingObj.listingObj.selected_buyer,
-          potential_buyers: listingObj.listingObj.potential_buyers,
           image_paths: imageUrls
         }),
       });
