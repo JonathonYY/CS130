@@ -36,7 +36,7 @@ const Listing: React.FC = () => {
       }
     }
     fetchListingById(id);
-  }, []);
+  }, [id]);
 
   if (loading) {
     return <p>Loading...</p>;
