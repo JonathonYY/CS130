@@ -10,7 +10,7 @@ import { User, Listing, ListingWithID } from "@/lib/firebase/firestore/types";
 // import { useAuth } from "@/lib/authContext"; require rebase
 
 // import SideMenu from "@/components/seller_sidebar";
-import { AppBar,Toolbar,Avatar, Button, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, IconButton, Tooltip, Divider} from "@mui/material";
+import { AppBar,Toolbar,Avatar, Button, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, IconButton, Rating, Divider} from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import StarIcon from "@mui/icons-material/Star";
@@ -234,26 +234,40 @@ const SellersHome: React.FC = () => {
     setIsClient(true);
   }, []);
 
-  const [rating, setRating] = useState<number>(0); // Current selected rating (number of stars)
-  const [hoveredRating, setHoveredRating] = useState<number>(0); // Rating to highlight on hover
-
-  // Handle hover change
-  const handleMouseEnter = (index: number): void => {
-    setHoveredRating(index + 1); // Highlight stars up to the hovered index
-  };
-
-  // Handle hover leave
-  const handleMouseLeave = (): void => {
-    setHoveredRating(0); // Reset hover state
-  };
-
   // Handle click to update rating
-  const handleClick = (user_id: string, listing_id: string, index: number): void => {
-    setRating(index + 1); // Set the rating to the clicked star number
-    submitRating(user_id, listing_id, index + 1); // API call to submit rating
+  // const setValue = (user_id: string, listing_id: string, index: number): void => {
+  //   setRating(index + 1); // Set the rating to the clicked star number
+  //   submitRating(user_id, listing_id, index + 1); // API call to submit rating
+  // };
+
+  // // Function to simulate the API call
+  // const submitRating = async (user_id: string, listing_id: string, newRating: number): Promise<void> => {
+  //   try {
+  //     const response = await fetch(`/api/listing/${listing_id}/rate`, {
+  //       method: 'PATCH',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ user_id: user_id, rating: newRating }),
+      // });
+  //     const data = await response.json();
+  //     console.log('Rating submitted:', data);
+  //   } catch (error) {
+  //     console.error('Error submitting rating:', error);
+  //   }
+  // };
+
+  const [rating, setRating] = useState<number>(0);
+
+  // Handle rating change
+  const handleRatingChange = (user_id: string, listing_id: string, newRating: number | null): void => {
+    if (newRating !== null) {
+      setRating(newRating); // Update the rating
+      submitRating(user_id, listing_id, newRating); // Call API to submit the rating
+    }
   };
 
-  // Function to simulate the API call
+  // Simulate an API request to submit the rating
   const submitRating = async (user_id: string, listing_id: string, newRating: number): Promise<void> => {
     try {
       const response = await fetch(`/api/listing/${listing_id}/rate`, {
@@ -263,13 +277,13 @@ const SellersHome: React.FC = () => {
         },
         body: JSON.stringify({ user_id: user_id, rating: newRating }),
       });
+
       const data = await response.json();
-      console.log('Rating submitted:', data);
+      console.log('Listing updated:', data);
     } catch (error) {
       console.error('Error submitting rating:', error);
     }
   };
-
 
   if (!isClient) return null;
   console.log(productListings)
@@ -346,25 +360,14 @@ const SellersHome: React.FC = () => {
                   </div>
                   <div className="flex justify-center items-center p-1 pb-4">
                     Rate seller:
-                    {[...Array(5)].map((_, index) => {
-                      const isFilled = index < (hoveredRating || rating); // If the star is filled (on hover or selected)
-                      return (
-                        <Tooltip key={index} title={`${index + 1} Star`} arrow>
-                          <Button
-                            onClick={() => handleClick("test-user", selectedProduct, index)}
-                            onMouseEnter={() => handleMouseEnter(index)}
-                            onMouseLeave={handleMouseLeave}
-                            style={{
-                              padding: 0,
-                              minWidth: 0,
-                              color: isFilled ? yellow[700] : 'gray', // Yellow if filled, gray if not
-                            }}
-                          >
-                            <StarIcon />
-                          </Button>
-                        </Tooltip>
-                      );
-                    })}
+                    <Rating
+                      name="simple-controlled"
+                      value={rating}
+                      onChange={(event, newValue) => {
+                        handleRatingChange('test-user', selectedProduct, newValue);
+                      }}
+                      precision={0.5} // half star precision
+                    />
                   </div>
                 </div>
               ) : (
