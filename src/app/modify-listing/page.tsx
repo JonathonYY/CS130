@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import "../globals.css";
 import UpdateListingForm from "@/components/ItemUpdateForm"
