@@ -1,10 +1,11 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-const Listing: React.FC = () => {
+const ListingContent = () => {
   const searchParams = useSearchParams();
-  const id = searchParams.get("id"); // use this id to call backend function to get full item details
+  const id = searchParams.get("id");
   const router = useRouter();
 
   return (
@@ -20,11 +21,19 @@ const Listing: React.FC = () => {
 
       <div className="viewListingsContainer" style={{ clear: "right" }}>
         <p className="viewListingsTitle">
-          Item: {id} <br /> $22{" "}
+          Item: {id} <br /> $22
         </p>
         <p>Todo: add the other item content and fix formatting</p>
       </div>
     </div>
+  );
+};
+
+const Listing: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ListingContent />
+    </Suspense>
   );
 };
 
