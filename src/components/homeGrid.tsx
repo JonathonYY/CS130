@@ -35,25 +35,23 @@ const HomeGrid: React.FC<GridProps> = ({ query }) => {
     });
 
     const { data, error } = await response.json();
-    // console.log(data)
 
     if (error) {
       console.log("Error");
-      // console.log(error);
+      alert("An error has occured, please reload page");
     } else {
       const listings: Product[] = data.listings.map((element: {
         id: string; title: string; price: number; thumbnail: string; seller_rating: number; owner_name: string; owner_pfp: string
       }) => ({
         id: element.id,
-        title: element.title || 'Title',
+        title: element.title || 'TITLE',
         price: element.price || 0,
         image: element.thumbnail || 'no-image.svg',
         rating: element.seller_rating || 0,
-        ownerName: element.owner_name || 'Name',
+        ownerName: element.owner_name || 'NAME',
         ownerPfp: element.owner_pfp || ''
       }));
 
-      // console.log(listings);
 
       setCurrentPage(1);
       setProductListings(listings);
@@ -67,6 +65,7 @@ const HomeGrid: React.FC<GridProps> = ({ query }) => {
   // run on page load
   useEffect(() => {
     fetchAllListings();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
 
