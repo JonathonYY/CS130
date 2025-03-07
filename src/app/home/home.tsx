@@ -16,7 +16,8 @@ const Home: React.FC = () => {
     const router = useRouter();
 
     // For authentication purposes
-    useAuth();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { user, token, signInWithGoogle, signOutUser } = useAuth();
     // console.log(user);
 
 
@@ -40,6 +41,16 @@ const Home: React.FC = () => {
     const [searchModal, setSearchModal] = useState<boolean>(false);
     const handleOpen = () => setSearchModal(true);
     const handleClose = () => setSearchModal(false);
+
+
+    // For handling where to go for login
+    const handleLogin = () => {
+        if (user == null) {
+            router.push("/login");
+        } else {
+            router.push("/account");
+        }
+    }
 
 
     return (
@@ -84,7 +95,7 @@ const Home: React.FC = () => {
                         src="icon.png"
                         alt="user icon"
                         className="userIcon"
-                        onClick={() => router.push("/login")}
+                        onClick={handleLogin}
                     />
                 </Grid>
 

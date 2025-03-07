@@ -73,7 +73,7 @@ const HomeGrid: React.FC<GridProps> = ({ query }) => {
   const router = useRouter();
 
 
-  const itemsPerPage = 8; // 3x3 Grid
+  const itemsPerPage = 8;
 
 
   // Get current items based on pagination

@@ -423,22 +423,28 @@ const Account: React.FC = () => {
                         </Grid>
 
                         <ThemeProvider theme={theme}>
-                            <Grid container spacing={20} sx={{ marginTop: 10, marginLeft: 4, marginRight: -21 }}>
-                                <Grid size={{ xs: 3, sm: 3, md: 3 }}>
+                            <Grid container spacing={20} sx={{ marginTop: 10, marginLeft: 4, marginRight: -6.75 }}>
+                                <Grid size={{ xs: 2.4, sm: 2.4, md: 2.4 }}>
                                     <Button variant="contained" color="buttonBlue">
                                         <Link href="/sellers_home">View my listings</Link>
                                     </Button>
                                 </Grid>
 
-                                <Grid size={{ md: 3 }}>
+                                <Grid size={{ xs: 2.4, sm: 2.4, md: 2.4 }}>
+                                    <Button variant="contained" color="buttonBlue">
+                                        <Link href="/buyers_home">View my interests</Link>
+                                    </Button>
+                                </Grid>
+
+                                <Grid size={{ xs: 2.4, sm: 2.4, md: 2.4 }}>
                                     <Button variant="contained" onClick={handleUpdate} color="buttonBlue">Update Account</Button>
                                 </Grid>
 
-                                <Grid size={{ md: 3 }}>
+                                <Grid size={{ xs: 2.4, sm: 2.4, md: 2.4 }}>
                                     <Button variant="contained" onClick={handleOpenDelete} color="deleteRed">Delete account</Button>
                                 </Grid>
 
-                                <Grid size={{ md: 3 }}>
+                                <Grid size={{ xs: 2.4, sm: 2.4, md: 2.4 }}>
                                     <Button variant="contained" color="deleteRed" onClick={signOutUser}>
                                         <Link href="/">Log out</Link>
                                     </Button>
