@@ -1,6 +1,4 @@
 import { Logger } from "./Logger";
-import { deleteOldListings } from "../firebase/firestore/listing/deleteListing";
-import { ToadScheduler, SimpleIntervalJob, AsyncTask, CronJob } from 'toad-scheduler';
 
 const counters = [
   'getAllListings',
@@ -29,12 +27,3 @@ const counters = [
 ]
 
 export const logger = new Logger(counters);
-
-const scheduler = new ToadScheduler()
-const autodelete_task = new AsyncTask(
-    'autodelete old listings',
-    () => deleteOldListings(),
-    (e: Error) => { logger.warn("failed to autodelete old listings"); },
-);
-const job = new CronJob({ cronExpression: "0 0 * * *" }, autodelete_task);
-scheduler.addCronJob(job);
