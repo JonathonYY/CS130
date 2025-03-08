@@ -41,6 +41,8 @@ const ModifyListing: React.FC = () => {
         const { data, error } = await response.json();
         if (error) {
           console.log(error);
+          setLoading(false);
+          setListing(null);
         } else {
           console.log("received listing:", data);
           setListing(data);
@@ -57,6 +59,7 @@ const ModifyListing: React.FC = () => {
   if (!listing) {
     return <p>No listing found</p>;
   }
+
   return (
     <div>
       <div className="logoContainer">
@@ -71,7 +74,7 @@ const ModifyListing: React.FC = () => {
       <hr />
       
       <UpdateListingForm listingId={id} listingObj={listing}/>
-  
+      
     </div>
   );
 };

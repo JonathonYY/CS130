@@ -74,7 +74,7 @@ const Listing: React.FC = () => {
   const displayImages = listing.image_paths.length === 0 ? ["noimage.png"] : listing.image_paths;
   return (
     <div>
-      <div style={{ float: "right" }}>
+      <div style={{ float: "right", padding: "10px 0px"}}>
         <img
           src="logo1.png"
           alt="logo"
@@ -82,7 +82,8 @@ const Listing: React.FC = () => {
           onClick={() => router.push("/")}
         />
       </div>
-
+      
+      
       <div className="viewListingsContainer" style={{ clear: "right" }}>
         <div className="viewListingsTitle">
           <PriceTag price={listing.price}></PriceTag>

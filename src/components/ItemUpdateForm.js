@@ -1,15 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TextField, Button, Select, MenuItem, InputLabel, FormControl, Typography, Box, IconButton, Link } from "@mui/material";
 import { styled } from "@mui/system";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
+import OutlinedInput from '@mui/material/OutlinedInput';
+import {useAuth} from "@/lib/authContext";
+import {useRouter} from "next/navigation";
 
 const ImageUpload = styled("input")({
   display: "none",
 });
 
 const UpdateListingForm = (listingObj) => {
+  const {user} = useAuth();
+
   const [title, setTitle] = useState(listingObj.listingObj.title);
   const [price, setPrice] = useState(listingObj.listingObj.price);
   const [description, setDescription] = useState(listingObj.listingObj.description);
@@ -18,11 +23,14 @@ const UpdateListingForm = (listingObj) => {
   const [images, setImages] = useState(listingObj.listingObj.image_paths.length > 0 ? listingObj.listingObj.image_paths.map((img_path) => [img_path, null]) : []);
   
   const [isChanged, setIsChanged] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [severity, setSeverity] = useState("success");
   
+  const router = useRouter();
+
   const handleImageUpload = (event) => {
     const files = Array.from(event.target.files);
     const newImages = files.map((file) => [URL.createObjectURL(file), file]);
@@ -34,6 +42,45 @@ const UpdateListingForm = (listingObj) => {
   const handleRemoveImage = (index) => {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index));
     setIsChanged(true);
+  };
+
+  useEffect(() => {
+    if (isDeleted) {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 4000); 
+
+      return () => clearTimeout(timer);
+    }
+  }, [isDeleted, router]);
+
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`/api/listing/${listingObj.listingId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          user_id: user.uid
+        }),
+      });
+      const deleteResult = await response.json();
+
+      if (deleteResult.error) {
+        setSnackbarMessage(deleteResult.error);
+        setSeverity("error");
+        setSnackbarOpen(true);
+        return;
+      }
+      setIsDeleted(true);
+      
+    } catch (error) {
+      console.log(error);
+      setSeverity("error");
+      setSnackbarMessage("Error deleting listing!");
+      setSnackbarOpen(true);
+    }
   };
 
   const handleClose = () => {
@@ -127,12 +174,22 @@ const UpdateListingForm = (listingObj) => {
 
   const isFormIncomplete = !isChanged || !title || !description || !category || !condition || images.length === 0;
 
+  if (isDeleted) {
+    return <p>Listing {listingObj.listingId} has been deleted. Returning to home page!</p>;
+  }
+
   return (
     <Box sx={{ maxWidth: 500, margin: "auto", p: 3, boxShadow: 3, borderRadius: 2 }}>
-      <Typography variant="h5" gutterBottom>
-        Change a Listing
+    
+      <Typography variant="h5" display='inline' gutterBottom>
+        Change a Listing       
+        <Button sx={{ marginLeft: "175px" }} size='small' variant="contained" color="error" startIcon={<DeleteIcon />} onClick={handleDelete}>
+          Delete
+        </Button> 
       </Typography>
 
+      
+      
       <TextField
         label="Item Title"
         fullWidth
@@ -173,8 +230,8 @@ const UpdateListingForm = (listingObj) => {
       />
 
       <FormControl fullWidth margin="normal">
-        <InputLabel>Category</InputLabel>
-        <Select value={category} onChange={(e) => {
+        <InputLabel id="category-label">Category</InputLabel>
+        <Select id="category-label" input={<OutlinedInput label="Category" />} value={category} onChange={(e) => {
           setCategory(e.target.value);
           setIsChanged(true);
         }}>
@@ -193,8 +250,8 @@ const UpdateListingForm = (listingObj) => {
       </FormControl>
 
       <FormControl fullWidth margin="normal">
-        <InputLabel>Condition</InputLabel>
-        <Select value={condition} onChange={(e) => {
+        <InputLabel id="condition-label">Condition</InputLabel>
+        <Select id="condition-label" input={<OutlinedInput label="Condition" />} value={condition} onChange={(e) => {
           setCondition(e.target.value);
           setIsChanged(true);
         }}>
@@ -206,6 +263,7 @@ const UpdateListingForm = (listingObj) => {
           <MenuItem value="DAMAGED">Damaged</MenuItem>
         </Select>
       </FormControl>
+      
 
       <Box sx={{ mt: 2 }}>
         <label htmlFor="image-upload">

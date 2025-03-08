@@ -4,6 +4,7 @@ import { styled } from "@mui/system";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
+import OutlinedInput from '@mui/material/OutlinedInput';
 import {useAuth} from "@/lib/authContext";
 
 const ImageUpload = styled("input")({
@@ -163,8 +164,8 @@ const CreateListingForm = () => {
       />
 
       <FormControl fullWidth margin="normal">
-        <InputLabel>Category</InputLabel>
-        <Select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <InputLabel id="category-label">Category</InputLabel>
+        <Select value={category} id="category-label" input={<OutlinedInput label="Category" />} onChange={(e) => setCategory(e.target.value)}>
           <MenuItem value="ELECTRONICS">Electronics</MenuItem>
           <MenuItem value="CLOTHING">Clothing</MenuItem>
           <MenuItem value="FURNITURE">Furniture</MenuItem>
@@ -181,8 +182,8 @@ const CreateListingForm = () => {
       </FormControl>
 
       <FormControl fullWidth margin="normal">
-        <InputLabel>Condition</InputLabel>
-        <Select value={condition} onChange={(e) => setCondition(e.target.value)}>
+        <InputLabel id="condition-label">Condition</InputLabel>
+        <Select value={condition} id="condition-label" input={<OutlinedInput label="Condition" />} onChange={(e) => setCondition(e.target.value)}>
           <MenuItem value="NEW">New</MenuItem>
           <MenuItem value="GREAT">Great</MenuItem>
           <MenuItem value="GOOD">Good</MenuItem>
