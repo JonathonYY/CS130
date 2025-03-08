@@ -121,6 +121,7 @@ const Account: React.FC = () => {
             console.log("Error");
             console.log(error);
         } else {
+            setUserPfp(data.pfp);
             setUserData({
                 email: data.email_address,
                 first: data.first,
@@ -130,7 +131,6 @@ const Account: React.FC = () => {
                 buyerRating: data.buyer_rating,
                 sellerRating: data.seller_rating
             });
-            setUserPfp(userData.pfp);
             setLoading(false);
         }
     }
@@ -216,6 +216,36 @@ const Account: React.FC = () => {
     }
 
 
+    // Upload image
+    const uploadImage = async () => {
+        const formData = new FormData();
+        if (userPfpFile instanceof File) {
+            console.log(userPfpFile);
+            formData.append("image", userPfpFile);
+        }
+
+        const imgResponse = await fetch("/api/image", {
+            method: "POST",
+            body: formData,
+        });
+
+        const { data, error } = await imgResponse.json();
+        if (error) {
+            setUpdateModalMessage("Error Uploading Image!");
+            handleOpenUpdate();
+            console.log(error);
+            return "";
+        }
+
+        setUserData({
+            ...userData,
+            pfp: data
+        });
+
+        return data;
+    }
+
+
     // Handles updating the account
     const handleUpdate = async () => {
         if (userData.first == "" || userData.last == "") {
@@ -224,32 +254,13 @@ const Account: React.FC = () => {
             return;
         }
 
-        const formData = new FormData();
-        formData.append("image", userPfpFile as Blob);
-
-        const imgResponse = await fetch("/api/image", {
-            method: "POST",
-            body: formData,
-        });
-
-        const { imgData, imgError } = await imgResponse.json();
-        if (imgError) {
-            setUpdateModalMessage("Error Uploading Image!");
-            handleOpenUpdate();
-            console.log(imgError);
-            return;
-        }
-
-        setUserData({
-            ...userData,
-            pfp: imgData
-        });
+        const result = await uploadImage();
 
         const response = await fetch(accountURL, {
             body: JSON.stringify({
                 first: userData.first,
                 last: userData.last,
-                pfp: userData.pfp,
+                pfp: result,
                 phone_number: userData.phone
             }),
             method: "PATCH",
