@@ -3,18 +3,14 @@
 import { useAuth } from "@/lib/authContext";
 import { useState, useEffect } from "react";
 
-interface ProtectedData {
-  message: string;
-}
-
 interface ApiResponse {
-  data: ProtectedData | null;
+  data: string | null;
   error: string | null;
 }
 
 export default function ProtectedPage() {
   const { token, loading } = useAuth();
-  const [data, setData] = useState<ProtectedData | null>(null);
+  const [data, setData] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -67,7 +63,7 @@ export default function ProtectedPage() {
     return (
       <div>
         <h1>Protected Page</h1>
-        <p>{data.message}</p>
+        <p>{data}</p>
       </div>
     );
   }

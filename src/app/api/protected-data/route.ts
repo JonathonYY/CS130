@@ -37,10 +37,10 @@ export async function GET(request: Request) {
   }
 
   try {
-    const protectedData = {
-      message: `Hello, authenticated user with UID: ${uid}`,
-    };
-    return NextResponse.json({ data: protectedData, error: null });
+    return NextResponse.json({
+      data: `Hello, authenticated user with UID: ${uid}`,
+      error: null,
+    });
   } catch (error) {
     console.error("Error fetching protected data:", error);
     return NextResponse.json({ error: "Internal server error", data: null });
