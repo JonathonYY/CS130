@@ -23,6 +23,7 @@
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",
     "react-paginate": "^8.3.0",
+    "toad-scheduler": "^3.0.1",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

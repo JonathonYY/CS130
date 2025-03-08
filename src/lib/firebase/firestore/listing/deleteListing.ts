@@ -1,10 +1,12 @@
 import {db} from "@/lib/firebase/config";
 import { User, Listing } from "@/lib/firebase/firestore/types";
-import { getDoc, doc, updateDoc, arrayRemove, deleteDoc } from "firebase/firestore";
+import { getDoc, doc, updateDoc, arrayRemove, deleteDoc, collection, getDocs, Timestamp } from "firebase/firestore";
 import { ref, deleteObject } from "firebase/storage";
 import { storage } from "@/lib/firebase/config";
 import { logger } from "@/lib/monitoring/config";
 import { extractFilePath } from "@/lib/util";
+
+const autodelete_time_threshold = 3 * (24 * 60 * 60 * 1000);
 
 export default async function deleteListing(listing_id: string, user_id: string): Promise<string> {
   logger.log(`deleteListing ${listing_id} called by user ${user_id}`);
@@ -73,4 +75,17 @@ export default async function deleteListing(listing_id: string, user_id: string)
 
   logger.increment('listingDeletion');
   return listing_id;
+}
+
+export async function deleteOldListings(): Promise<void> {
+  logger.log("scanning for old lisitngs");
+  const timestamp = Timestamp.now();
+  const snapshot = await getDocs(collection(db, "listings"));
+    snapshot.forEach((doc) => {
+    const listing: Listing = doc.data() as Listing;
+    if (timestamp.toMillis() - listing.updated.toMillis() > autodelete_time_threshold) {
+      logger.log(`cleaning up listing ${doc.id}`);
+      deleteListing(doc.id, listing.owner);
+    }
+  });
 }
