@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
+import {useAuth} from "@/lib/authContext";
 import "../globals.css";
 import UpdateListingForm from "@/components/ItemUpdateForm"
 
@@ -35,27 +36,41 @@ const ModifyListing: React.FC = () => {
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const {user} = useAuth();
+
   useEffect(() => {
-      async function fetchListingById(listingId : string | null) {
-        const response = await fetch(`/api/listing/${listingId}`);
-        const { data, error } = await response.json();
-        if (error) {
-          console.log(error);
-          setLoading(false);
-          setListing(null);
-        } else {
-          console.log("received listing:", data);
-          setListing(data);
-          setLoading(false);
-        }
+    if (user === undefined) return; // Wait until user is determined
+    if (user === null) {
+      router.push("/login");
+      return;
+    }
+  }, [user, router]);
+
+  useEffect(() => {
+    async function fetchListingById(listingId : string | null) {
+      const response = await fetch(`/api/listing/${listingId}`);
+      const { data, error } = await response.json();
+      if (error) {
+        console.log(error);
+        setLoading(false);
+        setListing(null);
+      } else {
+        console.log("received listing:", data);
+        setListing(data);
+        setLoading(false);
       }
-      fetchListingById(id);
+    }
+    fetchListingById(id);
   }, [id]);
 
   if (loading) {
     return <p>Loading...</p>;
   }
-  
+
+  if (!user) {
+    return <p>No user found</p>;
+  }
+
   if (!listing) {
     return <p>No listing found</p>;
   }
@@ -72,9 +87,8 @@ const ModifyListing: React.FC = () => {
         />
       </div>
       <hr />
-      
+
       <UpdateListingForm listingId={id} listingObj={listing}/>
-      
     </div>
   );
 };

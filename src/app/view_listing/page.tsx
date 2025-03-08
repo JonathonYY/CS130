@@ -45,7 +45,15 @@ const Listing: React.FC = () => {
   const router = useRouter();
   const [listing, setListing] = useState<ListingObject | null>(null);;
   const [loading, setLoading] = useState<boolean>(true);
-  
+
+  useEffect(() => {
+    if (user === undefined) return; // Wait until user is determined
+    if (user === null) {
+      router.push("/login");
+      return;
+    }
+  }, [user, router]);
+
   useEffect(() => {
     async function fetchListingById(listingId : string | null) {
       const response = await fetch(`/api/listing/${listingId}`);
@@ -66,7 +74,7 @@ const Listing: React.FC = () => {
   if (loading) {
     return <p>Loading...</p>;
   }
-  
+
   if (!user) {
     return <p>No user found</p>;
   }
@@ -88,18 +96,16 @@ const Listing: React.FC = () => {
           onClick={() => router.push("/")}
         />
       </div>
-      
-      
+
       <div className="viewListingsContainer" style={{ clear: "right" }}>
         <div className="viewListingsTitle">
           <PriceTag price={listing.price}></PriceTag>
           {listing.title}
           {listing.owner != user.uid && <ReportButton idObj={id}/>}
-          
         </div>
-        
+
         <Slideshow images={displayImages} timestamp={dateString} listingObj={listing}></Slideshow>
-        
+
       </div>
     </div>
   );

@@ -47,9 +47,8 @@ const UpdateListingForm = (listingObj) => {
   useEffect(() => {
     if (isDeleted) {
       const timer = setTimeout(() => {
-        router.push("/");
-      }, 4000); 
-
+        router.push("/sellers_home");
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [isDeleted, router]);
@@ -74,7 +73,6 @@ const UpdateListingForm = (listingObj) => {
         return;
       }
       setIsDeleted(true);
-      
     } catch (error) {
       console.log(error);
       setSeverity("error");
@@ -175,7 +173,7 @@ const UpdateListingForm = (listingObj) => {
   const isFormIncomplete = !isChanged || !title || !description || !category || !condition || images.length === 0;
 
   if (isDeleted) {
-    return <p>Listing {listingObj.listingId} has been deleted. Returning to home page!</p>;
+    return <p>Listing has been deleted. Returning to your listings!</p>;
   }
 
   return (

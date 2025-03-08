@@ -3,13 +3,12 @@
 
 import "../globals.css";
 import { useRouter } from "next/navigation";
-import { User, Listing } from "@/lib/firebase/firestore/types";
+import { User } from "@/lib/firebase/firestore/types";
 import { useAuth } from "@/lib/authContext";
 
 import { AppBar, Toolbar, Avatar, Box, CircularProgress, List, ListItem, ListItemAvatar, ListItemText, IconButton, Rating } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
-import StarIcon from "@mui/icons-material/Star";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from '@mui/icons-material/Edit';
 import Snackbar from "@mui/material/Snackbar";

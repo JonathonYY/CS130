@@ -174,6 +174,13 @@ const Account: React.FC = () => {
         getUserInfo();
     }, [user]);
 
+    useEffect(() => {
+        if (user === undefined) return; // Wait until user is determined
+        if (user === null) {
+        router.push("/login");
+        return;
+        }
+    }, [user, router]);
 
     // Opens up modal for updating account
     const [updateModal, setUpdateModal] = useState<boolean>(false);

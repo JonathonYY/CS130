@@ -117,7 +117,7 @@ const CreateListingForm = () => {
     } catch (error) {
       console.log(error);
       setSeverity("error");
-      setSnackbarMessage("Error publishing message!");
+      setSnackbarMessage("Error creating listing!");
       setSnackbarOpen(true);
     }
     setUploading(false);
