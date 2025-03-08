@@ -1,6 +1,6 @@
 import {db} from "@/lib/firebase/config";
 import { User, Listing } from "@/lib/firebase/firestore/types";
-import { getDoc, doc, updateDoc, arrayRemove, deleteDoc, collection, getDocs, Timestamp } from "firebase/firestore";
+import { getDoc, doc, updateDoc, arrayRemove, deleteDoc, collection, getDocs, Timestamp, query, where } from "firebase/firestore";
 import { ref, deleteObject } from "firebase/storage";
 import { storage } from "@/lib/firebase/config";
 import { logger } from "@/lib/monitoring/config";
@@ -80,10 +80,12 @@ export default async function deleteListing(listing_id: string, user_id: string)
 export async function deleteOldListings(): Promise<void> {
   logger.log("scanning for old lisitngs");
   const timestamp = Timestamp.now();
-  const snapshot = await getDocs(collection(db, "listings"));
-    snapshot.forEach((doc) => {
+  const listingsRef = collection(db, "listings");
+  const q = query(listingsRef, where('selected_buyer', '!=', ''));
+  const snapshot = await getDocs(q);
+  snapshot.forEach((doc) => {
     const listing: Listing = doc.data() as Listing;
-    if (listing.selected_buyer != '' && timestamp.toMillis() - listing.updated.toMillis() > autodelete_time_threshold) {
+    if (timestamp.toMillis() - listing.updated.toMillis() > autodelete_time_threshold) {
       logger.log(`cleaning up listing ${doc.id}`);
       deleteListing(doc.id, listing.owner);
     }
