@@ -222,27 +222,28 @@ const Account: React.FC = () => {
         if (userPfpFile instanceof File) {
             console.log(userPfpFile);
             formData.append("image", userPfpFile);
-        }
-
-        const imgResponse = await fetch("/api/image", {
-            method: "POST",
-            body: formData,
-        });
-
-        const { data, error } = await imgResponse.json();
-        if (error) {
-            setUpdateModalMessage("Error Uploading Image!");
-            handleOpenUpdate();
-            console.log(error);
+            const imgResponse = await fetch("/api/image", {
+                method: "POST",
+                body: formData,
+            });
+    
+            const { data, error } = await imgResponse.json();
+            if (error) {
+                setUpdateModalMessage("Error Uploading Image!");
+                handleOpenUpdate();
+                console.log(error);
+                return "";
+            }
+    
+            setUserData({
+                ...userData,
+                pfp: data
+            });
+    
+            return data;
+        } else {
             return "";
         }
-
-        setUserData({
-            ...userData,
-            pfp: data
-        });
-
-        return data;
     }
 
 
@@ -255,16 +256,28 @@ const Account: React.FC = () => {
         }
 
         const result = await uploadImage();
+        let response;
 
-        const response = await fetch(accountURL, {
-            body: JSON.stringify({
-                first: userData.first,
-                last: userData.last,
-                pfp: result,
-                phone_number: userData.phone
-            }),
-            method: "PATCH",
-        });
+        if (result === "") {
+            response = await fetch(accountURL, {
+                body: JSON.stringify({
+                    first: userData.first,
+                    last: userData.last,
+                    phone_number: userData.phone
+                }),
+                method: "PATCH",
+            });
+        } else {
+            response = await fetch(accountURL, {
+                body: JSON.stringify({
+                    first: userData.first,
+                    last: userData.last,
+                    pfp: result,
+                    phone_number: userData.phone
+                }),
+                method: "PATCH",
+            });
+        }
 
         const { data, error } = await response.json();
 
