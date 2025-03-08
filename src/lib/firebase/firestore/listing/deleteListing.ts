@@ -83,7 +83,7 @@ export async function deleteOldListings(): Promise<void> {
   const snapshot = await getDocs(collection(db, "listings"));
     snapshot.forEach((doc) => {
     const listing: Listing = doc.data() as Listing;
-    if (timestamp.toMillis() - listing.updated.toMillis() > autodelete_time_threshold) {
+    if (listing.selected_buyer != '' && timestamp.toMillis() - listing.updated.toMillis() > autodelete_time_threshold) {
       logger.log(`cleaning up listing ${doc.id}`);
       deleteListing(doc.id, listing.owner);
     }
