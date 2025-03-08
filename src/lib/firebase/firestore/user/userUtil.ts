@@ -90,9 +90,20 @@ export async function deleteUser(user_id: string): Promise<string> {
     }
   }));
 
-  // delete User in db
-  const ref = doc(db, "users", user_id);
-  await deleteDoc(ref);
+  // delete User's pfp if it exists
+  if (user.pfp) {
+    const file_path = extractFilePath(user.pfp);
+    const img_ref = ref(storage, file_path);
+    deleteObject(img_ref).then(() => {
+      logger.decrement('uploadedFiles');
+    }).catch(() => {
+      logger.warn(`Error deleting ${file_path}`);
+    });
+  }
 
-  return ref.id;
+  // delete User in db
+  const userRef = doc(db, "users", user_id);
+  await deleteDoc(userRef);
+
+  return userRef.id;
 }
