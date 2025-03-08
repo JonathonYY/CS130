@@ -71,7 +71,6 @@ const SellersHome: React.FC = () => {
             console.error(`Error fetching listing ${listing_id}:`, error);
             return null;
           } else {
-            console.log(`Fetched listing data for ${listing_id}:`, data);
             listingMap[listing_id] = data;
             return data;
           }
@@ -109,7 +108,6 @@ const SellersHome: React.FC = () => {
       );
 
       setListingOwners(listingOwnersMap);
-      console.log("Listing owners map:", listingOwnersMap);
     } catch (err) {
       console.error("Error fetching listing owners", err);
     }
@@ -122,14 +120,13 @@ const SellersHome: React.FC = () => {
 
       await Promise.all(
         listings.map((listing) => {
-          listingImagesMap[listing.id] = listing.image_paths.length === 0
+          listingImagesMap[listing.id] = listing.image_paths && listing.image_paths.length === 0
                                           ? ["noimage.png"]
                                           : listing.image_paths;
         })
       );
 
       setListingImages(listingImagesMap);
-      console.log("Listing images map:", listingImagesMap);
     } catch (err) {
       console.error("Error fetching listing images", err);
     }
@@ -150,7 +147,6 @@ const SellersHome: React.FC = () => {
       );
 
       setListingTimestamp(timestampsMap);
-      console.log("Timestamps map:", timestampsMap);
     } catch (err) {
       console.error("Error fetching listing images", err);
     }
@@ -161,17 +157,14 @@ const SellersHome: React.FC = () => {
       if (!user_id) {
         return;
       }
-      console.log('asdf', productMap[listing_id])
       const potential_buyers = productMap[listing_id].potential_buyers;
       const index = potential_buyers.indexOf(user_id);
       if (index > -1) { // only splice potential_buyers when item is found
         potential_buyers.splice(index, 1); // 2nd parameter means remove one item only
       }
-      console.log('asdf2', potential_buyers)
 
       const selected_buyer = productMap[listing_id].selected_buyer == user_id ? "" : productMap[listing_id].selected_buyer;
 
-      console.log('id', listing_id)
       await fetch(`/api/listing/${listing_id}`, {
         method: 'PATCH',
         headers: {
@@ -231,7 +224,6 @@ const SellersHome: React.FC = () => {
 
       setSnackbarMessage(`You have given a rating of ${newRating}`);
       setSnackbarOpen(true);
-      console.log('Listing updated:', data);
     } catch (error) {
       console.error('Error submitting rating:', error);
     }
@@ -258,7 +250,6 @@ const SellersHome: React.FC = () => {
   }
 
   if (!isClient) return null;
-  console.log(productListings)
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -329,8 +320,8 @@ const SellersHome: React.FC = () => {
                       Listing owner has agreed to complete the sale with you!
                     </div>
                     <div className="flex items-center p-1">
-                      Contact info: {listingOwners[selectedProduct].email_address}{
-                        listingOwners[selectedProduct].phone_number ?
+                      Contact info: {listingOwners[selectedProduct] ? listingOwners[selectedProduct].email_address : ""}{
+                        listingOwners[selectedProduct] && listingOwners[selectedProduct].phone_number ?
                           ", phone: " + listingOwners[selectedProduct].phone_number : ""
                       }
                     </div>

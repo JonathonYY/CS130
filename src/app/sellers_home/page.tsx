@@ -315,7 +315,7 @@ const SellersHome: React.FC = () => {
           ) : (<>
             <h2 className="text-lg font-semibold p-4 border-b text-black">Interested Users</h2>
             <div className="overflow-y-scroll overflow-x-hidden flex-1" style={{ maxHeight: "calc(100vh - 150px)" }}>
-              {selectedProduct && interestedUsers[selectedProduct].length != 0 ? (
+              {selectedProduct && interestedUsers[selectedProduct] && interestedUsers[selectedProduct].length != 0 ? (
                 <List>
                   {interestedUsers[selectedProduct].map((user) => (
                     <div key={user.id} className="mb-2 mx-2">
