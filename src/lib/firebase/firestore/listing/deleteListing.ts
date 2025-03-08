@@ -4,22 +4,7 @@ import { getDoc, doc, updateDoc, arrayRemove, deleteDoc } from "firebase/firesto
 import { ref, deleteObject } from "firebase/storage";
 import { storage } from "@/lib/firebase/config";
 import { logger } from "@/lib/monitoring/config";
-
-function extractFilePath(url: string): string {
-  // Regular expression to find the file path part of the URL
-  const regex = /firebasestorage\.app\/o(\/images%2F[^?]+)/;
-
-  // Check if the URL matches the expected pattern
-  const match = url.match(regex);
-
-  if (match && match[1]) {
-    // Decode the URL-encoded file path
-    return decodeURIComponent(match[1]);
-  }
-
-  // If no match, return it directly
-  return url;
-}
+import { extractFilePath } from "@/lib/util";
 
 export default async function deleteListing(listing_id: string, user_id: string): Promise<string> {
   logger.log(`deleteListing ${listing_id} called by user ${user_id}`);
@@ -71,8 +56,8 @@ export default async function deleteListing(listing_id: string, user_id: string)
       }
     }));
     // remove image files from storage
-    await Promise.all(image_paths.map(async (img_path) => {
-      const file_path = extractFilePath(img_path)
+    await Promise.all(image_paths.map(async (img_path: string) => {
+      const file_path = extractFilePath(img_path);
       const img_ref = ref(storage, file_path);
       deleteObject(img_ref).then(() => {
         logger.decrement('uploadedFiles');

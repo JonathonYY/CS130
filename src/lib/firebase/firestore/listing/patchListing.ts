@@ -1,7 +1,11 @@
 import { db } from "../../config";
 import { doc, updateDoc, getDoc, serverTimestamp, arrayUnion, arrayRemove } from "firebase/firestore";
+import { ref, deleteObject } from "firebase/storage";
 import { PatchListingData } from "../types";
 import { updateUser } from "../user/userUtil";
+import { logger } from "@/lib/monitoring/config";
+import { storage } from "@/lib/firebase/config";
+import { extractFilePath } from "@/lib/util";
 
 export default async function patchListing(doc_id: string, data: Partial<PatchListingData>) {
     const docRef = doc(db, "listings", doc_id);
@@ -12,7 +16,7 @@ export default async function patchListing(doc_id: string, data: Partial<PatchLi
 
     // add timestamp to data
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const update_data = Object.assign({}, data as { [key: string] : any });
+    const update_data = Object.assign({}, data as { [key: string]: any });
     update_data['updated'] = serverTimestamp();
 
     // make query-able fields uppercase
@@ -24,7 +28,18 @@ export default async function patchListing(doc_id: string, data: Partial<PatchLi
     // force native array type
     if ('image_paths' in update_data) {
         update_data['image_paths'] = [...update_data['image_paths']];
-    }
+        const old_image_paths = docSnapshot.data().image_paths;
+        const removed_images = old_image_paths.filter((img_path: string) => !update_data['image_paths'].includes(img_path));
+        await Promise.all(removed_images.map(async (img_path: string) => {
+            const file_path = extractFilePath(img_path);
+            const img_ref = ref(storage, file_path);
+            deleteObject(img_ref).then(() => {
+                logger.decrement('uploadedFiles');
+            }).catch(() => {
+                logger.warn(`Error deleting ${file_path}`);
+            });
+        }));
+    };
     // force price to number
     if ('price' in update_data) {
         update_data['price'] = isNaN(Number(data.price)) ? 0 : Number(data.price);

@@ -1,8 +1,11 @@
 import { db } from "../../config";
 import { doc, setDoc, getDoc, updateDoc, deleteDoc, arrayRemove } from "firebase/firestore";
+import { ref, deleteObject } from "firebase/storage";
 import { User, Listing } from "../types";
 import deleteListing from "../listing/deleteListing";
 import { logger } from "@/lib/monitoring/config";
+import { storage } from "@/lib/firebase/config";
+import { extractFilePath } from "@/lib/util";
 
 export async function addUser(user_id: string, user: User): Promise<string> {
   // create User in db if not exists
@@ -33,14 +36,23 @@ export async function getUser(user_id: string): Promise<User> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function updateUser(user_id: string, data: { [key: string]: any }): Promise<User> {
   // get user to check if it exists
-  await getUser(user_id);
+  const orig_user = await getUser(user_id);
+  if ('pfp' in data && orig_user.pfp && data['pfp'] != orig_user.pfp) {
+    const file_path = extractFilePath(orig_user.pfp);
+    const img_ref = ref(storage, file_path);
+    deleteObject(img_ref).then(() => {
+      logger.decrement('uploadedFiles');
+    }).catch(() => {
+      logger.warn(`Error deleting ${file_path}`);
+    });
+  }
 
   // set updated User in db
-  const ref = doc(db, "users", user_id);
-  await updateDoc(ref, Object.assign({}, data));
+  const user_ref = doc(db, "users", user_id);
+  await updateDoc(user_ref, Object.assign({}, data));
 
   // get updated User for return
-  const result = await getDoc(ref);
+  const result = await getDoc(user_ref);
   
   const user: User = result.data() as User;
   return user;
