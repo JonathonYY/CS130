@@ -191,14 +191,17 @@ const Slideshow = ({ images, timestamp, listingObj}) => {
                       }
                     `}
                   </style>
-
-                  <IconButton color="primary" onClick={expressInterest}>
+                  { 
+                    listingObj.owner != user.uid && 
+                    (<IconButton color="primary" onClick={expressInterest}>
                     <FavoriteIcon sx={{ 
                       fontSize: 25, 
                       animation: 'breathing 1.5s ease-in-out 5',
                       color: '#F44336'
                     }} />
-                  </IconButton>
+                    </IconButton>)
+                  }
+                  
                 </div>
 
                 <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleClose} anchorOrigin={{ vertical: "bottom", horizontal: "right" }} >
