@@ -12,9 +12,10 @@ import {
 
 interface AuthContextType {
   user: User | null | undefined;
-  token: string | null; // Add token to the context type
+  token: string | null;
   signInWithGoogle: () => void;
   signOutUser: () => void;
+  loading: boolean; // Add loading state
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,14 +24,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null | undefined>(undefined);
-  const [token, setToken] = useState<string | null>(null); // Add token state
+  const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true); // Initialize loading to true
 
   async function signInWithGoogle() {
     try {
       const result = await signInWithPopup(auth, provider);
-      setUser(result.user);
-      const idToken = await result.user.getIdToken();
-      setToken(idToken); // Set the token
+      //onAuthStateChanged will handle setting the user and token.
     } catch (error) {
       console.error("Google sign-in error:", error);
     }
@@ -39,8 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   function signOutUser() {
     signOut(auth)
       .then(() => {
-        setUser(null);
-        setToken(null); // Clear the token on sign-out
+        //onAuthStateChanged will handle the rest.
       })
       .catch((error) => {
         console.error("Sign-out error:", error);
@@ -53,24 +52,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (currentUser) {
         try {
           const idToken = await currentUser.getIdToken();
-          setToken(idToken); // Set the token
+          setToken(idToken);
         } catch (error) {
           console.error("Error getting token:", error);
           setToken(null);
         }
       } else {
-        setToken(null); // Clear the token when user is signed out
+        setToken(null);
       }
+      setLoading(false); // Set loading to false after initial check
     });
 
-    return () => unsubscribe(); // Cleanup subscription
+    return () => unsubscribe();
   }, []);
 
   const value: AuthContextType = {
     user,
-    token, // Include token in the context value
+    token,
     signInWithGoogle,
     signOutUser,
+    loading, // Include loading state
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
