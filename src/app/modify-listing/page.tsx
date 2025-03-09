@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
-import {useAuth} from "@/lib/authContext";
+import { useAuth } from "@/lib/authContext";
 import "../globals.css";
 import UpdateListingForm from "@/components/ItemUpdateForm"
 
@@ -36,7 +36,7 @@ const ModifyListing: React.FC = () => {
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const {user} = useAuth();
+  const { user, token } = useAuth();
 
   useEffect(() => {
     if (user === undefined) return; // Wait until user is determined
@@ -47,21 +47,30 @@ const ModifyListing: React.FC = () => {
   }, [user, router]);
 
   useEffect(() => {
+    if (!token) {
+      console.log("Unauthorized user");
+      setLoading(false);
+      setListing(null);
+      return;
+    }
     async function fetchListingById(listingId : string | null) {
-      const response = await fetch(`/api/listing/${listingId}`);
+      const response = await fetch(`/api/listing/${listingId}`, {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${token}`, },
+      });
       const { data, error } = await response.json();
       if (error) {
         console.log(error);
         setLoading(false);
         setListing(null);
       } else {
-        console.log("received listing:", data);
         setListing(data);
         setLoading(false);
       }
     }
     fetchListingById(id);
-  }, [id]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, user]);
 
   if (loading) {
     return <p>Loading...</p>;

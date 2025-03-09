@@ -28,6 +28,7 @@ const HomeGrid: React.FC<GridProps> = ({ query }) => {
   const [loading, setLoading] = useState(true);
 
   // Fetch all listings from the database, extract important info for cards
+  // This API does not require auth token
   const fetchAllListings = async () => {
     setLoading(true);
     const response = await fetch(query, {

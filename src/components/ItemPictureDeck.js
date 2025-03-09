@@ -5,7 +5,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
-import {useAuth} from "@/lib/authContext";
+import { useAuth } from "@/lib/authContext";
 
 const Slideshow = ({ images, timestamp, listingObj}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -19,8 +19,14 @@ const Slideshow = ({ images, timestamp, listingObj}) => {
   const nextImage = () => {
     setCurrentIndex((prev) => (prev === images.length - 1 ? images.length - 1 : prev + 1));
   };
-  const {user} = useAuth();
+  const { user, token } = useAuth();
   const expressInterest = async () => {
+    if (!token) {
+      setSeverity("error");
+      setSnackbarMessage("Unauthorized user!");
+      setSnackbarOpen(true);
+      return;
+    }
     let newPotentialBuyers = listingObj.potential_buyers;
     newPotentialBuyers.push(user.uid);
     const uniquePotentialBuyers = [...new Set(newPotentialBuyers)];
@@ -29,6 +35,7 @@ const Slideshow = ({ images, timestamp, listingObj}) => {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({ 
             potential_buyers: uniquePotentialBuyers

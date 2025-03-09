@@ -92,19 +92,23 @@ const Account: React.FC = () => {
     })
 
     // For authentication purposes
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { user, token, signInWithGoogle, signOutUser } = useAuth();
+    const { user, token, signOutUser } = useAuth();
     const accountURL = "/api/user/" + user?.uid;
 
 
     // Make get call to get user info
     const getUserInfo = async () => {
+        if (!token) {
+            return;
+        }
+
         if (accountURL === "/api/user/undefined") {
             return;
         }
 
         const response = await fetch(accountURL, {
             method: "GET",
+            headers: { "Authorization": `Bearer ${token}`, },
         });
 
         const { data, error } = await response.json();
@@ -138,6 +142,10 @@ const Account: React.FC = () => {
 
     // Create account for new user
     const createNewUser = async () => {
+        if (!token) {
+            return false;
+        }
+
         let first = "First";
         let last = "Last";
         if (typeof user?.displayName === 'string') {
@@ -153,7 +161,8 @@ const Account: React.FC = () => {
                 last: last,
                 email_address: user?.email
             }),
-            method: "POST"
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}`, },
         });
 
         const { data, error } = await response.json();
@@ -225,6 +234,10 @@ const Account: React.FC = () => {
 
     // Upload image
     const uploadImage = async () => {
+        if (!token) {
+            return "";
+        }
+
         const formData = new FormData();
         if (userPfpFile instanceof File) {
             console.log(userPfpFile);
@@ -232,6 +245,7 @@ const Account: React.FC = () => {
             const imgResponse = await fetch("/api/image", {
                 method: "POST",
                 body: formData,
+                headers: { "Authorization": `Bearer ${token}`, },
             });
     
             const { data, error } = await imgResponse.json();
@@ -256,6 +270,11 @@ const Account: React.FC = () => {
 
     // Handles updating the account
     const handleUpdate = async () => {
+        if (!token) {
+            setUpdateModalMessage("Unauthorized user!");
+            return;
+        }
+
         if (userData.first == "" || userData.last == "") {
             setUpdateModalMessage("Missing required fields!");
             handleOpenUpdate();
@@ -273,6 +292,7 @@ const Account: React.FC = () => {
                     phone_number: userData.phone
                 }),
                 method: "PATCH",
+                headers: { "Authorization": `Bearer ${token}`, },
             });
         } else {
             response = await fetch(accountURL, {
@@ -283,6 +303,7 @@ const Account: React.FC = () => {
                     phone_number: userData.phone
                 }),
                 method: "PATCH",
+                headers: { "Authorization": `Bearer ${token}`, },
             });
         }
 
@@ -306,8 +327,13 @@ const Account: React.FC = () => {
 
     // Deletes account
     async function deleteAccount() {
+        if (!token) {
+            console.log("Unauthorized user");
+            return;
+        }
         const response = await fetch(accountURL, {
             method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}`, },
         });
 
         const { data, error } = await response.json();

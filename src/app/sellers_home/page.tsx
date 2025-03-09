@@ -18,13 +18,11 @@ import React, { useState, useEffect } from "react";
 
 
 const SellersHome: React.FC = () => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const user_id = user?.uid;
 
   // States for informing users data is being fetched
   const [loading, setLoading] = useState(false);
-  //const [userData, setActiveUser] = useState<User>();
-  //const [productIds, setProductIds] = useState<string[]>([]);
   const [productListings, setProductListings] = useState<any[]>([]);
   const [interestedUsers, setInterestedUsers] = useState<Record<string, any[]>>({});
   const [selectedBuyers, setSelectedBuyers] = useState<Record<string, User | null>>({});
@@ -33,17 +31,20 @@ const SellersHome: React.FC = () => {
 
   // Fetch active user from the database
   async function fetchUser() {
-
+    if (!token) {
+      return;
+    }
     setLoading(true);
     try {
-      const response = await fetch(`/api/user/${user_id}`);
+      const response = await fetch(`/api/user/${user_id}`, {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${token}`, },
+      });
       const { data, error } = await response.json();
 
       if (error) {
         console.error("Error fetching user:", error);
       } else {
-        //setActiveUser(data); // Set user data
-        //setProductIds(data.active_listings || []); // Ensure it's an array
         fetchActiveListings(data.active_listings || []); // Fetch listings after setting them
       }
     } catch (err) {
@@ -55,10 +56,16 @@ const SellersHome: React.FC = () => {
 
   // Fetch active listings from database
   async function fetchActiveListings(listingIds: string[]) {
+    if (!token) {
+      return;
+    }
     try {
       const listingData = await Promise.all(
         listingIds.map(async (listing_id) => {
-          const listing_response = await fetch(`/api/listing/${listing_id}`);
+          const listing_response = await fetch(`/api/listing/${listing_id}`, {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}`, },
+          });
           const { data, error } = await listing_response.json();
 
           if (error) {
@@ -83,6 +90,9 @@ const SellersHome: React.FC = () => {
 
   // Fetch user info for potential buyers and map to listing ID
   async function fetchInterestedUsers(listings: any[]) {
+    if (!token) {
+      return;
+    }
     try {
       const interestedUsersMap: Record<string, User[]> = {};
 
@@ -95,7 +105,10 @@ const SellersHome: React.FC = () => {
 
           const users = await Promise.all(
             listing.potential_buyers.map(async (user_id: string) => {
-              const user_response = await fetch(`/api/user/${user_id}`);
+              const user_response = await fetch(`/api/user/${user_id}`, {
+                method: "GET",
+                headers: { "Authorization": `Bearer ${token}`, },
+              });
               const { data, error } = await user_response.json();
 
               if (error) {
@@ -115,6 +128,9 @@ const SellersHome: React.FC = () => {
     }
   }
   async function fetchSelectedBuyers(listings: any[]) {
+    if (!token) {
+      return;
+    }
     const selectedBuyersMap: Record<string, any | null> = {};
 
     try {
@@ -122,7 +138,10 @@ const SellersHome: React.FC = () => {
         listings.map(async (product) => {
           try {
             // Fetch listing data
-            const listingResponse = await fetch(`/api/listing/${product.id}`);
+            const listingResponse = await fetch(`/api/listing/${product.id}`, {
+              method: "GET",
+              headers: { "Authorization": `Bearer ${token}`, },
+            });
             const { data: listingData, error: listingError } = await listingResponse.json();
             if (listingError) {
               console.error('Error fetching listing', listingError);
@@ -133,7 +152,10 @@ const SellersHome: React.FC = () => {
             }
 
             // Fetch selected buyer's user data
-            const userResponse = await fetch(`/api/user/${listingData.selected_buyer}`);
+            const userResponse = await fetch(`/api/user/${listingData.selected_buyer}`, {
+              method: "GET",
+              headers: { "Authorization": `Bearer ${token}`, },
+            });
             const { data: userData, error: userError } = await userResponse.json();
 
             if (userError) {
@@ -184,16 +206,25 @@ const SellersHome: React.FC = () => {
   };
 
   const submitRating = async (listing_id: string, newRating: number): Promise<void> => {
+    if (!token) {
+      console.log("Unauthorized user");
+      return;
+    }
     try {
       const response = await fetch(`/api/listing/${listing_id}/rate`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ user_id: user_id, rating: newRating }),
       });
 
       const data = await response.json();
+      if (data.error) {
+        console.log(`Error when rating ${data.error}`);
+        return;
+      }
       setSnackbarMessage(`You have given a rating of ${newRating}`);
       setSnackbarOpen(true);
     } catch (error) {
@@ -334,7 +365,10 @@ const SellersHome: React.FC = () => {
                                 try {
                                   await fetch(`/api/listing/${selectedProduct}`, {
                                     method: 'PATCH',
-                                    headers: { "Content-Type": "application/json" },
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                      "Authorization": `Bearer ${token}`,
+                                    },
                                     body: JSON.stringify({ selected_buyer: user.id }),
                                   });
 
@@ -362,7 +396,10 @@ const SellersHome: React.FC = () => {
                                   // Send the PATCH request with the updated list
                                   await fetch(`/api/listing/${selectedProduct}`, {
                                     method: 'PATCH',
-                                    headers: { "Content-Type": "application/json" },
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                      "Authorization": `Bearer ${token}`,
+                                    },
                                     body: JSON.stringify({ potential_buyers: updatedBuyers }),
                                   });
 

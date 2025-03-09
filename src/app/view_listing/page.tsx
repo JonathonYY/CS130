@@ -6,7 +6,7 @@ import ReportButton from "@/components/ReportButton"
 
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
-import {useAuth} from "@/lib/authContext";
+import { useAuth } from "@/lib/authContext";
 
 interface ListingObject {
   id: string;
@@ -39,7 +39,7 @@ function getDateFromTimestamp(secs: number, nanos: number): string {
 }
 
 const Listing: React.FC = () => {
-  const {user} = useAuth();
+  const { user, token } = useAuth();
   const searchParams = useSearchParams();
   const id = searchParams.get("id"); // use this id to call backend function to get full item details
   const router = useRouter();
@@ -56,20 +56,29 @@ const Listing: React.FC = () => {
 
   useEffect(() => {
     async function fetchListingById(listingId : string | null) {
-      const response = await fetch(`/api/listing/${listingId}`);
+      if (!token) {
+        console.log("Unauthorized user");
+        setLoading(false);
+        setListing(null);
+        return;
+      }
+      const response = await fetch(`/api/listing/${listingId}`, {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${token}`, },
+      });
       const { data, error } = await response.json();
       if (error) {
         console.log(error);
         setLoading(false);
         setListing(null);
       } else {
-        console.log("received listing:", data);
         setListing(data);
         setLoading(false);
       }
     }
     fetchListingById(id);
-  }, [id]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, user]);
 
   if (loading) {
     return <p>Loading...</p>;

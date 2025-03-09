@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "@/lib/authContext";
 import { TextField, Button, Select, MenuItem, InputLabel, FormControl, Typography, Box, IconButton, Link } from "@mui/material";
 import { styled } from "@mui/system";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import OutlinedInput from '@mui/material/OutlinedInput';
-import {useAuth} from "@/lib/authContext";
 import {useRouter} from "next/navigation";
 
 const ImageUpload = styled("input")({
@@ -13,7 +13,7 @@ const ImageUpload = styled("input")({
 });
 
 const UpdateListingForm = (listingObj) => {
-  const {user} = useAuth();
+  const { user, token } = useAuth();
 
   const [title, setTitle] = useState(listingObj.listingObj.title);
   const [price, setPrice] = useState(listingObj.listingObj.price);
@@ -54,11 +54,18 @@ const UpdateListingForm = (listingObj) => {
   }, [isDeleted, router]);
 
   const handleDelete = async () => {
+    if (!token) {
+      setSnackbarMessage("Unauthorized user");
+      setSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
     try {
       const response = await fetch(`/api/listing/${listingObj.listingId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({ 
           user_id: user.uid
@@ -91,9 +98,14 @@ const UpdateListingForm = (listingObj) => {
     const formData = new FormData();
     formData.append("image", file); // 'image' is the field name on the backend
     try {
+      if (!token) {
+        throw new Error("Unauthorized user");
+      }
+
       const response = await fetch("/api/image", {
         method: "POST",
         body: formData,
+        headers: { "Authorization": `Bearer ${token}`,},
       });
 
       const { data, error } = await response.json();
@@ -109,11 +121,18 @@ const UpdateListingForm = (listingObj) => {
   };
 
   const handleSubmitListing = async () => {
+    if (!token) {
+      setSnackbarMessage("Unauthorized user");
+      setSeverity("error");
+      setSnackbarOpen(true);
+      setUploading(false);
+      setIsChanged(false);
+      return;
+    }
     setUploading(true);
     let imageUrls = [];
     for (let imgPair of images) {
       try {
-        
         let returnedUrl = await handleUpload(imgPair[1]);
         if (!returnedUrl) {
           returnedUrl = imgPair[0];
@@ -130,6 +149,7 @@ const UpdateListingForm = (listingObj) => {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({ 
           title: title,

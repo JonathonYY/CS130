@@ -1,21 +1,29 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { Button, Box } from "@mui/material";
 import FlagIcon from "@mui/icons-material/Flag";
-import {useAuth} from "@/lib/authContext";
+import { useAuth } from "@/lib/authContext";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 
 const ReportButton = (idObj) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const {user} = useAuth();
+  const { user, token } = useAuth();
   const [severity, setSeverity] = useState("info");
   const reportUser = async () => {
     try {
+      if (!token) {
+        setSeverity("error");
+        setSnackbarMessage("Unauthorized user");
+        setSnackbarOpen(true);
+        return;
+      }
+
       const response = await fetch(`/api/listing/${idObj.idObj}/report/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({ 
             user_id: user.uid

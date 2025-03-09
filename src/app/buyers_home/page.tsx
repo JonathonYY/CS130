@@ -24,7 +24,7 @@ function getDateFromTimestamp(secs: number, nanos: number): string {
 }
 
 const SellersHome: React.FC = () => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const user_id = user?.uid;
 
   // States for informing users data is being fetched
@@ -40,10 +40,16 @@ const SellersHome: React.FC = () => {
 
   // Fetch active user from the database
   async function fetchUser() {
+    if (!token) {
+      return;
+    }
     setUserId(user_id)
     setLoading(true);
     try {
-      const response = await fetch(`/api/user/${user_id}`);
+      const response = await fetch(`/api/user/${user_id}`, {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${token}`, },
+      });
       const { data, error } = await response.json();
 
       if (error) {
@@ -60,11 +66,17 @@ const SellersHome: React.FC = () => {
 
   // Fetch interested listings from database
   async function fetchInterestedListings(listingIds: string[]) {
+    if (!token) {
+      return null;
+    }
     try {
       const listingMap: Record<string, ListingWithID> = {};
       const listingData = await Promise.all(
         listingIds.map(async (listing_id) => {
-          const listing_response = await fetch(`/api/listing/${listing_id}`);
+          const listing_response = await fetch(`/api/listing/${listing_id}`, {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}`, },
+          });
           const { data, error } = await listing_response.json();
 
           if (error) {
@@ -89,13 +101,19 @@ const SellersHome: React.FC = () => {
 
   // Fetch user info for potential buyers and map to listing ID
   async function fetchListingOwners(listings: ListingWithID[]) {
+    if (!token) {
+      return;
+    }
     try {
       const listingOwnersMap: Record<string, User> = {};
 
       await Promise.all(
         listings.map(async (listing) => {
           const owner_id = listing.owner;
-          const user_response = await fetch(`/api/user/${owner_id}`);
+          const user_response = await fetch(`/api/user/${owner_id}`, {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}`, },
+          });
           const { data, error } = await user_response.json();
 
           if (error) {
@@ -154,7 +172,7 @@ const SellersHome: React.FC = () => {
 
   async function removeInterest(listing_id: string) {
     try {
-      if (!user_id) {
+      if (!user_id || !token) {
         return;
       }
       const potential_buyers = productMap[listing_id].potential_buyers;
@@ -169,6 +187,7 @@ const SellersHome: React.FC = () => {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({ potential_buyers: potential_buyers, selected_buyer: selected_buyer }),
       });
@@ -187,7 +206,6 @@ const SellersHome: React.FC = () => {
       router.push("/login");
       return;
     }
-    fetchUser();
     fetchUser();
   }, [user, user_id]);
 
@@ -209,19 +227,26 @@ const SellersHome: React.FC = () => {
     }
   };
 
-  // Simulate an API request to submit the rating
+  // API request to submit the rating
   const submitRating = async (listing_id: string, newRating: number): Promise<void> => {
+    if (!token) {
+      return;
+    }
     try {
       const response = await fetch(`/api/listing/${listing_id}/rate`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ user_id: user_id, rating: newRating }),
       });
 
       const data = await response.json();
-
+      if (data.error) {
+        console.log(`Error when rating ${data.error}`);
+        return;
+      }
       setSnackbarMessage(`You have given a rating of ${newRating}`);
       setSnackbarOpen(true);
     } catch (error) {

@@ -5,7 +5,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import OutlinedInput from '@mui/material/OutlinedInput';
-import {useAuth} from "@/lib/authContext";
+import { useAuth } from "@/lib/authContext";
 
 const ImageUpload = styled("input")({
   display: "none",
@@ -23,13 +23,12 @@ const CreateListingForm = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [severity, setSeverity] = useState("success");
-  const {user} = useAuth();
+  const { user, token } = useAuth();
 
   const handleImageUpload = (event) => {
     const files = Array.from(event.target.files);
     const newImages = files.map((file) => [URL.createObjectURL(file), file]);
     setImages((prevImages) => [...prevImages, ...newImages]);
-
   };
 
   const handleRemoveImage = (index) => {
@@ -43,6 +42,10 @@ const CreateListingForm = () => {
   const handleUpload = async (file) => {
     if (!file) return;
 
+    if (!token) {
+      return Promise.reject("Unauthorized user!");
+    }
+
     setUploading(true);
     const formData = new FormData();
     formData.append("image", file); // 'image' is the field name on the backend
@@ -51,6 +54,7 @@ const CreateListingForm = () => {
       const response = await fetch("/api/image", {
         method: "POST",
         body: formData,
+        headers: { "Authorization": `Bearer ${token}`, },
       });
 
       const { data, error } = await response.json();
@@ -74,6 +78,13 @@ const CreateListingForm = () => {
   };
 
   const handleSubmitListing = async () => {
+    if (!token) {
+      setSeverity("error");
+      setSnackbarMessage("Unauthorized user");
+      setSnackbarOpen(true);
+      setUploading(false);
+      return;
+    }
     let imageUrls = [];
     for (let imgPair of images) {
       try {
@@ -83,14 +94,13 @@ const CreateListingForm = () => {
       catch (error) {
         console.log("Image Upload Failed:", error);
       }
-      
     }
-    console.log("img urls:", imageUrls);
     try {
       const response = await fetch(`/api/listing/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({ 
             user_id : user.uid,
@@ -103,7 +113,6 @@ const CreateListingForm = () => {
         }),
       });
       const createResult = await response.json();
-      console.log(createResult.data.listing_id);
       setSeverity("success");
       setSnackbarMessage(
         <>
@@ -122,7 +131,6 @@ const CreateListingForm = () => {
     }
     setUploading(false);
     clearForm();
-    console.log("created listing:", { title, price, description, category, condition, imageUrls });
   };
 
   const isFormIncomplete = !title || !price || !description || !category || !condition || images.length === 0;
