@@ -345,7 +345,7 @@ const Account: React.FC = () => {
             console.log("Success");
             console.log(data);
         }
-
+        signOutUser();
         router.push("/");
     }
 
