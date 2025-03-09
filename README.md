@@ -40,7 +40,14 @@ It contains private configuration variables that can't be pushed onto GitHub,
 so you'll have to create it in order to run the project locally.
 It should be on the Notion in "The Backend" section.
 
+## Token Configuration
+
+## Token Configuration
+
+"For secure token authentication, ensure your Firebase Admin SDK credentials are correctly configured. Store the `firebase-admin-sdk.json` file in your project's root and add `GOOGLE_APPLICATION_CREDENTIALS="./firebase-admin-sdk.json"` to your `.env` file. The `.gitignore` should already be configured to prevent pushing both of these files to version control. The file can be found on the Discord.
+
 ## Testing
+
 We utilize [jest](https://jestjs.io/docs/getting-started) for mocking and [ts-jest](https://kulshekhar.github.io/ts-jest/docs/getting-started/installation) to support typescript with jest.
 
 Test files are named in the format of <src>.test.ts, and are co-located with the file they are testing. This means that, for example, each API route, route.ts, should have a route.test.ts file in the same directory.
