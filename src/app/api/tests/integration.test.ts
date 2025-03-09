@@ -10,9 +10,32 @@ import { ref, getDownloadURL } from "firebase/storage";
 import fs from "node:fs";
 
 const { storage } = jest.requireMock("@/lib/firebase/config");
+const { getUidFromAuthorizationHeader } = jest.requireMock("@/lib/util");
 
 jest.mock("@/lib/firebase/config", () => ({
   ...jest.requireActual("@/lib/firebase/config.mock")
+}));
+
+// At this stage, we mock out authentication tokens
+jest.mock("@/lib/util", () => ({
+  ...jest.requireActual("@/lib/util"),
+  getUidFromAuthorizationHeader: jest.fn((authorizationHeader) => {
+    if (!authorizationHeader) {
+      throw new Error("Unauthorized: Missing token");
+    }
+
+    const token = authorizationHeader.split("Bearer ")[1];
+    if (!token) {
+      throw new Error("Unauthorized: Invalid token format");
+    }
+
+    const uid = token.split("uid:")[1];
+    if (!uid) {
+      throw new Error("Unauthorized: Invalid token format");
+    }
+
+    return uid;
+  })
 }));
 
 async function clearFirestore() {
@@ -36,6 +59,7 @@ async function createUser(i: number) {
       'last': `test_last_${i}`,
       'email_address': `test_${i}@g.ucla.edu`,
     }),
+    headers:{ Authorization: `Bearer uid:test_user_id_${i}`, },
   });
   const res: NextResponse = await POST_user(req);
   const { data, error } = await res.json();
@@ -54,6 +78,7 @@ async function createListing(i: number, user_id: string) {
       'description': 'test_desc',
       'image_paths': [],
     }),
+    headers:{ Authorization: `Bearer uid:${user_id}`, },
   });
   const res: NextResponse = await POST_listing(req);
   const { data, error } = await res.json();
@@ -76,6 +101,7 @@ describe("Integration tests", () => {
     // check user is created
     const req1 = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res1: NextResponse = await GET_user(req1, { params: user_param_1 });
     const { data: data1, error: error1 } = await res1.json();
@@ -102,6 +128,7 @@ describe("Integration tests", () => {
         'pfp': 'pfp_patched',
         'phone_number': '123-456-7890'
       }),
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res2: NextResponse = await PATCH_user(req2, { params: user_param_1 });
     const { data: data2, error: error2 } = await res2.json();
@@ -122,6 +149,7 @@ describe("Integration tests", () => {
     // check user is updated
     const req3 = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res3: NextResponse = await GET_user(req3, { params: user_param_1 });
     const { data: data3, error: error3 } = await res3.json();
@@ -142,6 +170,7 @@ describe("Integration tests", () => {
     // delete user
     const req4 = new Request("http://localhost", {
       method: "DELETE",
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res4: NextResponse = await DELETE_user(req4, { params: user_param_1 });
     const { data: data4, error: error4 } = await res4.json();
@@ -151,6 +180,7 @@ describe("Integration tests", () => {
     // check user is deleted
     const req5 = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res5: NextResponse = await GET_user(req5, { params: user_param_1 });
     const { error: error5 } = await res5.json();
@@ -168,6 +198,7 @@ describe("Integration tests", () => {
     const fake_user_param = Promise.resolve({ user_id: "fake_user_id" });
     const req1 = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: 'Bearer uid:fake_user_id', },
     });
     const res1: NextResponse = await GET_user(req1, { params: fake_user_param });
     const { error: error1 } = await res1.json();
@@ -182,6 +213,7 @@ describe("Integration tests", () => {
         'pfp': 'pfp_patched',
         'phone_number': '123-456-7890'
       }),
+      headers:{ Authorization: 'Bearer uid:fake_user_id', },
     });
     const res2: NextResponse = await PATCH_user(req2, { params: fake_user_param });
     const { error: error2 } = await res2.json();
@@ -194,6 +226,7 @@ describe("Integration tests", () => {
         'first': 'test_first_patched',
         'bad_field': 'bad_field_value',
       }),
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res3: NextResponse = await PATCH_user(req3, { params: user_param_1 });
     const { error: error3 } = await res3.json();
@@ -202,6 +235,7 @@ describe("Integration tests", () => {
     // delete invalid user
     const req4 = new Request("http://localhost", {
       method: "DELETE",
+      headers:{ Authorization: 'Bearer uid:fake_user_id', },
     });
     const res4: NextResponse = await DELETE_user(req4, { params: fake_user_param });
     const { error: error4 } = await res4.json();
@@ -251,6 +285,7 @@ describe("Integration tests", () => {
     // get listings
     const req1 = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res1: NextResponse = await GET_listing(req1, { params: listing_param_1 });
     const { data: data1, error: error1 } = await res1.json();
@@ -273,6 +308,7 @@ describe("Integration tests", () => {
 
     const req2 = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res2: NextResponse = await GET_listing(req2, { params: listing_param_2 });
     const { data: data2, error: error2 } = await res2.json();
@@ -295,6 +331,7 @@ describe("Integration tests", () => {
 
     const req3 = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: `Bearer uid:${user_id_2}`, },
     });
     const res3: NextResponse = await GET_listing(req3, { params: listing_param_3 });
     const { data: data3, error: error3 } = await res3.json();
@@ -317,6 +354,7 @@ describe("Integration tests", () => {
 
     const req4 = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res4: NextResponse = await GET_user(req4, { params: user_param_1 });
     const { data: data4, error: error4 } = await res4.json();
@@ -333,6 +371,7 @@ describe("Integration tests", () => {
     const req5 = new Request("http://localhost", {
       method: "POST",
       body: form,
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res5: NextResponse = await POST_img(req5);
     const { data: data5, error: error5 } = await res5.json();
@@ -345,6 +384,7 @@ describe("Integration tests", () => {
       body: JSON.stringify({
         'image_paths': [img_path],
       }),
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res6: NextResponse = await PATCH_listing(req6, { params: listing_param_1 });
     const { data: data6, error: error6 } = await res6.json();
@@ -360,6 +400,7 @@ describe("Integration tests", () => {
         'potential_buyers': [user_id_2, user_id_3],
         'selected_buyer': user_id_2,
       }),
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res7: NextResponse = await PATCH_listing(req7, { params: listing_param_1 });
     const { data: data7, error: error7 } = await res7.json();
@@ -375,6 +416,7 @@ describe("Integration tests", () => {
       body: JSON.stringify({
         'potential_buyers': [user_id_2, user_id_4, user_id_5], // must pass in entire updated list
       }),
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res8: NextResponse = await PATCH_listing(req8, { params: listing_param_1 });
     const { data: data8, error: error8 } = await res8.json();
@@ -387,6 +429,7 @@ describe("Integration tests", () => {
     // check user interested_listings are updated
     const get_req = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: 'Bearer uid:user_id', },
     });
     const res9: NextResponse = await GET_user(get_req, { params: user_param_2 });
     const { data: data9, error: error9 } = await res9.json();
@@ -419,7 +462,8 @@ describe("Integration tests", () => {
       body: JSON.stringify({
         "user_id": user_id_2,
         "rating": 4.5,
-      })
+      }),
+      headers:{ Authorization: `Bearer uid:${user_id_2}`, },
     });
     const res12: NextResponse = await PATCH_rate(req12, { params: listing_param_1 });
     const { error: error12 } = await res12.json();
@@ -427,6 +471,7 @@ describe("Integration tests", () => {
 
     const req13 = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res13: NextResponse = await GET_user(req13, { params: user_param_1 });
     const { data: data13, error: error13 } = await res13.json();
@@ -440,7 +485,8 @@ describe("Integration tests", () => {
       body: JSON.stringify({
         "user_id": user_id_1,
         "rating": 3.5,
-      })
+      }),
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res14: NextResponse = await PATCH_rate(req14, { params: listing_param_1 });
     const { error: error14 } = await res14.json();
@@ -448,6 +494,7 @@ describe("Integration tests", () => {
 
     const req15 = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: `Bearer uid:${user_id_2}`, },
     });
     const res15: NextResponse = await GET_user(req15, { params: user_param_2 });
     const { data: data15, error: error15 } = await res15.json();
@@ -461,7 +508,8 @@ describe("Integration tests", () => {
       body: JSON.stringify({
         "user_id": user_id_1,
         "rating": 1,
-      })
+      }),
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res14a: NextResponse = await PATCH_rate(req14a, { params: listing_param_1 });
     const { error: error14a } = await res14a.json();
@@ -469,6 +517,7 @@ describe("Integration tests", () => {
 
     const req15a = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: `Bearer uid:${user_id_2}`, },
     });
     const res15a: NextResponse = await GET_user(req15a, { params: user_param_2 });
     const { data: data15a, error: error15a } = await res15a.json();
@@ -482,7 +531,8 @@ describe("Integration tests", () => {
       method: "PATCH",
       body: JSON.stringify({
         "user_id": user_id_2,
-      })
+      }),
+      headers:{ Authorization: `Bearer uid:${user_id_2}`, },
     });
     const res16: NextResponse = await PATCH_report(req16, { params: listing_param_2 });
     const { error: error16 } = await res16.json();
@@ -491,7 +541,8 @@ describe("Integration tests", () => {
       method: "PATCH",
       body: JSON.stringify({
         "user_id": user_id_3,
-      })
+      }),
+      headers:{ Authorization: `Bearer uid:${user_id_3}`, },
     });
     const res17: NextResponse = await PATCH_report(req17, { params: listing_param_2 });
     const { error: error17 } = await res17.json();
@@ -500,7 +551,8 @@ describe("Integration tests", () => {
       method: "PATCH",
       body: JSON.stringify({
         "user_id": user_id_4,
-      })
+      }),
+      headers:{ Authorization: `Bearer uid:${user_id_4}`, },
     });
     const res18: NextResponse = await PATCH_report(req18, { params: listing_param_2 });
     const { error: error18 } = await res18.json();
@@ -509,7 +561,8 @@ describe("Integration tests", () => {
       method: "PATCH",
       body: JSON.stringify({
         "user_id": user_id_5,
-      })
+      }),
+      headers:{ Authorization: `Bearer uid:${user_id_5}`, },
     });
     const res19: NextResponse = await PATCH_report(req19, { params: listing_param_2 });
     const { error: error19 } = await res19.json();
@@ -519,7 +572,8 @@ describe("Integration tests", () => {
       method: "PATCH",
       body: JSON.stringify({
         "user_id": user_id_6,
-      })
+      }),
+      headers:{ Authorization: `Bearer uid:${user_id_6}`, },
     });
     const res20: NextResponse = await PATCH_report(req20, { params: listing_param_2 });
     const { error: error20 } = await res20.json();
@@ -527,6 +581,7 @@ describe("Integration tests", () => {
 
     const req21 = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res21: NextResponse = await GET_listing(req21, { params: listing_param_2 });
     const { error: error21 } = await res21.json();
@@ -535,6 +590,7 @@ describe("Integration tests", () => {
     // delete selected user 2
     const req22 = new Request("http://localhost", {
       method: "DELETE",
+      headers:{ Authorization: `Bearer uid:${user_id_2}`, },
     });
     const res22: NextResponse = await DELETE_user(req22, { params: user_param_2 });
     const { data: data22, error: error22 } = await res22.json();
@@ -544,6 +600,7 @@ describe("Integration tests", () => {
     // check user removed from listing potential_buyers
     const req23 = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res23: NextResponse = await GET_listing(req23, { params: listing_param_1 });
     const { data: data23, error: error23 } = await res23.json();
@@ -556,6 +613,7 @@ describe("Integration tests", () => {
     // check user's active listings no longer exist
     const req24 = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res24: NextResponse = await GET_listing(req24, { params: listing_param_3 });
     const { error: error24 } = await res24.json();
@@ -566,7 +624,8 @@ describe("Integration tests", () => {
       method: "DELETE",
       body: JSON.stringify({
         "user_id": user_id_1,
-      })
+      }),
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res25: NextResponse = await DELETE_listing(req25, { params: listing_param_1 });
     const { error: error25 } = await res25.json();
@@ -574,6 +633,7 @@ describe("Integration tests", () => {
 
     const req26 = new Request("http://localhost", {
       method: "GET",
+      headers:{ Authorization: `Bearer uid:${user_id_1}`, },
     });
     const res26: NextResponse = await GET_listing(req26, { params: listing_param_1 });
     const { error: error26 } = await res26.json();

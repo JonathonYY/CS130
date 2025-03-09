@@ -3,6 +3,7 @@ import { POST } from "./route";
 
 const { db } = jest.requireMock("@/lib/firebase/config");
 const { setDoc } = jest.requireMock("firebase/firestore");
+const { getUidFromAuthorizationHeader } = jest.requireMock("@/lib/util");
 
 jest.mock("@/lib/firebase/config", () => ({
   db: {},
@@ -27,6 +28,11 @@ jest.mock("firebase/firestore", () => ({
     db[ref.table][ref.id] = ref;
   }),
 }));
+jest.mock("@/lib/util", () => ({
+  getUidFromAuthorizationHeader: jest.fn((authorizationHeader) => {
+    return authorizationHeader.split("Bearer ")[1];
+  })
+}));
 
 describe("User API", () => {
   beforeEach(() => {
@@ -44,6 +50,7 @@ describe("User API", () => {
         "last": "test_last",
         "email_address": "test@g.ucla.edu",
       }),
+      headers: { Authorization: "Bearer test_user_id"},
     });
 
     const response: NextResponse = await POST(mockReq);
@@ -65,11 +72,13 @@ describe("User API", () => {
         "user_id": "test_user_id",
         "last": "test_last",
       }),
+      headers: { Authorization: "Bearer test_user_id"},
     });
 
     const response: NextResponse = await POST(mockReq);
     const { error } = await response.json();
 
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
     expect(error).toBe("missing required fields");
   });
   it("should correctly handle POST request with when user already exists", async () => {
@@ -89,6 +98,7 @@ describe("User API", () => {
         "last": "test_last",
         "email_address": "test@g.ucla.edu",
       }),
+      headers: { Authorization: "Bearer test_user_id"},
     });
 
     const response: NextResponse = await POST(mockReq);
@@ -97,5 +107,6 @@ describe("User API", () => {
     expect(error).toBe(null);
     expect(data.user_id).toEqual("test_user_id");
     expect(setDoc).not.toHaveBeenCalled();
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
   });
 });

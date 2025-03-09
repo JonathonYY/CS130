@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { UpdateUserRequest } from "@/lib/firebase/firestore/types";
 import { getUser, updateUser, deleteUser } from "@/lib/firebase/firestore/user/userUtil";
 import { logger } from "@/lib/monitoring/config";
+import { getUidFromAuthorizationHeader } from "@/lib/util";
 
 /*
  * Get a User by id
@@ -22,6 +23,11 @@ export async function GET(
   try {
     // get URL parameter user_id
     const user_id: string = (await params).user_id;
+
+    // check for user token — user from auth session must exist
+    const authorizationHeader = req.headers.get("authorization");
+    await getUidFromAuthorizationHeader(authorizationHeader);
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user: { [key: string]: any } = await getUser(user_id);
     user.id = user_id;
@@ -69,6 +75,13 @@ export async function PATCH(
   try {
     // get URL parameter user_id
     const user_id: string = (await params).user_id;
+
+    // check for user token — user from auth session must exist
+    const authorizationHeader = req.headers.get("authorization");
+    const uid = await getUidFromAuthorizationHeader(authorizationHeader);
+    if (uid != user_id) {
+      throw new Error("Provided user_id must match authenticated user");
+    }
 
     // get updated user data from req body
     const data: UpdateUserRequest = await req.json();
@@ -124,6 +137,13 @@ export async function DELETE(
   try {
     // get URL parameter user_id
     const user_id: string = (await params).user_id;
+
+    // check for user token — user from auth session must exist
+    const authorizationHeader = req.headers.get("authorization");
+    const uid = await getUidFromAuthorizationHeader(authorizationHeader);
+    if (uid != user_id) {
+      throw new Error("Provided user_id must match authenticated user");
+    }
 
     const id: string = await deleteUser(user_id);
 

@@ -4,15 +4,20 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase/config";
 import { v4 as uuidv4 } from "uuid";
 import { logger } from "@/lib/monitoring/config";
+import { getUidFromAuthorizationHeader } from "@/lib/util";
 
 export async function POST(request: Request) {
   const start = performance.now();
   try {
+    // check for user token
+    const authorizationHeader = request.headers.get("authorization");
+    await getUidFromAuthorizationHeader(authorizationHeader);
+
     const formData = await request.formData();
     const image = formData.get("image") as File;
 
     if (!image) {
-      return NextResponse.json({ data: null, error: "No image provided" });
+      throw new Error("No image provided");
     }
 
     const bytes = await image.arrayBuffer();
@@ -27,9 +32,12 @@ export async function POST(request: Request) {
 
     logger.increment('uploadedFiles');
     return NextResponse.json({ data: url, error: null });
-  } catch (error) {
-    logger.error("Error uploading image to Firebase:", error);
+  } catch (e) {
+    logger.error("Error uploading image to Firebase:", e);
     logger.increment('POST_image_API_failure');
+    if (e instanceof Error) {
+      return NextResponse.json({ data: null, error: e.message });
+    }
     return NextResponse.json({ data: null, error: "Internal server error" });
   } finally {
     const end = performance.now();

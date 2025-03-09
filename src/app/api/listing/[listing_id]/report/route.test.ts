@@ -4,6 +4,7 @@ import * as deleteListing from "@/lib/firebase/firestore/listing/deleteListing";
 
 const { db } = jest.requireMock("@/lib/firebase/config");
 const { doc, updateDoc, arrayUnion, Timestamp } = jest.requireMock("firebase/firestore");
+const { getUidFromAuthorizationHeader } = jest.requireMock("@/lib/util");
 
 const deleteListingMock = jest.spyOn(deleteListing, "default").mockImplementation((
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -42,6 +43,26 @@ jest.mock('firebase/firestore', () => {
     }
   };
 });
+
+jest.mock("@/lib/util", () => ({
+  getUidFromAuthorizationHeader: jest.fn((authorizationHeader) => {
+    if (!authorizationHeader) {
+      throw new Error("Unauthorized: Missing token");
+    }
+
+    const token = authorizationHeader.split("Bearer ")[1];
+    if (!token) {
+      throw new Error("Unauthorized: Invalid token format");
+    }
+
+    const uid = token.split("uid:")[1];
+    if (!uid) {
+      throw new Error("Unauthorized: Invalid token format");
+    }
+
+    return uid;
+  })
+}));
 
 describe('Report listing PATCH function', () => {
   beforeEach(() => {
@@ -91,6 +112,7 @@ describe('Report listing PATCH function', () => {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer uid:user1',
       },
       body: JSON.stringify({ user_id: 'user1'}),
     });
@@ -103,6 +125,8 @@ describe('Report listing PATCH function', () => {
     // check for correct output
     expect(jsonResponse.data).toEqual({listing_id: 'listing1'});
     expect(jsonResponse.error).toBeNull();
+
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
 
     // check db accesses
     expect(doc.mock.calls[0][1]).toBe('listings');
@@ -122,6 +146,7 @@ describe('Report listing PATCH function', () => {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer uid:user1',
       },
       body: JSON.stringify({ user_id: 'user1'}),
     });
@@ -134,6 +159,8 @@ describe('Report listing PATCH function', () => {
     // check for correct output
     expect(jsonResponse.data).toEqual({listing_id: 'listing2'});
     expect(jsonResponse.error).toBeNull();
+
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
 
     // check db accesses
     expect(doc.mock.calls[0][1]).toBe('listings');
@@ -152,6 +179,7 @@ describe('Report listing PATCH function', () => {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer uid:user1',
       },
       body: JSON.stringify({ user_id: 'user1'}),
     });
@@ -165,8 +193,10 @@ describe('Report listing PATCH function', () => {
     expect(jsonResponse.data).toBeNull();
     expect(jsonResponse.error).toBe("Listing not found");
 
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
     // check no doc updates
-    expect(updateDoc).toHaveBeenCalledTimes(0);
+    expect(updateDoc).not.toHaveBeenCalled();
   });
 
   it('Error: no user provided', async () => {
@@ -175,6 +205,7 @@ describe('Report listing PATCH function', () => {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer uid:some_user',
       },
       body: JSON.stringify({}),
     });
@@ -186,10 +217,38 @@ describe('Report listing PATCH function', () => {
     const jsonResponse = await response.json();
     // check for correct output
     expect(jsonResponse.data).toBeNull();
-    expect(jsonResponse.error).toBe("User not provided");
+    expect(jsonResponse.error).toBe("Provided user_id must match authenticated user");
+
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
 
     // check no doc updates
-    expect(updateDoc).toHaveBeenCalledTimes(0);
+    expect(updateDoc).not.toHaveBeenCalled();
+  });
+
+  it('Error: provided user does not match authenticated user', async () => {
+    // Mock req object
+    const mockReq = new Request('http://localhost', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer uid:some_user',
+      },
+      body: JSON.stringify({ user_id: 'user1'}),
+    });
+    // Mock params as a promise
+    const mockParams = Promise.resolve({ listing_id: "listing1" });
+
+    const response: NextResponse = await PATCH(mockReq, { params: mockParams });
+
+    const jsonResponse = await response.json();
+    // check for correct output
+    expect(jsonResponse.data).toBeNull();
+    expect(jsonResponse.error).toBe("Provided user_id must match authenticated user");
+
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
+    // check no doc updates
+    expect(updateDoc).not.toHaveBeenCalled();
   });
 
   it('Error: missing user', async () => {
@@ -198,6 +257,7 @@ describe('Report listing PATCH function', () => {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer uid:invalid_user',
       },
       body: JSON.stringify({ user_id: 'invalid_user' }),
     });
@@ -211,8 +271,10 @@ describe('Report listing PATCH function', () => {
     expect(jsonResponse.data).toBeNull();
     expect(jsonResponse.error).toBe("User not found");
 
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
     // check no doc updates
-    expect(updateDoc).toHaveBeenCalledTimes(0);
+    expect(updateDoc).not.toHaveBeenCalled();
   });
 
   it('Error: repeat report', async () => {
@@ -221,6 +283,7 @@ describe('Report listing PATCH function', () => {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer uid:user1',
       },
       body: JSON.stringify({ user_id: 'user1'}),
     });
@@ -234,8 +297,10 @@ describe('Report listing PATCH function', () => {
     expect(jsonResponse.data).toBeNull();
     expect(jsonResponse.error).toBe("User already reported listing");
 
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
     // check no doc updates
-    expect(updateDoc).toHaveBeenCalledTimes(0);
+    expect(updateDoc).not.toHaveBeenCalled();
   });
 
   it('Error: too recent report', async () => {
@@ -244,6 +309,7 @@ describe('Report listing PATCH function', () => {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer uid:user2',
       },
       body: JSON.stringify({ user_id: 'user2'}),
     });
@@ -257,8 +323,10 @@ describe('Report listing PATCH function', () => {
     expect(jsonResponse.data).toBeNull();
     expect(jsonResponse.error).toBe("User must wait to report another listing");
 
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
     // check no doc updates
     expect(Timestamp.now).toHaveBeenCalled();
-    expect(updateDoc).toHaveBeenCalledTimes(0);
+    expect(updateDoc).not.toHaveBeenCalled();
   });
 });

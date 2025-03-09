@@ -4,6 +4,7 @@ import * as deleteListing from "@/lib/firebase/firestore/listing/deleteListing";
 
 const { db } = jest.requireMock("@/lib/firebase/config");
 const { getDoc, doc, updateDoc, serverTimestamp } = jest.requireMock("firebase/firestore");
+const { getUidFromAuthorizationHeader } = jest.requireMock("@/lib/util");
 
 const deleteListingMock = jest.spyOn(deleteListing, "default").mockImplementation(
   (listing_id: string, user_id: string) => {
@@ -36,6 +37,26 @@ jest.mock('firebase/firestore', () => {
         serverTimestamp: jest.fn(() => { return 'MOCK_TIME'; }),
     };
 });
+
+jest.mock("@/lib/util", () => ({
+    getUidFromAuthorizationHeader: jest.fn((authorizationHeader) => {
+        if (!authorizationHeader) {
+            throw new Error("Unauthorized: Missing token");
+        }
+
+        const token = authorizationHeader.split("Bearer ")[1];
+        if (!token) {
+            throw new Error("Unauthorized: Invalid token format");
+        }
+
+        const uid = token.split("uid:")[1];
+        if (!uid) {
+            throw new Error("Unauthorized: Invalid token format");
+        }
+
+        return uid;
+    })
+}));
 
 describe('Test GET listing', () => {
     beforeEach(() => {
@@ -104,8 +125,8 @@ describe('Test GET listing', () => {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': 'Bearer uid:uid',
             },
-            // body: JSON.stringify({ listing_id: 'user1' }),
         });
         // Mock params as a promise
         const mockParams = Promise.resolve({ listing_id: 'listing1' });
@@ -116,6 +137,8 @@ describe('Test GET listing', () => {
 
         expect(doc.mock.calls[0][1]).toBe('listings')
         expect(doc.mock.calls[0][2]).toBe('listing1')
+
+        expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
 
         // check for correct output
         expect(jsonResponse.data).toEqual({
@@ -143,6 +166,7 @@ describe('Test GET listing', () => {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': 'Bearer uid:uid',
             },
         });
         // Mock params as a promise
@@ -154,6 +178,8 @@ describe('Test GET listing', () => {
 
         expect(doc.mock.calls[0][1]).toBe('listings')
         expect(doc.mock.calls[0][2]).toBe('invalid_id')
+
+        expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
 
         // check for correct output
         expect(jsonResponse.data).toBeNull();
@@ -227,6 +253,7 @@ describe('Test PATCH listing', () => {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': 'Bearer uid:uid',
             },
             body: JSON.stringify({ title: 'new_title', potential_buyers: ['user1'] }),
         });
@@ -236,7 +263,6 @@ describe('Test PATCH listing', () => {
         const response: NextResponse = await PATCH(mockReq, { params: mockParams });
 
         const jsonResponse = await response.json();
-        // check for correct output
 
         expect(doc.mock.calls[0][1]).toBe('listings');
         expect(doc.mock.calls[0][2]).toBe('listing2');
@@ -244,6 +270,9 @@ describe('Test PATCH listing', () => {
         expect(updateDoc).toHaveBeenCalled();
         expect(serverTimestamp).toHaveBeenCalled();
 
+        expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
+        // check for correct output
         expect(jsonResponse.data).toEqual({
             'updated': 'MOCK_TIME',
             'title': 'NEW_TITLE',
@@ -272,6 +301,7 @@ describe('Test PATCH listing', () => {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': 'Bearer uid:uid',
             },
             body: JSON.stringify({ title: 'new_title' }),
         });
@@ -281,7 +311,6 @@ describe('Test PATCH listing', () => {
         const response: NextResponse = await PATCH(mockReq, { params: mockParams });
 
         const jsonResponse = await response.json();
-        // check for correct output
 
         expect(doc.mock.calls[0][1]).toBe('listings');
         expect(doc.mock.calls[0][2]).toBe('invalid_id');
@@ -289,6 +318,9 @@ describe('Test PATCH listing', () => {
         expect(updateDoc).not.toHaveBeenCalled();
         expect(serverTimestamp).not.toHaveBeenCalled();
 
+        expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
+        // check for correct output
         expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).toEqual('No listing exists for given id');
     });
@@ -299,6 +331,7 @@ describe('Test PATCH listing', () => {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': 'Bearer uid:uid',
             },
             body: JSON.stringify({ blah: 'blah' }),
         });
@@ -308,13 +341,15 @@ describe('Test PATCH listing', () => {
         const response: NextResponse = await PATCH(mockReq, { params: mockParams });
 
         const jsonResponse = await response.json();
-        // check for correct output
 
         expect(doc).not.toHaveBeenCalled();
         expect(getDoc).not.toHaveBeenCalled();
         expect(updateDoc).not.toHaveBeenCalled();
         expect(serverTimestamp).not.toHaveBeenCalled();
 
+        expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
+        // check for correct output
         expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).toEqual('invalid listing field');
     });
@@ -325,6 +360,7 @@ describe('Test PATCH listing', () => {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': 'Bearer uid:uid',
             },
             body: JSON.stringify({ price: -5 }),
         });
@@ -334,13 +370,15 @@ describe('Test PATCH listing', () => {
         const response: NextResponse = await PATCH(mockReq, { params: mockParams });
 
         const jsonResponse = await response.json();
-        // check for correct output
 
         expect(doc).not.toHaveBeenCalled();
         expect(getDoc).not.toHaveBeenCalled();
         expect(updateDoc).not.toHaveBeenCalled();
         expect(serverTimestamp).not.toHaveBeenCalled();
 
+        expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
+        // check for correct output
         expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).toEqual('price must be nonnegative');
     });
@@ -358,6 +396,7 @@ describe('Test listing DELETE API endpoint', () => {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer uid:valid_user',
       },
       body: JSON.stringify({ user_id: 'valid_user' }),
     });
@@ -370,6 +409,8 @@ describe('Test listing DELETE API endpoint', () => {
     expect(jsonResponse.data).toBeNull();
     expect(jsonResponse.error).toBe("Listing not found");
 
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
     expect(deleteListingMock.mock.calls[0][0]).toBe("invalid_listing");
     expect(deleteListingMock.mock.calls[0][1]).toBe("valid_user");
   });
@@ -380,6 +421,7 @@ describe('Test listing DELETE API endpoint', () => {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer uid:uid',
       },
       body: JSON.stringify({}),
     });
@@ -390,9 +432,35 @@ describe('Test listing DELETE API endpoint', () => {
     const jsonResponse = await response.json();
 
     expect(jsonResponse.data).toBeNull();
-    expect(jsonResponse.error).toBe("User not provided");
+    expect(jsonResponse.error).toBe("Provided user_id must match authenticated user");
 
-    expect(deleteListingMock).toHaveBeenCalledTimes(0);
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
+    expect(deleteListingMock).not.toHaveBeenCalled();
+  });
+
+  it('User provided does not match authenticated user', async () => {
+    // Mock req object
+    const mockReq = new Request('http://localhost', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer uid:uid',
+      },
+      body: JSON.stringify({user_id: 'other_user'}),
+    });
+    // Mock params as a promise
+    const mockParams = Promise.resolve({ listing_id: "invalid_listing" });
+
+    const response: NextResponse = await DELETE(mockReq, { params: mockParams });
+    const jsonResponse = await response.json();
+
+    expect(jsonResponse.data).toBeNull();
+    expect(jsonResponse.error).toBe("Provided user_id must match authenticated user");
+
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
+    expect(deleteListingMock).not.toHaveBeenCalled();
   });
 
   it('Unauthorized user', async () => {
@@ -401,6 +469,7 @@ describe('Test listing DELETE API endpoint', () => {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer uid:invalid_user',
       },
       body: JSON.stringify({ user_id: 'invalid_user' }),
     });
@@ -413,6 +482,8 @@ describe('Test listing DELETE API endpoint', () => {
     expect(jsonResponse.data).toBeNull();
     expect(jsonResponse.error).toBe("Unauthorized user");
 
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
     expect(deleteListingMock.mock.calls[0][0]).toBe("valid_listing");
     expect(deleteListingMock.mock.calls[0][1]).toBe("invalid_user");
   });
@@ -423,6 +494,7 @@ describe('Test listing DELETE API endpoint', () => {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer uid:valid_user',
       },
       body: JSON.stringify({ user_id: 'valid_user' }),
     });
@@ -434,6 +506,8 @@ describe('Test listing DELETE API endpoint', () => {
 
     expect(jsonResponse.data).toEqual({listing_id: "valid_listing"});
     expect(jsonResponse.error).toBeNull();
+
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
 
     expect(deleteListingMock.mock.calls[0][0]).toBe("valid_listing");
     expect(deleteListingMock.mock.calls[0][1]).toBe("valid_user");

@@ -4,6 +4,7 @@ import { getDoc, doc, updateDoc, arrayUnion, serverTimestamp, Timestamp } from "
 import { Listing, User } from "@/lib/firebase/firestore/types";
 import deleteListing from "@/lib/firebase/firestore/listing/deleteListing";
 import { logger } from "@/lib/monitoring/config";
+import { getUidFromAuthorizationHeader } from "@/lib/util";
 
 const time_threshold = 60000; // number of milliseconds required since last report attempt
 const removal_threshold = 5; // number of reports required to autodelete listing
@@ -30,6 +31,13 @@ export async function PATCH(
 
     // get reporter data from req body
     const {user_id} = await req.json();
+
+    // check for user token — user from auth session must exist
+    const authorizationHeader = req.headers.get("authorization");
+    const uid = await getUidFromAuthorizationHeader(authorizationHeader);
+    if (uid != user_id) {
+      throw new Error("Provided user_id must match authenticated user");
+    }
 
     if (user_id === undefined) {
       throw new Error("User not provided");

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { User, newUser, AddUserRequest } from "@/lib/firebase/firestore/types";
 import { addUser } from "@/lib/firebase/firestore/user/userUtil";
 import { logger } from "@/lib/monitoring/config";
+import { getUidFromAuthorizationHeader } from "@/lib/util";
 
 /*
  * Create new User
@@ -24,6 +25,13 @@ export async function POST(req: Request) {
     // get new user data from req body
     const data: AddUserRequest = await req.json();
     const { user_id, first, last, email_address } = data;
+
+    // check for user token — user from auth session must exist
+    const authorizationHeader = req.headers.get("authorization");
+    const uid = await getUidFromAuthorizationHeader(authorizationHeader);
+    if (uid != user_id) {
+      throw new Error("Provided user_id must match authenticated user");
+    }
 
     // validate input for required fields
     if (!first || !last || !email_address || !user_id) {

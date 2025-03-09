@@ -3,6 +3,7 @@ import { db } from "@/lib/firebase/config";
 import { getDoc, doc, updateDoc, increment, serverTimestamp } from "firebase/firestore";
 import { Listing, User } from "@/lib/firebase/firestore/types";
 import { logger } from "@/lib/monitoring/config";
+import { getUidFromAuthorizationHeader } from "@/lib/util";
 
 /*
  * Rate Listing by id
@@ -29,6 +30,13 @@ export async function PATCH(
 
     // get user and rating data from req body
     const { user_id, rating } = await req.json();
+
+    // check for user token — user from auth session must exist
+    const authorizationHeader = req.headers.get("authorization");
+    const uid = await getUidFromAuthorizationHeader(authorizationHeader);
+    if (uid != user_id) {
+      throw new Error("Provided user_id must match authenticated user");
+    }
 
     // check rating is provided and valid
     if (!rating || typeof rating !== 'number' || rating < 1 || rating > 5) {
