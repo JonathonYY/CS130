@@ -3,6 +3,7 @@ import { AddListingData } from "@/lib/firebase/firestore/types";
 import addListing from "@/lib/firebase/firestore/listing/addListing";
 import getAllListings from "@/lib/firebase/firestore/listing/getAllListings";
 import { logger } from "@/lib/monitoring/config";
+import { getUidFromAuthorizationHeader } from "@/lib/util";
 
 /*
  * Create new Listing
@@ -23,6 +24,10 @@ import { logger } from "@/lib/monitoring/config";
 export async function POST(req: Request) {
   const start = performance.now();
   try {
+    // check for user token — user from auth session must exist
+    const authorizationHeader = req.headers.get("authorization");
+    const uid = await getUidFromAuthorizationHeader(authorizationHeader);
+
     // get updated listing data from req body
     const data: AddListingData = await req.json();
 
@@ -49,6 +54,10 @@ export async function POST(req: Request) {
         throw new Error('missing listing field');
       }
     });
+
+    if (uid != data.user_id) {
+      throw new Error("Provided user_id must match authenticated user");
+    }
 
     // validate price is nonnegative
     if (data.price < 0) {

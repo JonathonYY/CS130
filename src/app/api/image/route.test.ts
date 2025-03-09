@@ -2,6 +2,8 @@ import { POST } from "./route";
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid"; // Import uuidv4
 
+const { getUidFromAuthorizationHeader } = jest.requireMock("@/lib/util");
+
 const { ref, uploadBytes, getDownloadURL } =
   jest.requireMock("firebase/storage");
 
@@ -23,6 +25,10 @@ jest.mock("uuid", () => ({
   v4: jest.fn(() => "mocked-uuid"), // Mock uuidv4
 }));
 
+jest.mock("@/lib/util", () => ({
+  getUidFromAuthorizationHeader: jest.fn()
+}));
+
 describe("/api/image", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -31,6 +37,14 @@ describe("/api/image", () => {
 
   it("should return an error if no image is provided", async () => {
     const mockRequest = {
+      headers: {
+        get: (name: string) => {
+          if (name.toLowerCase() === 'authorization') {
+            return 'Bearer dummy-token';
+          }
+          return null;
+        }
+      },
       formData: () => Promise.resolve(new FormData()),
     } as unknown as NextRequest;
 
@@ -41,10 +55,20 @@ describe("/api/image", () => {
     const { data, error } = await response.json();
     expect(data).toBe(null);
     expect(error).toBe("No image provided");
+
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
   });
 
   it("should return url to uploaded image with uuid prefix", async () => {
     const mockRequest = {
+      headers: {
+        get: (name: string) => {
+          if (name.toLowerCase() === 'authorization') {
+            return 'Bearer dummy-token';
+          }
+          return null;
+        }
+      },
       formData: () =>
         Promise.resolve({
           get: () => {
@@ -67,6 +91,7 @@ describe("/api/image", () => {
     expect(error).toBe(null);
 
     expect(uuidv4).toHaveBeenCalled(); // Check uuidv4 was called
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
 
     expect(ref.mock.calls[0]).toEqual([
       "STORAGE",

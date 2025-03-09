@@ -44,3 +44,6 @@ next-env.d.ts
 
 # logs
 *.log
+
+# firebase admin sdk
+firebase-admin-sdk.json

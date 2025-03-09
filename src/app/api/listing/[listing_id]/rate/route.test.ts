@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 const { db } = jest.requireMock("@/lib/firebase/config");
 const { getDoc, doc, updateDoc, increment, serverTimestamp } = jest.requireMock("firebase/firestore");
+const { getUidFromAuthorizationHeader } = jest.requireMock("@/lib/util");
 
 jest.mock('@/lib/firebase/config', () => ({
   db: {}
@@ -25,6 +26,26 @@ jest.mock('firebase/firestore', () => {
     serverTimestamp: jest.fn(() => { return "MOCK_TIME";}),
   };
 });
+
+jest.mock("@/lib/util", () => ({
+  getUidFromAuthorizationHeader: jest.fn((authorizationHeader) => {
+    if (!authorizationHeader) {
+      throw new Error("Unauthorized: Missing token");
+    }
+
+    const token = authorizationHeader.split("Bearer ")[1];
+    if (!token) {
+      throw new Error("Unauthorized: Invalid token format");
+    }
+
+    const uid = token.split("uid:")[1];
+    if (!uid) {
+      throw new Error("Unauthorized: Invalid token format");
+    }
+
+    return uid;
+  })
+}));
 
 describe('Rate listing PATCH function', () => {
   beforeEach(() => {
@@ -71,6 +92,7 @@ describe('Rate listing PATCH function', () => {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer uid:user1',
       },
       body: JSON.stringify({ user_id: 'user1', rating: 4 }),
     });
@@ -107,6 +129,7 @@ describe('Rate listing PATCH function', () => {
       method: 'PATCH',
       headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer uid:user1',
       },
       body: JSON.stringify({ user_id: 'user1', rating: 2 }),
     });
@@ -143,6 +166,7 @@ describe('Rate listing PATCH function', () => {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer uid:user2',
       },
       body: JSON.stringify({ user_id: 'user2', rating: 3 }),
     });
@@ -179,6 +203,7 @@ describe('Rate listing PATCH function', () => {
       method: 'PATCH',
       headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer uid:user2',
       },
       body: JSON.stringify({ user_id: 'user2', rating: 5 }),
     });
@@ -218,6 +243,7 @@ describe('Rate listing PATCH function', () => {
       method: 'PATCH',
       headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer uid:user2',
       },
       body: JSON.stringify({ user_id: 'user2' }),
     });
@@ -235,6 +261,7 @@ describe('Rate listing PATCH function', () => {
       method: 'PATCH',
       headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer uid:user2',
       },
       body: JSON.stringify({ user_id: 'user2', rating: '3' }),
     });
@@ -252,6 +279,7 @@ describe('Rate listing PATCH function', () => {
       method: 'PATCH',
       headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer uid:user2',
       },
       body: JSON.stringify({ user_id: 'user2', rating: 0 }),
     });
@@ -269,6 +297,7 @@ describe('Rate listing PATCH function', () => {
       method: 'PATCH',
       headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer uid:user2',
       },
       body: JSON.stringify({ user_id: 'user2', rating: 6 }),
     });
@@ -282,11 +311,13 @@ describe('Rate listing PATCH function', () => {
     expect(jsonResponse4.error).toBe('Must provide a rating between 1 and 5');
 
     // confirm none of the mocked firebase functions are reached
-    expect(getDoc).toHaveBeenCalledTimes(0);
-    expect(doc).toHaveBeenCalledTimes(0);
-    expect(updateDoc).toHaveBeenCalledTimes(0);
-    expect(increment).toHaveBeenCalledTimes(0);
-    expect(serverTimestamp).toHaveBeenCalledTimes(0);
+    expect(getDoc).not.toHaveBeenCalled();
+    expect(doc).not.toHaveBeenCalled();
+    expect(updateDoc).not.toHaveBeenCalled();
+    expect(increment).not.toHaveBeenCalled();
+    expect(serverTimestamp).not.toHaveBeenCalled();
+
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalledTimes(4);
   });
 
   it('Error: missing listing', async () => {
@@ -298,6 +329,7 @@ describe('Rate listing PATCH function', () => {
       method: 'PATCH',
       headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer uid:user2',
       },
       body: JSON.stringify({ user_id: 'user2', rating: 3 }),
     });
@@ -306,6 +338,8 @@ describe('Rate listing PATCH function', () => {
 
     const jsonResponse = await response.json();
 
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
     // check for correct output
     expect(jsonResponse.data).toBeNull();
     expect(jsonResponse.error).toBe('Listing not found');
@@ -313,9 +347,9 @@ describe('Rate listing PATCH function', () => {
     // confirm update is not reached
     expect(getDoc).toHaveBeenCalledTimes(1);
     expect(doc).toHaveBeenCalledTimes(1);
-    expect(updateDoc).toHaveBeenCalledTimes(0);
-    expect(increment).toHaveBeenCalledTimes(0);
-    expect(serverTimestamp).toHaveBeenCalledTimes(0);
+    expect(updateDoc).not.toHaveBeenCalled();
+    expect(increment).not.toHaveBeenCalled();
+    expect(serverTimestamp).not.toHaveBeenCalled();
   });
 
   it('Error: user not provided', async () => {
@@ -327,6 +361,7 @@ describe('Rate listing PATCH function', () => {
       method: 'PATCH',
       headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer uid:some_user',
       },
       body: JSON.stringify({ rating: 3 }),
     });
@@ -335,16 +370,18 @@ describe('Rate listing PATCH function', () => {
 
     const jsonResponse = await response.json();
 
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
     // check for correct output
     expect(jsonResponse.data).toBeNull();
-    expect(jsonResponse.error).toBe('User not provided');
+    expect(jsonResponse.error).toBe('Provided user_id must match authenticated user');
 
     // confirm update is not reached
-    expect(getDoc).toHaveBeenCalledTimes(0);
-    expect(doc).toHaveBeenCalledTimes(0);
-    expect(updateDoc).toHaveBeenCalledTimes(0);
-    expect(increment).toHaveBeenCalledTimes(0);
-    expect(serverTimestamp).toHaveBeenCalledTimes(0);
+    expect(getDoc).not.toHaveBeenCalled();
+    expect(doc).not.toHaveBeenCalled();
+    expect(updateDoc).not.toHaveBeenCalled();
+    expect(increment).not.toHaveBeenCalled();
+    expect(serverTimestamp).not.toHaveBeenCalled();
   });
 
   it('Error: unauthorized user', async () => {
@@ -356,6 +393,7 @@ describe('Rate listing PATCH function', () => {
       method: 'PATCH',
       headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer uid:invalid_user',
       },
       body: JSON.stringify({ user_id: 'invalid_user', rating: 3 }),
     });
@@ -364,6 +402,8 @@ describe('Rate listing PATCH function', () => {
 
     const jsonResponse = await response.json();
 
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
     // check for correct output
     expect(jsonResponse.data).toBeNull();
     expect(jsonResponse.error).toBe('User cannot rate this listing');
@@ -371,9 +411,41 @@ describe('Rate listing PATCH function', () => {
     // confirm update is not reached
     expect(getDoc).toHaveBeenCalledTimes(1);
     expect(doc).toHaveBeenCalledTimes(1);
-    expect(updateDoc).toHaveBeenCalledTimes(0);
-    expect(increment).toHaveBeenCalledTimes(0);
-    expect(serverTimestamp).toHaveBeenCalledTimes(0);
+    expect(updateDoc).not.toHaveBeenCalled();
+    expect(increment).not.toHaveBeenCalled();
+    expect(serverTimestamp).not.toHaveBeenCalled();
+  });
+
+  it('Error: unauthorized caller', async () => {
+    // Mock params as a promise
+    const mockParams = Promise.resolve({ listing_id: "listing1" });
+
+    // Mock req object
+    const mockReq = new Request('http://localhost', {
+      method: 'PATCH',
+      headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer uid:user2',
+      },
+      body: JSON.stringify({ user_id: 'user1', rating: 3 }),
+    });
+
+    const response: NextResponse = await PATCH(mockReq, { params: mockParams });
+
+    const jsonResponse = await response.json();
+
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+
+    // check for correct output
+    expect(jsonResponse.data).toBeNull();
+    expect(jsonResponse.error).toBe('Provided user_id must match authenticated user');
+
+    // confirm update is not reached
+    expect(getDoc).not.toHaveBeenCalled();
+    expect(doc).not.toHaveBeenCalled();
+    expect(updateDoc).not.toHaveBeenCalled();
+    expect(increment).not.toHaveBeenCalled();
+    expect(serverTimestamp).not.toHaveBeenCalled();
   });
 
   it('Error: missing rated user', async () => {
@@ -385,6 +457,7 @@ describe('Rate listing PATCH function', () => {
       method: 'PATCH',
       headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer uid:invalid_buyer',
       },
       body: JSON.stringify({ user_id: 'invalid_buyer', rating: 3 }),
     });
@@ -392,6 +465,8 @@ describe('Rate listing PATCH function', () => {
     const response1: NextResponse = await PATCH(mockReq1, { params: mockParams });
 
     const jsonResponse1 = await response1.json();
+
+    expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
 
     // check for correct output
     expect(jsonResponse1.data).toBeNull();
@@ -402,6 +477,7 @@ describe('Rate listing PATCH function', () => {
       method: 'PATCH',
       headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer uid:invalid_seller',
       },
       body: JSON.stringify({ user_id: 'invalid_seller', rating: 3 }),
     });
@@ -417,8 +493,8 @@ describe('Rate listing PATCH function', () => {
     // confirm update is not reached
     expect(getDoc).toHaveBeenCalledTimes(4);
     expect(doc).toHaveBeenCalledTimes(4);
-    expect(updateDoc).toHaveBeenCalledTimes(0);
-    expect(increment).toHaveBeenCalledTimes(0);
-    expect(serverTimestamp).toHaveBeenCalledTimes(0);
+    expect(updateDoc).not.toHaveBeenCalled();
+    expect(increment).not.toHaveBeenCalled();
+    expect(serverTimestamp).not.toHaveBeenCalled();
   });
 });

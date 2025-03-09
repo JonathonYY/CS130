@@ -4,6 +4,7 @@ import { PatchListingData } from "@/lib/firebase/firestore/types";
 import getListing from "@/lib/firebase/firestore/listing/getListing";
 import patchListing from "@/lib/firebase/firestore/listing/patchListing"
 import { logger } from "@/lib/monitoring/config";
+import { getUidFromAuthorizationHeader } from "@/lib/util";
 
 /*
  * Get a Listing by id
@@ -22,6 +23,10 @@ export async function GET(
 ) {
   const start = performance.now();
   try {
+    // check for user token — user from auth session must exist
+    const authorizationHeader = req.headers.get("authorization");
+    await getUidFromAuthorizationHeader(authorizationHeader);
+
     // get URL parameter listing_id
     const listing_id: string = (await params).listing_id;
 
@@ -64,6 +69,10 @@ export async function PATCH(
 ) {
   const start = performance.now();
   try {
+    // check for user token — user from auth session must exist
+    const authorizationHeader = req.headers.get("authorization");
+    await getUidFromAuthorizationHeader(authorizationHeader);
+
     // get URL parameter listing_id
     const listing_id = (await params).listing_id;
 
@@ -137,6 +146,13 @@ export async function DELETE(
 
     // get user id from req body
     const {user_id} = await req.json();
+
+    // check for user token — user from auth session must exist
+    const authorizationHeader = req.headers.get("authorization");
+    const uid = await getUidFromAuthorizationHeader(authorizationHeader);
+    if (uid != user_id) {
+      throw new Error("Provided user_id must match authenticated user");
+    }
 
     if (user_id === undefined) {
       throw new Error("User not provided");

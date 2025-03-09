@@ -6,6 +6,7 @@ import { NextResponse } from 'next/server';
 
 const { db } = jest.requireMock('@/lib/firebase/config');
 const { doc, getDoc, addDoc } = jest.requireMock('firebase/firestore');
+const { getUidFromAuthorizationHeader } = jest.requireMock("@/lib/util");
 
 const getAllListingsMock = jest.spyOn(getAllListings, "default").mockImplementation();
 
@@ -39,6 +40,26 @@ jest.mock('firebase/firestore', () => {
         serverTimestamp: jest.fn(() => { return 'MOCK_TIME'; }),
     };
 });
+
+jest.mock("@/lib/util", () => ({
+    getUidFromAuthorizationHeader: jest.fn((authorizationHeader) => {
+        if (!authorizationHeader) {
+            throw new Error("Unauthorized: Missing token");
+        }
+
+        const token = authorizationHeader.split("Bearer ")[1];
+        if (!token) {
+            throw new Error("Unauthorized: Invalid token format");
+        }
+
+        const uid = token.split("uid:")[1];
+        if (!uid) {
+            throw new Error("Unauthorized: Invalid token format");
+        }
+
+        return uid;
+    })
+}));
 
 describe('Test GET all listings API endpoint', () => {
   beforeEach(() => {
@@ -151,6 +172,7 @@ describe('Test POST listing', () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': 'Bearer uid:user1',
             },
             body: JSON.stringify({
                 'user_id': 'user1',
@@ -197,6 +219,7 @@ describe('Test POST listing', () => {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': 'Bearer uid:user1',
             }
         });
         const mockParams = Promise.resolve(jsonResponse.data);
@@ -221,6 +244,8 @@ describe('Test POST listing', () => {
             'image_paths': [], 
         })
         expect(jsonResponse2.error).toBeNull();
+
+        expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
     });
 
     it('POST with invalid user_id', async () => {
@@ -229,6 +254,7 @@ describe('Test POST listing', () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': 'Bearer uid:user_invalid',
             },
             body: JSON.stringify({
                 'user_id': 'user_invalid',
@@ -252,6 +278,8 @@ describe('Test POST listing', () => {
         // check for correct output
         expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).toEqual('No user exists for given id');
+
+        expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
     });
 
     it('POST with missing field', async () => {
@@ -260,6 +288,7 @@ describe('Test POST listing', () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': 'Bearer uid:user1',
             },
             body: JSON.stringify({
                 'user_id': 'user1',
@@ -281,6 +310,8 @@ describe('Test POST listing', () => {
         // check for correct output
         expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).toEqual('missing listing field');
+
+        expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
     });
 
     it('POST with extra invalid field', async () => {
@@ -289,6 +320,7 @@ describe('Test POST listing', () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': 'Bearer uid:user1',
             },
             body: JSON.stringify({
                 'user_id': 'user1',
@@ -312,6 +344,8 @@ describe('Test POST listing', () => {
         // check for correct output
         expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).toEqual('invalid listing field');
+
+        expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
     });
 
     it('POST with negative price', async () => {
@@ -320,6 +354,7 @@ describe('Test POST listing', () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': 'Bearer uid:user1',
             },
             body: JSON.stringify({
                 'user_id': 'user1',
@@ -342,5 +377,36 @@ describe('Test POST listing', () => {
         // check for correct output
         expect(jsonResponse.data).toBeNull();
         expect(jsonResponse.error).toEqual('price must be nonnegative');
+
+        expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
+    });
+
+    it('POST with unauthorized user_id', async () => {
+        // Mock req object
+        const mockReq = new Request('http://localhost', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer uid:other_user',
+            },
+            body: JSON.stringify({
+                'user_id': 'user1',
+                'title': 'newlist',
+                'price': 100,
+                'condition': 'new',
+                'category': 'fish',
+                'description': 'asdf',
+                'image_paths': [],
+            }),
+        });
+        const response: NextResponse = await POST(mockReq);
+
+        const jsonResponse = await response.json();
+
+        // check for correct output
+        expect(jsonResponse.data).toBeNull();
+        expect(jsonResponse.error).toEqual('Provided user_id must match authenticated user');
+
+        expect(getUidFromAuthorizationHeader).toHaveBeenCalled();
     });
 });
