@@ -4,7 +4,7 @@ import * as deleteListing from "@/lib/firebase/firestore/listing/deleteListing";
 
 const { db } = jest.requireMock("@/lib/firebase/config");
 const { getDoc, doc, updateDoc, serverTimestamp } = jest.requireMock("firebase/firestore");
-const { getUidFromAuthorizationHeader } = jest.requireMock("@/lib/util");
+const { getUidFromAuthorizationHeader } = jest.requireMock("@/app/api/util");
 
 const deleteListingMock = jest.spyOn(deleteListing, "default").mockImplementation(
   (listing_id: string, user_id: string) => {
@@ -38,7 +38,7 @@ jest.mock('firebase/firestore', () => {
     };
 });
 
-jest.mock("@/lib/util", () => ({
+jest.mock("@/app/api/util", () => ({
     getUidFromAuthorizationHeader: jest.fn((authorizationHeader) => {
         if (!authorizationHeader) {
             throw new Error("Unauthorized: Missing token");

@@ -3,7 +3,7 @@ import { AddListingData } from "@/lib/firebase/firestore/types";
 import addListing from "@/lib/firebase/firestore/listing/addListing";
 import getAllListings from "@/lib/firebase/firestore/listing/getAllListings";
 import { logger } from "@/lib/monitoring/config";
-import { getUidFromAuthorizationHeader } from "@/lib/util";
+import { getUidFromAuthorizationHeader } from "../util";
 
 /*
  * Create new Listing

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { User, newUser, AddUserRequest } from "@/lib/firebase/firestore/types";
 import { addUser } from "@/lib/firebase/firestore/user/userUtil";
 import { logger } from "@/lib/monitoring/config";
-import { getUidFromAuthorizationHeader } from "@/lib/util";
+import { getUidFromAuthorizationHeader } from "../util";
 
 /*
  * Create new User

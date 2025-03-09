@@ -10,15 +10,14 @@ import { ref, getDownloadURL } from "firebase/storage";
 import fs from "node:fs";
 
 const { storage } = jest.requireMock("@/lib/firebase/config");
-const { getUidFromAuthorizationHeader } = jest.requireMock("@/lib/util");
+const { getUidFromAuthorizationHeader } = jest.requireMock("@/app/api/util");
 
 jest.mock("@/lib/firebase/config", () => ({
   ...jest.requireActual("@/lib/firebase/config.mock")
 }));
 
 // At this stage, we mock out authentication tokens
-jest.mock("@/lib/util", () => ({
-  ...jest.requireActual("@/lib/util"),
+jest.mock("@/app/api/util", () => ({
   getUidFromAuthorizationHeader: jest.fn((authorizationHeader) => {
     if (!authorizationHeader) {
       throw new Error("Unauthorized: Missing token");

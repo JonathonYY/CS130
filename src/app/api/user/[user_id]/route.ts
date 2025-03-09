@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { UpdateUserRequest } from "@/lib/firebase/firestore/types";
 import { getUser, updateUser, deleteUser } from "@/lib/firebase/firestore/user/userUtil";
 import { logger } from "@/lib/monitoring/config";
-import { getUidFromAuthorizationHeader } from "@/lib/util";
+import { getUidFromAuthorizationHeader } from "../../util";
 
 /*
  * Get a User by id

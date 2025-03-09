@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 const { db } = jest.requireMock("@/lib/firebase/config");
 const { getDoc, doc, updateDoc, increment, serverTimestamp } = jest.requireMock("firebase/firestore");
-const { getUidFromAuthorizationHeader } = jest.requireMock("@/lib/util");
+const { getUidFromAuthorizationHeader } = jest.requireMock("@/app/api/util");
 
 jest.mock('@/lib/firebase/config', () => ({
   db: {}
@@ -27,7 +27,7 @@ jest.mock('firebase/firestore', () => {
   };
 });
 
-jest.mock("@/lib/util", () => ({
+jest.mock("@/app/api/util", () => ({
   getUidFromAuthorizationHeader: jest.fn((authorizationHeader) => {
     if (!authorizationHeader) {
       throw new Error("Unauthorized: Missing token");

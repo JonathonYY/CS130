@@ -4,7 +4,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase/config";
 import { v4 as uuidv4 } from "uuid";
 import { logger } from "@/lib/monitoring/config";
-import { getUidFromAuthorizationHeader } from "@/lib/util";
+import { getUidFromAuthorizationHeader } from "../util";
 
 export async function POST(request: Request) {
   const start = performance.now();

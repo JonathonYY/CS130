@@ -2,7 +2,7 @@ import { POST } from "./route";
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid"; // Import uuidv4
 
-const { getUidFromAuthorizationHeader } = jest.requireMock("@/lib/util");
+const { getUidFromAuthorizationHeader } = jest.requireMock("@/app/api/util");
 
 const { ref, uploadBytes, getDownloadURL } =
   jest.requireMock("firebase/storage");
@@ -25,7 +25,7 @@ jest.mock("uuid", () => ({
   v4: jest.fn(() => "mocked-uuid"), // Mock uuidv4
 }));
 
-jest.mock("@/lib/util", () => ({
+jest.mock("@/app/api/util", () => ({
   getUidFromAuthorizationHeader: jest.fn()
 }));
 

@@ -3,7 +3,7 @@ import { db } from "@/lib/firebase/config";
 import { getDoc, doc, updateDoc, increment, serverTimestamp } from "firebase/firestore";
 import { Listing, User } from "@/lib/firebase/firestore/types";
 import { logger } from "@/lib/monitoring/config";
-import { getUidFromAuthorizationHeader } from "@/lib/util";
+import { getUidFromAuthorizationHeader } from "../../../util";
 
 /*
  * Rate Listing by id

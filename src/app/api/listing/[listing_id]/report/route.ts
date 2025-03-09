@@ -4,7 +4,7 @@ import { getDoc, doc, updateDoc, arrayUnion, serverTimestamp, Timestamp } from "
 import { Listing, User } from "@/lib/firebase/firestore/types";
 import deleteListing from "@/lib/firebase/firestore/listing/deleteListing";
 import { logger } from "@/lib/monitoring/config";
-import { getUidFromAuthorizationHeader } from "@/lib/util";
+import { getUidFromAuthorizationHeader } from "../../../util";
 
 const time_threshold = 60000; // number of milliseconds required since last report attempt
 const removal_threshold = 5; // number of reports required to autodelete listing

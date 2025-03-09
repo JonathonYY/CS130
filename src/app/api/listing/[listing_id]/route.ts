@@ -4,7 +4,7 @@ import { PatchListingData } from "@/lib/firebase/firestore/types";
 import getListing from "@/lib/firebase/firestore/listing/getListing";
 import patchListing from "@/lib/firebase/firestore/listing/patchListing"
 import { logger } from "@/lib/monitoring/config";
-import { getUidFromAuthorizationHeader } from "@/lib/util";
+import { getUidFromAuthorizationHeader } from "../../util";
 
 /*
  * Get a Listing by id
