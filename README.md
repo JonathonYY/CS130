@@ -68,11 +68,13 @@ Additionally, integration tests are executed with the help of Firebase Emulator,
 
 ## Directory Structure
 
-- `src/app/`: Contains the Next.js application source code (pages use file-based routing)
+- `src/app/`: Contains the Next.js application source code
   - `/page.tsx`: The main page of the application.
-  - `/components/`: Reusable React components.
-  - `/lib/`: Utility functions, Firebase initialization functions, and Auth Context initialization.
+  - `/layout.tsx`: Specifies the layout of the application
   - `/api/`: Next.js API routes for backend functionality (which uses file-based routing)
   - `globals.css`: Global CSS styles.
+  - `*/page.tsx`: Defines the page for each route (pages use file-based routing)
+- `src/components/`: Reusable React components.
+- `src/lib/`: Utility functions, Firebase initialization functions, and Auth Context initialization.
 - `public/`: Static assets (images)
 - `.gitignore`: Specifies files to ignore in Git version control.
