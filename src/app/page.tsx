@@ -8,7 +8,7 @@ export default function Entry() {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 1250 || window.innerHeight < 900);
+      setIsSmallScreen(window.innerWidth < 1000 || window.innerHeight < 700);
     };
 
     // Initial check
