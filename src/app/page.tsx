@@ -8,7 +8,7 @@ export default function Entry() {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 1000 || window.innerHeight < 500);
+      setIsSmallScreen(window.innerWidth < 1250 || window.innerHeight < 900);
     };
 
     // Initial check
@@ -29,7 +29,7 @@ export default function Entry() {
           textAlign: "center",
         }}
       >
-        <div className="absolute w-[1000px] h-[500px] bg-gray-300"></div>
+        <div className="absolute w-[1250px] h-[900px] bg-gray-300"></div>
         <span className="z-10 w-96">
           For the best experience, please increase the screen size until it
           encompasses this grey box. You may then refresh the page. If you would
