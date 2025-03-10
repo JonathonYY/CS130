@@ -274,7 +274,7 @@ const SellersHome: React.FC = () => {
         {/* Left Panel: Products */}
         <div className="w-1/3 bg-white shadow-lg rounded-lg flex flex-col relative">
           <h2 className="text-lg font-semibold p-4 border-b text-black">Your Products</h2>
-          <div className="overflow-y-scroll overflow-x-hidden flex-1" style={{ maxHeight: "calc(100vh - 150px)" }}>
+          <div className="overflow-y-scroll overflow-x-hidden flex-1" style={{ maxHeight: "calc(100vh - 75px)" }}>
             <List>
               {productListings.map((product) => (
                 <ListItem
@@ -296,7 +296,7 @@ const SellersHome: React.FC = () => {
             </List>
           </div>
           <hr className="border-gray-300 my-2" />
-          <div className="p-2 bg-white sticky flex-1" style={{ maxHeight: "75px" }}>
+          <div className="p-2 bg-white sticky bottom-0 flex-1" style={{ maxHeight: "75px" }}>
             <ListItem
               component="button"
               onClick={() => router.push("/create_listing")}
@@ -344,7 +344,7 @@ const SellersHome: React.FC = () => {
             </>
           ) : (<>
             <h2 className="text-lg font-semibold p-4 border-b text-black">Interested Users</h2>
-            <div className="overflow-y-scroll overflow-x-hidden flex-1" style={{ maxHeight: "calc(100vh - 150px)" }}>
+            <div className="overflow-y-scroll overflow-x-hidden flex-1" style={{ maxHeight: "calc(100vh - 75px)" }}>
               {selectedProduct && interestedUsers[selectedProduct] && interestedUsers[selectedProduct].length != 0 ? (
                 <List>
                   {interestedUsers[selectedProduct].map((user) => (
@@ -429,12 +429,12 @@ const SellersHome: React.FC = () => {
             </div>
           </>)}
           {/* <hr className="border-gray-300 my-2" /> */}
-          <div className="p-2 bg-white sticky flex-1" style={{ maxHeight: "75px" }}>
+          <div className="p-2 bg-white sticky bottom-0 flex-1" style={{ maxHeight: "75px" }}>
             {selectedProduct ? (
               <ListItem
                 component="button"
                 onClick={() => router.push(`/modify-listing?id=${selectedProduct}`)}
-                className="hover:bg-gray-200 mx-2 flex items-center"
+                className="hover:bg-gray-200 mx-2 flex bottom-0 items-center"
               >
                 <ListItemAvatar>
                   <Avatar>
