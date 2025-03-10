@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useAuth } from "@/lib/authContext";
 import "../globals.css";
-import UpdateListingForm from "@/components/ItemUpdateForm"
+import UpdateListingForm from "@/components/ItemUpdateForm";
 
 interface Listing {
   id: string;
@@ -17,7 +17,7 @@ interface Listing {
   owner: string;
   owner_name: string;
   owner_pfp: string;
-  potential_buyers: string[]; 
+  potential_buyers: string[];
   selected_buyer: string;
   seller_rating: number;
   updated: Timestamp;
@@ -28,8 +28,7 @@ interface Timestamp {
   nanoseconds: number;
 }
 
-
-const ModifyListing: React.FC = () => {
+const ModifyListingContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -53,10 +52,10 @@ const ModifyListing: React.FC = () => {
       setListing(null);
       return;
     }
-    async function fetchListingById(listingId : string | null) {
+    async function fetchListingById(listingId: string | null) {
       const response = await fetch(`/api/listing/${listingId}`, {
         method: "GET",
-        headers: { "Authorization": `Bearer ${token}`, },
+        headers: { Authorization: `Bearer ${token}` },
       });
       const { data, error } = await response.json();
       if (error) {
@@ -69,7 +68,7 @@ const ModifyListing: React.FC = () => {
       }
     }
     fetchListingById(id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, user]);
 
   if (loading) {
@@ -97,8 +96,16 @@ const ModifyListing: React.FC = () => {
       </div>
       <hr />
 
-      <UpdateListingForm listingId={id} listingObj={listing}/>
+      <UpdateListingForm listingId={id} listingObj={listing} />
     </div>
+  );
+};
+
+const ModifyListing: React.FC = () => {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <ModifyListingContent />
+    </Suspense>
   );
 };
 

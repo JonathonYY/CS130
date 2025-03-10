@@ -5,7 +5,7 @@ import PriceTag from "@/components/PriceTag";
 import ReportButton from "@/components/ReportButton";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useAuth } from "@/lib/authContext";
 
 interface ListingObject {
@@ -46,7 +46,7 @@ function getDateFromTimestamp(secs: number, nanos: number): string {
   return `${formatDate} at ${formatTime}`;
 }
 
-const Listing: React.FC = () => {
+const ListingContent: React.FC = () => {
   const { user, token } = useAuth();
   const searchParams = useSearchParams();
   const id = searchParams.get("id"); // use this id to call backend function to get full item details
@@ -129,6 +129,14 @@ const Listing: React.FC = () => {
         ></Slideshow>
       </div>
     </div>
+  );
+};
+
+const Listing: React.FC = () => {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <ListingContent />
+    </Suspense>
   );
 };
 
